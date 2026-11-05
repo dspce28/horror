@@ -274,7 +274,8 @@ body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
 #gate .gate-name input:focus { outline: none; border-bottom-color: #ff3b3b; }
 #gate .gate-name label { text-align: center; }
 #games { padding-block: 70px 30px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.gcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.gcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .gcards { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) { .gcards { grid-template-columns: minmax(0, 1fr); } }
 .gcard { position: relative; overflow: hidden; border: 1px solid rgba(200,20,30,.35); border-radius: 12px; background: #000; color: var(--bone); text-align: left; padding: 0; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; }
 .gcard img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; transition: opacity .4s, transform 1.2s; }
@@ -331,6 +332,37 @@ footer { position: relative; overflow: hidden; }
 .bigmark { font-family: var(--f-display); font-size: 24vw; line-height: 1; margin: 0 0 10px; color: transparent; -webkit-text-stroke: 1px rgba(200,24,34,.55); background: linear-gradient(to top, #8e0a14 var(--fill, 0%), rgba(0,0,0,0) var(--fill, 0%)); -webkit-background-clip: text; background-clip: text; white-space: nowrap; }
 #g1ghost { height: 13%; transform: translate(-50%, -50%); -webkit-mask-image: radial-gradient(circle, #000 40%, transparent 68%); mask-image: radial-gradient(circle, #000 40%, transparent 68%); filter: brightness(.9) grayscale(.3); }
 #g2face { top: 0; left: 50%; width: min(64vw, 46vh); transform: translate(-50%, -80%); opacity: 1; filter: grayscale(.4) brightness(.9); -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+
+/* ---------- round 7: bridges, fades, games ---------- */
+.scene .stage::after { content: ""; position: absolute; inset: 0; z-index: 11; background: #000; opacity: var(--fo, 0); pointer-events: none; }
+.bridge .stage { background: #000; display: grid; place-items: center; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+.bline { margin: 0; max-width: 24ch; text-align: center; font-family: var(--f-display); font-size: clamp(26px, 4.6vw, 52px); line-height: 1.3; color: var(--bone); text-wrap: balance; position: relative; z-index: 2; }
+html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700; }
+.bline .w { display: inline-block; opacity: .06; filter: blur(6px); transform: translateY(8px); transition: opacity .5s, filter .5s, transform .5s; margin-right: .26em; }
+.bline .w.on { opacity: 1; filter: none; transform: none; }
+.bcandle { position: absolute; left: 50%; bottom: 14svh; width: 160px; height: 160px; transform: translateX(-50%); background: radial-gradient(circle at 50% 62%, rgba(255,150,60,.28), transparent 60%); animation: walk 1.1s ease-in-out infinite; }
+.bcandle .fl { position: absolute; left: 50%; top: 40%; width: 12px; height: 26px; margin-left: -6px; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%; background: radial-gradient(ellipse at 50% 80%, #fffbe0 0%, #ffd34d 30%, #ff7a1a 60%, rgba(255,80,0,0) 74%); animation: flick 1.2s infinite; }
+@keyframes walk { 0%, 100% { transform: translate(-50%, 0) rotate(-2deg); } 50% { transform: translate(-48%, -8px) rotate(2deg); } }
+.gstop { background: #000; min-height: 100svh; display: grid; place-items: center; padding-block: 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); text-align: center; }
+.gsw { align-items: center; }
+.gstop .kicker { font-family: var(--f-display); font-size: clamp(34px, 6vw, 64px); letter-spacing: .02em; text-transform: none; color: #e0222e; }
+.gsdesc { color: var(--bone); font-size: 18px; max-width: 46ch; margin: 0 auto; }
+.gres { color: var(--smoke); min-height: 1.4em; margin: 0; }
+.cardslit { position: absolute; left: 50%; top: 10%; bottom: 10%; width: 14px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(255,190,110,.75), transparent); box-shadow: 0 0 40px rgba(255,160,80,.35); }
+#g1decoys .decoy { position: absolute; display: flex; gap: 14px; cursor: pointer; padding: 10px; transform: translate(-50%, -50%); }
+#g1decoys .decoy i { width: 9px; height: 5px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 10px 2px rgba(255,30,30,.6); animation: eyeBlink 2s infinite; }
+.gpen { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-family: var(--f-display); font-size: 44px; color: #ff3b3b; opacity: 0; pointer-events: none; transition: opacity .3s, transform .6s; }
+.gpen.on { opacity: 1; transform: translate(-50%, -110%); }
+#g3 { background: #000; }
+.slit { position: absolute; left: 50%; top: 12svh; height: 62svh; width: clamp(26px, 5vw, 46px); transform: translateX(-50%); overflow: hidden; background: linear-gradient(90deg, rgba(0,0,0,0), rgba(255,196,120,.85) 35%, rgba(255,220,160,.95) 50%, rgba(255,196,120,.85) 65%, rgba(0,0,0,0)); box-shadow: 0 0 60px rgba(255,170,90,.3); }
+.shade { position: absolute; inset: -10% -200%; background: radial-gradient(ellipse 30% 60% at 50% 45%, rgba(0,0,0,.97), rgba(0,0,0,.6) 60%, transparent 80%); transform: translateX(-120%); }
+.peye { position: absolute; left: 50%; top: 34%; width: 80%; aspect-ratio: 2 / 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle at 50% 50%, #120404 0 22%, #6b1a12 23% 30%, #e8dccb 31% 62%, transparent 64%); opacity: 0; transition: opacity .25s; }
+.peye.on { opacity: 1; }
+.breath { position: absolute; left: 50%; top: calc(12svh + 62svh + 18px); width: min(260px, 60vw); height: 6px; transform: translateX(-50%); background: rgba(255,255,255,.1); }
+.breath i { display: block; height: 100%; background: #9fd0ff; transform-origin: left; }
+.holdbtn { position: absolute; left: 50%; bottom: calc(5svh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: 132px; height: 132px; border-radius: 50%; border: 1px solid rgba(200,20,30,.8); background: rgba(120,6,14,.25); color: var(--bone); font-family: var(--f-display); font-size: 15px; padding: 14px; touch-action: none; -webkit-user-select: none; user-select: none; }
+.holdbtn.on { background: rgba(200,20,30,.55); box-shadow: 0 0 40px rgba(220,30,40,.6); }
+@media (prefers-reduced-motion: reduce) { .bcandle { animation: none; } }
 </style>
 </head>
 <body>
@@ -394,6 +426,8 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br1" style="--len:150vh"><div class="stage"><p class="bline" data-t="b1"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 1. THE THRESHOLD -->
   <section class="scene" id="s-thresh" style="--len:300vh">
     <div class="stage">
@@ -406,6 +440,8 @@ footer { position: relative; overflow: hidden; }
       </div>
     </div>
   </section>
+
+  <section class="scene bridge" id="br2" style="--len:150vh"><div class="stage"><p class="bline" data-t="b2"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 2. THE ROOF -->
   <section class="scene" id="s-hero" style="--len:300vh">
@@ -422,6 +458,8 @@ footer { position: relative; overflow: hidden; }
       </div>
     </div>
   </section>
+
+  <section class="scene bridge" id="br3" style="--len:150vh"><div class="stage"><p class="bline" data-t="b3"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 2. CROSSROADS -->
   <section class="scene" id="s-cross" style="--len:420vh">
@@ -462,6 +500,8 @@ footer { position: relative; overflow: hidden; }
 
   <div class="strip" aria-hidden="true"><div class="track"></div></div>
 
+  <section class="scene bridge" id="br4" style="--len:150vh"><div class="stage"><p class="bline" data-t="b4"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 3. PEEPAL -->
   <section class="scene" id="s-tree" style="--len:330vh">
     <div class="stage">
@@ -492,6 +532,12 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br5" style="--len:150vh"><div class="stage"><p class="bline" data-t="b5"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
+  <section class="gstop" id="gs-find"><div class="wrap gsw"><div class="kicker" data-t="g1_title"></div><p class="gsdesc" data-t="g1_desc"></p><div class="btns"><button class="btn" type="button" data-play="1" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-1"></p></div></section>
+
+  <section class="scene bridge" id="br6" style="--len:150vh"><div class="stage"><p class="bline" data-t="b6"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 3b. YOUR NAME -->
   <section class="scene" id="s-name" style="--len:320vh">
     <div class="stage" id="nameStage">
@@ -517,6 +563,8 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br7" style="--len:150vh"><div class="stage"><p class="bline" data-t="b7"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 3c. MIRROR -->
   <section class="scene" id="s-mirror" style="--len:320vh">
     <div class="stage" id="mirrorStage">
@@ -541,6 +589,12 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br8" style="--len:150vh"><div class="stage"><p class="bline" data-t="b8"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
+  <section class="gstop" id="gs-hide"><div class="wrap gsw"><div class="kicker" data-t="g3_title"></div><p class="gsdesc" data-t="g3_desc"></p><div class="btns"><button class="btn" type="button" data-play="3" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-3"></p></div></section>
+
+  <section class="scene bridge" id="br9" style="--len:150vh"><div class="stage"><p class="bline" data-t="b9"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 7. UNDER THE BED -->
   <section class="scene" id="s-doll" style="--len:320vh">
     <div class="stage">
@@ -556,6 +610,8 @@ footer { position: relative; overflow: hidden; }
 
   <div class="strip" aria-hidden="true"><div class="track"></div></div>
 
+  <section class="scene bridge" id="br10" style="--len:150vh"><div class="stage"><p class="bline" data-t="b10"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 8. NEXT DOOR -->
   <section class="scene" id="s-build" style="--len:340vh">
     <div class="stage">
@@ -569,6 +625,8 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br11" style="--len:150vh"><div class="stage"><p class="bline" data-t="b11"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 9. THE WELL -->
   <section class="scene" id="s-well" style="--len:320vh">
     <div class="stage">
@@ -581,6 +639,8 @@ footer { position: relative; overflow: hidden; }
       </div>
     </div>
   </section>
+
+  <section class="scene bridge" id="br12" style="--len:150vh"><div class="stage"><p class="bline" data-t="b12"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 4. BACKWARD FEET -->
   <section class="scene" id="s-feet" style="--len:340vh">
@@ -608,6 +668,8 @@ footer { position: relative; overflow: hidden; }
 
   <div class="strip" aria-hidden="true"><div class="track"></div></div>
 
+  <section class="scene bridge" id="br13" style="--len:150vh"><div class="stage"><p class="bline" data-t="b13"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
   <!-- 11. THE NEXT MORNING -->
   <section class="scene" id="s-office" style="--len:300vh">
     <div class="stage">
@@ -620,6 +682,8 @@ footer { position: relative; overflow: hidden; }
       </div>
     </div>
   </section>
+
+  <section class="scene bridge" id="br14" style="--len:150vh"><div class="stage"><p class="bline" data-t="b14"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 1b. THE FACE -->
   <section class="scene" id="s-face" style="--len:230vh">
@@ -664,6 +728,10 @@ footer { position: relative; overflow: hidden; }
     </div>
   </section>
 
+  <section class="scene bridge" id="br15" style="--len:150vh"><div class="stage"><p class="bline" data-t="b15"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
+  <section class="gstop" id="gs-save"><div class="wrap gsw"><div class="kicker" data-t="g2_title"></div><p class="gsdesc" data-t="g2_desc"></p><div class="btns"><button class="btn" type="button" data-play="2" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-2"></p></div></section>
+
   <!-- 5. SCARE -->
   <section class="scene" id="s-scare" style="--len:120vh">
     <div class="stage">
@@ -687,6 +755,7 @@ footer { position: relative; overflow: hidden; }
       <h2 data-t="games_title"></h2>
       <div class="gcards">
         <button class="gcard" type="button" id="g1open"><img src="assets/art/g1bg.webp" alt=""><span class="gt" data-t="g1_title"></span><span class="gd" data-t="g1_desc"></span><span class="gp" data-t="g1_play"></span></button>
+        <button class="gcard" type="button" id="g3open"><span class="cardslit" aria-hidden="true"></span><span class="gt" data-t="g3_title"></span><span class="gd" data-t="g3_desc"></span><span class="gp" data-t="g_play"></span></button>
         <button class="gcard" type="button" id="g2open"><img src="assets/art/g2hang.webp" alt="" style="object-position:50% 70%"><span class="gt" data-t="g2_title"></span><span class="gd" data-t="g2_desc"></span><span class="gp" data-t="g2_play"></span></button>
       </div>
     </div>
@@ -744,11 +813,17 @@ footer { position: relative; overflow: hidden; }
   <div class="gpane" id="g1" hidden>
     <div class="photo" style="--ar:1408/768"><img class="base" src="assets/art/g1bg.webp" alt=""><img id="g1ghost" src="assets/art/g1face.webp" alt="Her" draggable="false"></div>
     <div class="gdark" id="g1dark"></div>
+    <div id="g1decoys"></div><div class="gpen" id="gpen"></div>
   </div>
   <div class="gpane" id="g2" hidden>
     <img id="g2face" src="assets/art/g2hang.webp" alt="" draggable="false">
     <div class="g2bar"><i id="g2bar"></i></div>
     <button type="button" id="g2diya" aria-label="Diya"><svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/></svg><span class="fl"></span></button>
+  </div>
+  <div class="gpane" id="g3" hidden>
+    <div class="slit"><div class="shade" id="g3shade"></div><div class="peye" id="g3eye"><i></i></div></div>
+    <div class="breath"><i id="g3breath"></i></div>
+    <button type="button" class="holdbtn" id="g3hold"></button>
   </div>
   <div class="ghud"><span id="ghint"></span><span id="gtime"></span></div>
   <div class="gend" id="gend" hidden><div><p id="gmsg"></p><div class="btns"><button class="btn" type="button" id="gagain"></button><button class="btn ghost" type="button" id="gclose"></button></div></div></div>
@@ -968,6 +1043,24 @@ footer { position: relative; overflow: hidden; }
       chapters: ['ઉંબરો', 'અગાશી', 'ચાર રસ્તા', 'પીપળો', 'પાછલી ગલી', 'નાનીનો ઓરડો', 'પલંગ નીચે', 'બાજુનું મકાન', 'કૂવો', 'પાછા ફરતાં', 'બીજી સવારે', 'એ અહીં છે'] }
   };
   Object.keys(STORY).forEach((k) => Object.assign(T[k], STORY[k]));
+  const BR = {
+    en: { b1: 'The doors close behind you. At the inner door, someone has been drawing on the floor.', b2: 'You step around it. Above you, anklets. You follow them up the stairs to the roof.', b3: 'From the roof you can see the crossroads behind the haveli. There is a plate in the middle of the road.', b4: 'Whoever took the offering walked back into the courtyard. Straight to the peepal.', b5: 'She dropped from the branch and vanished into the dark. She is still in the courtyard. Find her before she finds you.', b6: 'You run for the back gate. The lane behind the haveli is empty. Then someone calls you.', b7: 'You don’t turn around. You go back inside, to nani’s room, and lock the door.', b8: 'The glass breaks. Footsteps outside the door. Hide in nani’s almirah. Don’t breathe.', b9: 'She is gone. When you climb out, your foot hits something under the bed.', b10: 'You carry it to the window. Next door, in the half-built building, someone is watching.', b11: 'She raises one arm and points down. At the old well between the two buildings.', b12: 'You run. Behind you, wet footsteps.', b13: 'You made it out. You don’t remember getting home.', b14: 'That night, at home, the lights go out.', b15: 'She is inside. Your phone’s light is dying. Light the diya. Keep it burning.',
+      g_play: 'Play', g_skip: 'Skip →', g_found: 'Found {n}/3',
+      g1_desc: 'She hides in the dark courtyard. Find her three times in 20 seconds. The red eyes are not her.', g2_desc: 'She is coming down. Tap the diya to keep the flame alive for 25 seconds. Watch for the wind.',
+      g3_title: 'Hide and seek', g3_desc: 'Hold the button to hold your breath when she comes close. Let go when she leaves. If your breath runs out, she hears you. Survive three times.', g3_hold: 'Hold to hold your breath', g3_win: 'She walked away. She will come back.', g3_lose: 'She heard you breathing.', g3_round: 'She is near. {n}/3',
+      games_kicker: 'The games', games_title: 'Play them again' },
+    hi: { b1: 'दरवाज़े आपके पीछे बंद हो जाते हैं। अंदर के दरवाज़े पर किसी ने ज़मीन पर कुछ बनाया है।', b2: 'आप उससे बचकर निकलते हैं। ऊपर से पायल की आवाज़ आती है। आप सीढ़ियाँ चढ़कर छत पर पहुँचते हैं।', b3: 'छत से हवेली के पीछे का चौराहा दिखता है। सड़क के बीच में एक थाली रखी है।', b4: 'जिसने वड़े उठाए, वह वापस आँगन में चली गई। सीधे पीपल के पास।', b5: 'वह डाल से गिरी और अँधेरे में गायब हो गई। वह अभी भी आँगन में है। इससे पहले कि वह आपको ढूँढे, उसे ढूँढिए।', b6: 'आप पिछले दरवाज़े की तरफ़ भागते हैं। हवेली के पीछे की गली सूनी है। तभी कोई आपको पुकारता है।', b7: 'आप पलटते नहीं। अंदर जाकर नानी के कमरे में घुसते हैं और दरवाज़ा बंद कर लेते हैं।', b8: 'शीशा टूट जाता है। दरवाज़े के बाहर कदमों की आवाज़। नानी की अलमारी में छिप जाइए। साँस मत लेना।', b9: 'वह चली गई। बाहर निकलते समय आपका पैर पलंग के नीचे किसी चीज़ से टकराता है।', b10: 'आप उसे खिड़की तक ले जाते हैं। बगल की अधूरी इमारत में कोई देख रहा है।', b11: 'वह एक हाथ उठाकर नीचे इशारा करती है। दोनों इमारतों के बीच पुराने कुएँ की तरफ़।', b12: 'आप भागते हैं। पीछे से गीले कदमों की आवाज़।', b13: 'आप बाहर निकल आए। आपको याद नहीं कि घर कैसे पहुँचे।', b14: 'उस रात घर पर बत्ती चली जाती है।', b15: 'वह अंदर आ गई है। फ़ोन की रोशनी बुझ रही है। दीया जलाइए। उसे जलता रखिए।',
+      g_play: 'खेलें', g_skip: 'छोड़ें →', g_found: 'मिली {n}/3',
+      g1_desc: 'वह अँधेरे आँगन में छिपी है। 20 सेकंड में उसे तीन बार ढूँढिए। लाल आँखें वह नहीं है।', g2_desc: 'वह नीचे उतर रही है। 25 सेकंड तक लौ जलाए रखने के लिए दीये पर टैप करते रहिए। हवा से सावधान।',
+      g3_title: 'लुका-छिपी', g3_desc: 'जब वह पास आए, साँस रोकने के लिए बटन दबाकर रखिए। जब वह चली जाए, छोड़ दीजिए। साँस खत्म हुई तो वह सुन लेगी। तीन बार बचिए।', g3_hold: 'साँस रोकने के लिए दबाकर रखिए', g3_win: 'वह चली गई। वह फिर आएगी।', g3_lose: 'उसने आपकी साँस सुन ली।', g3_round: 'वह पास है। {n}/3',
+      games_kicker: 'खेल', games_title: 'फिर से खेलिए' },
+    gu: { b1: 'દરવાજા તમારી પાછળ બંધ થઈ જાય છે. અંદરના દરવાજે કોઈએ જમીન પર કંઈક દોર્યું છે.', b2: 'તમે એનાથી બચીને નીકળો છો. ઉપરથી ઝાંઝરનો અવાજ આવે છે. તમે દાદર ચઢીને અગાશી પર પહોંચો છો.', b3: 'અગાશી પરથી હવેલી પાછળના ચાર રસ્તા દેખાય છે. રસ્તાની વચ્ચે એક થાળી પડી છે.', b4: 'જેણે વડાં ઉપાડ્યાં, એ પાછી આંગણામાં ગઈ. સીધી પીપળા પાસે.', b5: 'એ ડાળી પરથી પડી અને અંધારામાં ગાયબ થઈ ગઈ. એ હજી આંગણામાં જ છે. એ તમને શોધે એ પહેલાં એને શોધો.', b6: 'તમે પાછલા દરવાજા તરફ દોડો છો. હવેલી પાછળની ગલી સૂની છે. ત્યાં જ કોઈ તમને બોલાવે છે.', b7: 'તમે ફરતા નથી. અંદર જઈને નાનીના ઓરડામાં ઘૂસો છો અને દરવાજો બંધ કરી દો છો.', b8: 'કાચ તૂટી જાય છે. દરવાજા બહાર પગલાંનો અવાજ. નાનીના કબાટમાં છુપાઈ જાઓ. શ્વાસ ન લેતા.', b9: 'એ જતી રહી. બહાર નીકળતાં તમારો પગ પલંગ નીચે કંઈક સાથે અથડાય છે.', b10: 'તમે એને બારી સુધી લઈ જાઓ છો. બાજુના અધૂરા મકાનમાં કોઈ જોઈ રહ્યું છે.', b11: 'એ એક હાથ ઊંચો કરીને નીચે ઇશારો કરે છે. બંને મકાનો વચ્ચેના જૂના કૂવા તરફ.', b12: 'તમે દોડો છો. પાછળથી ભીનાં પગલાંનો અવાજ.', b13: 'તમે બહાર નીકળી ગયા. તમને યાદ નથી કે ઘરે કેવી રીતે પહોંચ્યા.', b14: 'એ રાત્રે ઘરે લાઈટ જતી રહે છે.', b15: 'એ અંદર આવી ગઈ છે. ફોનનો પ્રકાશ બુઝાઈ રહ્યો છે. દીવો પ્રગટાવો. એને સળગતો રાખો.',
+      g_play: 'રમો', g_skip: 'છોડો →', g_found: 'મળી {n}/3',
+      g1_desc: 'એ અંધારા આંગણામાં છુપાઈ છે. 20 સેકન્ડમાં એને ત્રણ વાર શોધો. લાલ આંખો એ નથી.', g2_desc: 'એ નીચે ઊતરી રહી છે. 25 સેકન્ડ સુધી જ્યોત સળગતી રાખવા દીવા પર ટેપ કરતા રહો. પવનથી સાવધાન.',
+      g3_title: 'સંતાકૂકડી', g3_desc: 'એ નજીક આવે ત્યારે શ્વાસ રોકવા બટન દબાવી રાખો. એ જાય ત્યારે છોડી દો. શ્વાસ ખૂટ્યો તો એ સાંભળી જશે. ત્રણ વાર બચો.', g3_hold: 'શ્વાસ રોકવા દબાવી રાખો', g3_win: 'એ જતી રહી. એ ફરી આવશે.', g3_lose: 'એણે તમારો શ્વાસ સાંભળી લીધો.', g3_round: 'એ નજીક છે. {n}/3',
+      games_kicker: 'રમતો', games_title: 'ફરી રમો' }
+  };
+  Object.keys(BR).forEach((k) => Object.assign(T[k], BR[k]));
   const $ = (s) => document.querySelector(s);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -982,6 +1075,8 @@ footer { position: relative; overflow: hidden; }
     $('#share').href = 'https://wa.me/?text=' + encodeURIComponent(t('share_text') + location.href.split('#')[0]);
     paintSound(); renderWall();
     document.querySelectorAll('.strip .track').forEach((tr) => { tr.textContent = (t('marquee') + ' · ').repeat(6); });
+    document.querySelectorAll('.bline').forEach((b) => { const words = b.textContent.split(/\s+/).filter(Boolean); b.innerHTML = ''; words.forEach((w) => { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; b.appendChild(s); }); });
+    const g3h = document.getElementById('g3hold'); if (g3h) g3h.textContent = t('g3_hold');
     const hr = new Date().getHours();
     if (hr >= 23 || hr < 4) { const el = document.querySelector('[data-t="face_1"]'); if (el) el.textContent = t('face_late').replace('{t}', new Date().toLocaleTimeString(lang === 'en' ? 'en-IN' : lang + '-IN', { hour: 'numeric', minute: '2-digit' })); }
   }
@@ -1144,6 +1239,17 @@ footer { position: relative; overflow: hidden; }
       for (let i = 0; i < 6; i++) { const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2500 + Math.random() * 2500; bp.Q.value = 12; this.env(g, tt, [[.004, .5], [.18, 0]]); n.connect(bp); bp.connect(g); this.out(g, Math.random() - .5, .4); n.start(tt, Math.random()); n.stop(tt + .2); tt += .07 + Math.random() * .09; }
       setTimeout(() => this.thump(.6, 60), 650);
     },
+    step(v = .4, pan = 0) {
+      if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain();
+      o.frequency.setValueAtTime(95, tt); o.frequency.exponentialRampToValueAtTime(45, tt + .1); this.env(g, tt, [[.005, v], [.16, 0]]); o.connect(g); this.out(g, pan, .35); o.start(tt); o.stop(tt + .2);
+      const n = this.src(), lp = c.createBiquadFilter(), ng = c.createGain(); lp.type = 'lowpass'; lp.frequency.value = 900; this.env(ng, tt, [[.003, v * .35], [.06, 0]]); n.connect(lp); lp.connect(ng); this.out(ng, pan, .3); n.start(tt, Math.random()); n.stop(tt + .08);
+    },
+    steps(n = 4, v = .35) { for (let i = 0; i < n; i++) setTimeout(() => this.step(v, i % 2 ? .25 : -.25), i * 480); },
+    gust() {
+      if (!this.ok()) return; const c = this.ctx, tt = this.now(), n = this.src(), bp = c.createBiquadFilter(), g = c.createGain();
+      bp.type = 'bandpass'; bp.Q.value = .7; bp.frequency.setValueAtTime(300, tt); bp.frequency.linearRampToValueAtTime(1400, tt + .5); bp.frequency.linearRampToValueAtTime(400, tt + 1.2);
+      this.env(g, tt, [[.25, .45], [1.2, 0]]); n.connect(bp); bp.connect(g); this.out(g, Math.random() - .5, .3); n.start(tt, Math.random()); n.stop(tt + 1.3);
+    },
     drip() {
       if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain();
       o.frequency.setValueAtTime(1400, tt); o.frequency.exponentialRampToValueAtTime(420, tt + .09); this.env(g, tt, [[.004, .08], [.12, 0]]); o.connect(g); this.out(g, Math.random() - .5, 1); o.start(tt); o.stop(tt + .15);
@@ -1209,7 +1315,8 @@ footer { position: relative; overflow: hidden; }
 
   /* ================= scenes ================= */
   const sc = (id) => ({ el: $('#' + id), p: 0, lines: [...document.querySelectorAll('#' + id + ' .line')].map((l) => ({ el: l, r: l.dataset.r.split(',').map(Number) })) });
-  const S = { gate: sc('s-gate'), thresh: sc('s-thresh'), hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), doll: sc('s-doll'), build: sc('s-build'), well: sc('s-well'), feet: sc('s-feet'), office: sc('s-office'), face: sc('s-face'), hands: sc('s-hands'), scare: sc('s-scare') };
+  const S = {}; const S0 = { gate: sc('s-gate'), thresh: sc('s-thresh'), hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), doll: sc('s-doll'), build: sc('s-build'), well: sc('s-well'), feet: sc('s-feet'), office: sc('s-office'), face: sc('s-face'), hands: sc('s-hands'), scare: sc('s-scare') };
+  { const order = [...document.querySelectorAll('.scene')].map((el) => el.id); order.forEach((id) => { if (id.startsWith('br')) S[id] = sc(id); else { const k = Object.keys(S0).find((x) => S0[x].el.id === id); if (k) S[k] = S0[k]; } }); }
   const prog = (s) => { const r = s.el.getBoundingClientRect(); const span = r.height - innerHeight; return { p: Math.min(1, Math.max(0, -r.top / Math.max(1, span))), active: r.top < innerHeight * .5 && r.bottom > innerHeight * .5, top: r.top }; };
   const fired = {};
   const once = (k, fn) => { if (!fired[k]) { fired[k] = true; fn(); } };
@@ -1359,10 +1466,13 @@ footer { position: relative; overflow: hidden; }
     L.focus = () => ({ x: innerWidth * .42, y: innerHeight * .85 });
   }
   /* chapter label, word strips, blood-filled wordmark */
+  let lastCh = -1;
+  function updBridge(s, k) { const ws = s.el.querySelectorAll('.bline .w'); const n = Math.ceil(clamp((s.p - .08) / .6) * ws.length); ws.forEach((w, i) => w.classList.toggle('on', i < n)); if (s.p > .1) once('st' + k, () => A.steps(5, .3)); }
   const CH = ['thresh', 'hero', 'cross', 'tree', 'name', 'mirror', 'doll', 'build', 'well', 'feet', 'office', 'face', 'hands'];
   function updChrome() {
     const i = CH.indexOf(active), el = $('#chap');
-    if (i >= 0) { const n = Math.min(i, 11); $('#chapN').textContent = String(n + 1).padStart(2, '0'); $('#chapT').textContent = T[lang].chapters[n]; el.classList.add('on'); } else el.classList.remove('on');
+    lastCh = -1; CH.forEach((k, ci) => { if (S[k] && S[k].top <= innerHeight * .5) lastCh = Math.min(ci, 11); });
+    if (i >= 0 || (lastCh >= 0 && (active.startsWith('br') || active === 'none') && window.scrollY < S.scare.el.offsetTop)) { const n = i >= 0 ? Math.min(i, 11) : lastCh; $('#chapN').textContent = String(n + 1).padStart(2, '0'); $('#chapT').textContent = T[lang].chapters[n]; el.classList.add('on'); } else el.classList.remove('on');
     const y = window.scrollY;
     document.querySelectorAll('.strip .track').forEach((tr, i) => { const w = tr.scrollWidth / 2 || 1; tr.style.transform = `translateX(${(-((y * .35 + i * 300) % w)).toFixed(1)}px)`; });
     const f = $('#foot'); if (f) { const r = f.getBoundingClientRect(); $('#bigmark').style.setProperty('--fill', (clamp((innerHeight - r.top) / r.height) * 100).toFixed(1) + '%'); }
@@ -1470,17 +1580,20 @@ footer { position: relative; overflow: hidden; }
   /* ================= games ================= */
   const G = { on: null, t0: 0, raf: 0, timers: [] };
   const gEl = $('#game');
-  function gReset() { G.timers.forEach(clearTimeout); G.timers = []; cancelAnimationFrame(G.raf); $('#gend').hidden = true; $('#gscare').hidden = true; $('#gscare').className = ''; $('#gscare').style.opacity = ''; $('#gscare').style.transition = ''; $('#g1').hidden = true; $('#g2').hidden = true; $('#ghint').textContent = ''; $('#gtime').textContent = ''; }
+  function gReset() { G.timers.forEach(clearTimeout); G.timers = []; cancelAnimationFrame(G.raf); $('#g3').hidden = true; $('#g1decoys').innerHTML = ''; if (G.cleanup) { G.cleanup(); G.cleanup = null; } $('#gend').hidden = true; $('#gscare').hidden = true; $('#gscare').className = ''; $('#gscare').style.opacity = ''; $('#gscare').style.transition = ''; $('#g1').hidden = true; $('#g2').hidden = true; $('#ghint').textContent = ''; $('#gtime').textContent = ''; }
   function gOpen(which) {
     A.init(); A.startBed(); A.themeLevel(.08);
     gReset(); G.on = which; gEl.hidden = false; lockScroll(true);
     $('#gagain').textContent = t('g_again'); $('#gclose').textContent = t('g_close');
-    which === 1 ? g1Start() : g2Start();
+    which === 1 ? g1Start() : which === 2 ? g2Start() : g3Start();
   }
   function gClose() { gReset(); G.on = null; gEl.hidden = true; lockScroll(false); A.dread(0); }
   function gEnd(win, msg) {
     cancelAnimationFrame(G.raf); G.timers.forEach(clearTimeout); G.timers = [];
     const show = () => { $('#gscare').hidden = true; $('#gmsg').textContent = msg; $('#gend').hidden = false; };
+    const res = document.getElementById('res-' + G.on); if (res) res.textContent = msg;
+    if (G.cleanup) { G.cleanup(); G.cleanup = null; }
+    if (G.on === 2 && !win) { scared = true; $('#after').classList.add('on'); }
     if (win) { show(); return; }
     const sc = $('#gscare'); sc.hidden = false;
     if (safe) { sc.style.opacity = 0; sc.style.transition = 'opacity 2.5s'; requestAnimationFrame(() => { sc.style.opacity = 1; }); G.timers.push(setTimeout(show, 3000)); }
@@ -1488,50 +1601,98 @@ footer { position: relative; overflow: hidden; }
   }
   $('#g1open').addEventListener('click', () => gOpen(1));
   $('#g2open').addEventListener('click', () => gOpen(2));
+  $('#g3open').addEventListener('click', () => gOpen(3));
+  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => gOpen(+b.dataset.play)));
+  document.querySelectorAll('[data-skip]').forEach((b) => b.addEventListener('click', () => { const sec = b.closest('.gstop'); const nx = sec && sec.nextElementSibling; if (nx) jump(nx.offsetTop); }));
   $('#gagain').addEventListener('click', () => gOpen(G.on));
   $('#gclose').addEventListener('click', gClose); $('#gx').addEventListener('click', gClose);
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && G.on) gClose(); });
 
   /* Find her: she hides in the lane and moves; your diya is the only light */
-  const SPOTS = [[78, 34, 12], [90, 56, 14], [70, 18, 10], [94, 82, 15], [62, 46, 11], [6, 60, 13], [85, 12, 10]];
+  const SPOTS = [[78, 34, 9], [90, 56, 10], [70, 18, 8], [94, 82, 11], [62, 46, 8], [6, 60, 10], [85, 12, 8], [12, 30, 8], [40, 8, 7]];
   const g1g = $('#g1ghost'), g1d = $('#g1dark');
   function g1Place() { const s = SPOTS[Math.random() * SPOTS.length | 0]; g1g.style.left = s[0] + '%'; g1g.style.top = s[1] + '%'; g1g.style.height = s[2] + '%'; A.whisper((s[0] - 50) / 40, .6); }
+  let g1found = 0, g1pen = 0;
+  function g1Decoys() {
+    const box = $('#g1decoys'); box.innerHTML = '';
+    for (let k = 0; k < 4; k++) { const d = document.createElement('div'); d.className = 'decoy'; d.innerHTML = '<i></i><i></i>'; d.style.left = (8 + Math.random() * 84) + '%'; d.style.top = (12 + Math.random() * 74) + '%';
+      d.addEventListener('pointerdown', (e) => { e.stopPropagation(); if (!$('#gend').hidden) return; g1pen += 3; A.whisper(Math.random() * 2 - 1, 1); buzz(40); const pn = $('#gpen'); pn.textContent = '−3s'; pn.classList.add('on'); setTimeout(() => pn.classList.remove('on'), 600); d.style.left = (8 + Math.random() * 84) + '%'; d.style.top = (12 + Math.random() * 74) + '%'; });
+      box.appendChild(d); }
+  }
   function g1Start() {
-    $('#g1').hidden = false; $('#ghint').textContent = t('g1_hint'); g1g.style.transition = 'none'; g1Place(); void g1g.offsetWidth; g1g.style.transition = '';
-    const pos = { x: innerWidth / 2, y: innerHeight * .6 }; g1d.style.setProperty('--gr', Math.max(110, Math.min(innerWidth, innerHeight) * .22) + 'px');
+    $('#g1').hidden = false; g1found = 0; g1pen = 0; $('#ghint').textContent = t('g_found').replace('{n}', 0); g1g.style.transition = 'none'; g1Place(); void g1g.offsetWidth; g1g.style.transition = ''; g1Decoys();
+    const rad = () => Math.max(85, Math.min(innerWidth, innerHeight) * .15);
+    const pos = { x: innerWidth / 2, y: innerHeight * .6 };
     const mv = (e) => { pos.x = e.clientX; pos.y = e.clientY; }; $('#g1').onpointermove = mv; $('#g1').onpointerdown = mv;
-    const move = () => { g1Place(); G.timers.push(setTimeout(move, 2600 + Math.random() * 1600)); }; G.timers.push(setTimeout(move, 3000));
+    const move = () => { g1Place(); G.timers.push(setTimeout(move, 1700 + Math.random() * 900)); }; G.timers.push(setTimeout(move, 2000));
     G.t0 = performance.now();
     const tick = (now) => {
-      const left = Math.max(0, 15 - (now - G.t0) / 1000); $('#gtime').textContent = left.toFixed(1) + 's';
-      const fl = reduced ? 1 : .94 + .06 * Math.sin(now / 60);
-      g1d.style.setProperty('--gx', pos.x + 'px'); g1d.style.setProperty('--gy', pos.y + 'px'); g1d.style.setProperty('--gr', (Math.max(110, Math.min(innerWidth, innerHeight) * .22) * fl) + 'px');
+      const left = Math.max(0, 20 - g1pen - (now - G.t0) / 1000); $('#gtime').textContent = left.toFixed(1) + 's';
+      const fl = reduced ? 1 : .92 + .08 * Math.sin(now / 55);
+      g1d.style.setProperty('--gx', pos.x + 'px'); g1d.style.setProperty('--gy', pos.y + 'px'); g1d.style.setProperty('--gr', (rad() * fl) + 'px');
       if (left <= 0) return gEnd(false, t('g1_lose'));
-      if (Math.random() < .01) A.heartbeat(.3);
+      if (Math.random() < .012) A.heartbeat(.3);
       G.raf = requestAnimationFrame(tick);
     };
     G.raf = requestAnimationFrame(tick);
   }
-  g1g.addEventListener('pointerdown', (e) => { if (G.on !== 1 || !$('#gend').hidden) return; e.stopPropagation(); A.thump(.6, 70); flash(120); buzz(80); gEnd(true, t('g1_win')); setTimeout(() => sayName(nick || t('nick_default'), .5, .2, .5), 900); });
+  g1g.addEventListener('pointerdown', (e) => { if (G.on !== 1 || !$('#gend').hidden) return; e.stopPropagation(); g1found++; A.thump(.6, 70); flash(110); buzz(80); $('#ghint').textContent = t('g_found').replace('{n}', g1found);
+    if (g1found >= 3) { gEnd(true, t('g1_win')); setTimeout(() => sayName(nick || t('nick_default'), .5, .2, .5), 900); } else { A.whisper(0, 1.2); g1Place(); } });
 
   /* Keep the diya alive: tap to feed the flame; if it dies she reaches you */
   const g2f = $('#g2face'), g2d = $('#g2diya'), g2b = $('#g2bar');
   function g2Start() {
     $('#g2').hidden = false; $('#ghint').textContent = t('g2_hint'); g2f.style.transition = '';
-    let f = 1, d = 0, last = performance.now(), nextBeat = 0; G.t0 = last;
-    g2d.onpointerdown = (e) => { e.preventDefault(); f = Math.min(1, f + .17); A.bells(0, .015); };
-    const key = (e) => { if (G.on === 2 && (e.code === 'Space' || e.key === 'Enter')) { e.preventDefault(); f = Math.min(1, f + .17); } };
+    let f = 1, d = 0, last = performance.now(), nextBeat = 0, nextGust = last + 3500 + Math.random() * 2500; G.t0 = last;
+    g2d.onpointerdown = (e) => { e.preventDefault(); f = Math.min(1, f + .13); A.bells(0, .012); };
+    const key = (e) => { if (G.on === 2 && (e.code === 'Space' || e.key === 'Enter')) { e.preventDefault(); f = Math.min(1, f + .13); } };
     addEventListener('keydown', key); G.timers.push(setTimeout(() => {}, 0));
     const tick = (now) => {
-      const dt = Math.min(.05, (now - last) / 1000); last = now; const el = (now - G.t0) / 1000, left = Math.max(0, 20 - el);
-      f = Math.max(0, f - dt * (.34 + el * .012));
-      d = Math.min(1, Math.max(0, d + dt * (f <= 0 ? .55 : f < .45 ? .09 : f > .7 ? -.035 : .03)));
+      const dt = Math.min(.05, (now - last) / 1000); last = now; const el = (now - G.t0) / 1000, left = Math.max(0, 25 - el);
+      f = Math.max(0, f - dt * (.42 + el * .014));
+      if (now > nextGust) { f = Math.max(0, f - .38); A.gust(); buzz(30); nextGust = now + 3200 + Math.random() * 2800; }
+      d = Math.min(1, Math.max(0, d + dt * (f <= 0 ? .6 : f < .45 ? .12 : f > .72 ? -.03 : .045)));
       g2d.style.setProperty('--f', Math.max(.08, f).toFixed(3));
       g2f.style.transform = `translate(-50%, ${(-80 + d * 62).toFixed(2)}%)`; g2f.style.filter = `grayscale(.4) brightness(${(.6 + d * .5).toFixed(2)})`;
-      g2b.style.transform = `scaleX(${(left / 20).toFixed(3)})`; $('#gtime').textContent = left.toFixed(1) + 's';
+      g2b.style.transform = `scaleX(${(left / 25).toFixed(3)})`; $('#gtime').textContent = left.toFixed(1) + 's';
       if (now > nextBeat) { A.heartbeat(.2 + d * .5); nextBeat = now + 1200 - d * 800; if (d > .5) A.whisper(Math.random() * 2 - 1, d); }
       if (d >= 1) { removeEventListener('keydown', key); return gEnd(false, t('g2_lose')); }
       if (left <= 0) { removeEventListener('keydown', key); g2f.style.transition = 'opacity 1.2s'; g2f.style.opacity = 0; return gEnd(true, t('g2_win')); }
+      G.raf = requestAnimationFrame(tick);
+    };
+    G.raf = requestAnimationFrame(tick);
+  }
+
+  /* Hide and seek: watch through the almirah crack; hold your breath while she is near */
+  function g3Start() {
+    $('#g3').hidden = false; const shade = $('#g3shade'), eye = $('#g3eye'), bar = $('#g3breath'), btn = $('#g3hold');
+    let holding = false, breath = 1, gasped = false, round = 0, phase = 'far', until = performance.now() + 2000 + Math.random() * 1500, last = performance.now(), nextStep = 0, peeked = false;
+    const set = (h) => { if (gasped && h) return; holding = h; btn.classList.toggle('on', h); if (!h) gasped = false; };
+    const down = (e) => { e.preventDefault(); set(true); }, up = () => set(false);
+    btn.addEventListener('pointerdown', down); btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('pointerleave', up);
+    const kd = (e) => { if (e.code === 'Space') { e.preventDefault(); set(true); } }, ku = (e) => { if (e.code === 'Space') set(false); };
+    addEventListener('keydown', kd); addEventListener('keyup', ku);
+    G.cleanup = () => { btn.removeEventListener('pointerdown', down); btn.removeEventListener('pointerup', up); btn.removeEventListener('pointercancel', up); btn.removeEventListener('pointerleave', up); removeEventListener('keydown', kd); removeEventListener('keyup', ku); btn.classList.remove('on'); eye.classList.remove('on'); };
+    $('#ghint').textContent = t('g3_hold'); $('#gtime').textContent = '';
+    const dur = { approach: 1700, leave: 1300 };
+    const tick = (now) => {
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      breath = holding ? breath - dt / 5.2 : Math.min(1, breath + dt / 2.6);
+      if (breath <= 0 && holding) { breath = 0; gasped = true; holding = false; btn.classList.remove('on'); A.breath(); if (phase === 'near') return gEnd(false, t('g3_lose')); }
+      bar.style.transform = `scaleX(${breath.toFixed(3)})`;
+      if (now > until) {
+        if (phase === 'far') { phase = 'approach'; until = now + dur.approach; }
+        else if (phase === 'approach') { phase = 'near'; until = now + 2200 + Math.random() * 1700; peeked = false; $('#gtime').textContent = t('g3_round').replace('{n}', round + 1); }
+        else if (phase === 'near') { phase = 'leave'; until = now + dur.leave; eye.classList.remove('on'); }
+        else { round++; $('#gtime').textContent = ''; if (round >= 3) return gEnd(true, t('g3_win')); phase = 'far'; until = now + 1500 + Math.random() * 2500 - round * 300; }
+      }
+      const k = phase === 'far' ? 0 : phase === 'approach' ? 1 - (until - now) / dur.approach : phase === 'near' ? 1 : (until - now) / dur.leave;
+      shade.style.transform = `translateX(${phase === 'leave' ? (1 - k) * 120 : (k - 1) * 120}%)`;
+      if (now > nextStep) { const v = phase === 'far' ? .08 : phase === 'approach' ? .2 + k * .3 : phase === 'near' ? .45 : .2; A.step(v, phase === 'leave' ? .5 : -.3 + k * .3); nextStep = now + (phase === 'near' ? 900 : 620); if (phase === 'near') A.heartbeat(.4); }
+      if (phase === 'near') {
+        if (!peeked && Math.random() < .015) { peeked = true; eye.classList.add('on'); A.whisper(0, .8); setTimeout(() => eye.classList.remove('on'), 900); }
+        if (!holding) { G.miss = (G.miss || 0) + dt; if (G.miss > .3) { G.miss = 0; return gEnd(false, t('g3_lose')); } } else G.miss = 0;
+      } else G.miss = 0;
       G.raf = requestAnimationFrame(tick);
     };
     G.raf = requestAnimationFrame(tick);
@@ -1576,8 +1737,9 @@ footer { position: relative; overflow: hidden; }
   function frame(now) {
     requestAnimationFrame(frame);
     const dt = Math.min(64, now - last); last = now;
-    let best = 'hero';
-    for (const k of Object.keys(S)) { const r = prog(S[k]); S[k].p = r.p; S[k].top = r.top; if (r.active) best = k; }
+    let best = 'none';
+    for (const k of Object.keys(S)) { const r = prog(S[k]); S[k].p = r.p; S[k].top = r.top; if (r.active) best = k;
+      if (k !== 'scare' && r.top < innerHeight && r.top > -S[k].el.offsetHeight) { const fo = k === 'gate' ? clamp((r.p - .94) / .06) : Math.max(clamp(1 - r.p / .07), clamp((r.p - .93) / .07)); S[k].el.firstElementChild.style.setProperty('--fo', fo.toFixed(3)); } }
     active = best;
     if (entered) {
       if (active === 'cross') updCross(S.cross.p, now);
@@ -1588,6 +1750,7 @@ footer { position: relative; overflow: hidden; }
       if (active === 'build') updBuild(S.build.p);
       if (active === 'well') updWell(S.well.p, now);
       if (active === 'office') updOffice(S.office.p);
+      if (active.startsWith('br')) updBridge(S[active], active);
       updChrome();
       if (active === 'face') updFace(S.face.p, now);
       if (active === 'hands') updHands(S.hands.p);
