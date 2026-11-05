@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kali Chaudas CCTV</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="CCTV recovered from a housing society on Kali Chaudas night. Watch it with headphones, then share your own Kali Chaudas story.">
+<meta property="og:title" content="Kali Chaudas CCTV · Shanti Kunj Society">
+<meta property="og:description" content="Recovered CCTV from Kali Chaudas night. Watch alone, with headphones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&family=VT323&display=swap">
+<style>
+/* Layout: a recovered society CCTV console. Gate card, 6-camera wall with event log, ending card with the story form and story wall. Single committed dark look. */
+:root {
+  --bg: #050605;
+  --panel: #0c0f0c;
+  --line: #1f261f;
+  --text: #c9d3c2;
+  --muted: #7a8574;
+  --ir: #b8d2a6;
+  --alarm: #e5484b;
+  --amber: #d9a441;
+  --f-ui: "IBM Plex Mono", "Noto Sans Devanagari", "Noto Sans Gujarati", ui-monospace, Menlo, Consolas, monospace;
+  --f-osd: "VT323", "Noto Sans Devanagari", "Noto Sans Gujarati", "Courier New", monospace;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--f-ui); font-size: 14px; line-height: 1.65; }
+html[lang="hi"] body, html[lang="gu"] body { font-size: 15px; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ir); outline-offset: 2px; }
+
+.langs { position: fixed; z-index: 70; top: calc(8px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; gap: 2px; background: rgba(5,6,5,.8); border: 1px solid var(--line); }
+.langs button { background: transparent; border: 0; color: var(--muted); padding: 3px 10px; font-family: var(--f-osd); font-size: 18px; }
+.langs button[aria-pressed="true"] { background: var(--ir); color: #050605; }
+body.in-dvr .langs { display: none; }
+
+.screen { min-height: 100%; display: grid; place-items: center; padding-block: 56px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
+.card { width: min(600px, 100%); display: flex; flex-direction: column; gap: 14px; }
+.osd { font-family: var(--f-osd); font-size: 21px; letter-spacing: .05em; color: var(--ir); line-height: 1.2; }
+.card h1 { font-family: var(--f-osd); font-weight: 400; font-size: clamp(36px, 7vw, 54px); line-height: 1.05; margin: 0; color: #e4ecdc; letter-spacing: .02em; text-wrap: balance; }
+html[lang="hi"] .card h1, html[lang="gu"] .card h1 { font-weight: 600; font-size: clamp(30px, 6vw, 44px); line-height: 1.25; }
+.card p { margin: 0; max-width: 62ch; }
+.warn { color: var(--amber); }
+.fine { color: var(--muted); font-size: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.btn { font-family: var(--f-osd); font-size: 23px; letter-spacing: .05em; padding: 5px 18px; background: var(--ir); color: #050605; border: 1px solid var(--ir); line-height: 1.3; }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.linkbtn { background: none; border: 0; color: var(--ir); text-decoration: underline; padding: 0; font-size: inherit; }
+.offering { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 12px; }
+
+/* DVR */
+#dvr { position: fixed; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.bar { display: flex; align-items: center; gap: 14px; padding-block: 8px; padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); font-family: var(--f-osd); font-size: 21px; letter-spacing: .05em; }
+.bar .mode { padding: 0 8px; border: 1px solid var(--muted); }
+.bar .mode.live { border-color: var(--alarm); background: var(--alarm); color: #fff; }
+.bar .spacer { flex: 1; }
+.bar .viewers.more { color: var(--alarm); }
+.wall { display: grid; grid-template-columns: minmax(0, 1fr) 270px; min-height: 0; }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; min-width: 0; min-height: 0; }
+.tile { padding: 0; border: 0; background: #000; display: block; min-height: 0; min-width: 0; }
+.tile canvas { display: block; width: 100%; height: 100%; object-fit: contain; max-width: 100%; }
+.tile:hover canvas { filter: brightness(1.15); }
+.log { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.log h2 { font-family: var(--f-osd); font-weight: 400; font-size: 20px; letter-spacing: .08em; margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.log ol { list-style: none; margin: 0; padding: 6px 0; overflow-y: auto; font-size: 12.5px; flex: 1; }
+.log li { padding: 3px 12px; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; font-variant-numeric: tabular-nums; }
+.log time { color: var(--muted); }
+.log li.motion span { color: var(--amber); }
+.log li.alarm span { color: var(--alarm); }
+.log li.new { animation: flashrow 1.2s ease-out; }
+@keyframes flashrow { from { background: rgba(217,164,65,.18); } to { background: transparent; } }
+@media (max-width: 900px) {
+  .wall { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 140px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .log { border-left: 0; border-top: 1px solid var(--line); }
+  .bar .hide-sm { display: none; }
+}
+#full { position: fixed; inset: 0; z-index: 20; background: #000; display: grid; grid-template-rows: auto minmax(0, 1fr); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+#full .stage { display: grid; place-items: center; min-height: 0; padding: 8px; }
+#full canvas { width: 100%; height: 100%; object-fit: contain; max-width: 100%; }
+#whisper { position: fixed; z-index: 30; left: 0; right: 0; top: 40%; text-align: center; font-family: var(--f-osd); font-size: clamp(26px, 4.4vw, 42px); color: rgba(229,72,75,.92); letter-spacing: .06em; pointer-events: none; text-shadow: 0 0 18px rgba(229,72,75,.5); padding-inline: 16px; }
+#scare { position: fixed; inset: 0; z-index: 50; background: #000; }
+#scare canvas { width: 100%; height: 100%; display: block; object-fit: cover; }
+#scare.shake canvas { animation: shake .07s steps(2) infinite; }
+@keyframes shake { 0% { transform: translate(-10px, 6px) scale(1.06); } 100% { transform: translate(8px, -8px) scale(1.1); } }
+#scare.slow canvas { animation: creep 6s ease-in forwards; opacity: 0; }
+@keyframes creep { from { opacity: 0; transform: scale(1); } to { opacity: 1; transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { #scare.shake canvas { animation: none; } }
+
+/* stories */
+#stories { border-top: 1px solid var(--line); }
+.form { display: flex; flex-direction: column; gap: 12px; background: var(--panel); border: 1px solid var(--line); padding: 18px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label, .field legend { font-size: 12px; color: var(--muted); letter-spacing: .03em; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .two { grid-template-columns: minmax(0, 1fr); } }
+input[type="text"], textarea { background: #050605; color: var(--text); border: 1px solid var(--line); padding: 9px 10px; border-radius: 0; width: 100%; box-sizing: border-box; }
+textarea { min-height: 150px; resize: vertical; }
+fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips label { border: 1px solid var(--line); padding: 4px 10px; cursor: pointer; font-size: 13px; color: var(--text); }
+.chips input { position: absolute; opacity: 0; pointer-events: none; }
+.chips input:checked + span { color: var(--ir); }
+.chips label:has(input:checked) { border-color: var(--ir); }
+.chips label:has(input:focus-visible) { outline: 2px solid var(--ir); outline-offset: 2px; }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+.consent input { margin-top: 4px; accent-color: var(--ir); }
+.msg { font-size: 13px; min-height: 1.4em; margin: 0; }
+.msg.ok { color: var(--ir); }
+.msg.err { color: var(--amber); }
+.wallist { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.story { border-left: 3px solid var(--ir); padding: 6px 0 6px 14px; }
+.story .meta { font-family: var(--f-osd); font-size: 18px; color: var(--muted); letter-spacing: .04em; }
+.story p { white-space: pre-line; }
+.empty { color: var(--muted); border: 1px dashed var(--line); padding: 14px; }
+
+#credits { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.94); overflow-y: auto; }
+#credits .screen { place-items: start center; }
+#credits ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+#credits a, .card a { color: var(--ir); overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+
+<div class="langs" role="group" aria-label="Language">
+  <button type="button" data-lang="en" aria-pressed="true">EN</button>
+  <button type="button" data-lang="hi" aria-pressed="false">हिं</button>
+  <button type="button" data-lang="gu" aria-pressed="false">ગુ</button>
+</div>
+
+<!-- GATE -->
+<section class="screen" id="gate">
+  <div class="card">
+    <div class="osd" data-t="gate_eyebrow"></div>
+    <h1 data-t="gate_title"></h1>
+    <p data-t="gate_p1"></p>
+    <p data-t="gate_p2"></p>
+    <p class="warn" data-t="gate_warn"></p>
+    <div class="actions">
+      <button class="btn" type="button" id="play" data-t="play"></button>
+      <button class="btn ghost" type="button" id="playSafe" data-t="play_safe"></button>
+    </div>
+    <p><button class="linkbtn" type="button" id="toStories" data-t="stories_link"></button></p>
+    <p class="fine"><span data-t="fiction"></span> <button class="linkbtn" type="button" data-credits data-t="credits"></button></p>
+  </div>
+</section>
+
+<!-- DVR -->
+<div id="dvr" hidden>
+  <div class="bar">
+    <span>SK-DVR 6CH</span>
+    <span class="mode" id="mode">▶ PLAYBACK</span>
+    <span class="spacer"></span>
+    <span class="hide-sm" id="clockBar"></span>
+    <span class="viewers" id="viewers">VIEWERS 1</span>
+  </div>
+  <div class="wall">
+    <div class="tiles" id="tiles"></div>
+    <aside class="log" aria-label="Event log"><h2>EVENT LOG</h2><ol id="log" aria-live="polite"></ol></aside>
+  </div>
+</div>
+<div id="full" hidden>
+  <div class="bar">
+    <button class="btn ghost" type="button" id="back" style="font-size:20px;padding:2px 12px">◀ ALL CAMERAS</button>
+    <span class="spacer"></span><span id="fullName"></span>
+  </div>
+  <div class="stage"><canvas id="fullCanvas" width="960" height="720" aria-label="Camera feed, full screen"></canvas></div>
+</div>
+<div id="whisper" hidden></div>
+<div id="scare" hidden aria-hidden="true"><canvas id="scareCanvas" width="960" height="720"></canvas></div>
+
+<!-- ENDING -->
+<section class="screen" id="end" hidden>
+  <div class="card">
+    <div class="osd">SIGNAL LOST · ALL CHANNELS</div>
+    <h1 data-t="end_title"></h1>
+    <p data-t="end_p"></p>
+    <p id="endViewer"></p>
+    <p class="osd" style="color:var(--alarm)" data-t="end_viewers"></p>
+    <div class="actions">
+      <button class="btn" type="button" id="again" data-t="again"></button>
+      <a class="btn ghost" id="share" target="_blank" rel="noopener" style="text-decoration:none" data-t="share"></a>
+    </div>
+  </div>
+</section>
+
+<!-- STORIES -->
+<section class="screen" id="stories" hidden>
+  <div class="card">
+    <div class="osd" data-t="st_eyebrow"></div>
+    <h1 data-t="st_title"></h1>
+    <p data-t="st_intro"></p>
+    <form class="form" id="storyForm" novalidate>
+      <div class="two">
+        <div class="field"><label for="sName" data-t="st_name"></label><input type="text" id="sName" name="name" maxlength="40" autocomplete="nickname"></div>
+        <div class="field"><label for="sCity" data-t="st_city"></label><input type="text" id="sCity" name="city" maxlength="40" autocomplete="address-level2"></div>
+      </div>
+      <fieldset>
+        <legend data-t="st_type"></legend>
+        <div class="chips">
+          <label><input type="radio" name="kind" value="prank" id="kPrank" checked><span data-t="k_prank"></span></label>
+          <label><input type="radio" name="kind" value="real" id="kReal"><span data-t="k_real"></span></label>
+          <label><input type="radio" name="kind" value="heard" id="kHeard"><span data-t="k_heard"></span></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="sStory" data-t="st_story"></label><textarea id="sStory" name="story" maxlength="3000"></textarea></div>
+      <label class="consent"><input type="checkbox" id="sConsent"><span data-t="st_consent"></span></label>
+      <div class="actions" style="margin:0"><button class="btn" type="submit" data-t="st_submit"></button></div>
+      <p class="msg" id="sMsg" role="status"></p>
+    </form>
+    <div class="osd" style="margin-top:18px" data-t="st_wall"></div>
+    <ul class="wallist" id="wall"></ul>
+    <div class="actions"><button class="btn ghost" type="button" id="storiesBack" data-t="back_footage"></button></div>
+    <p class="fine"><span data-t="fiction"></span> <button class="linkbtn" type="button" data-credits data-t="credits"></button></p>
+  </div>
+</section>
+
+<div id="credits" hidden>
+  <section class="screen">
+    <div class="card">
+      <div class="osd">PHOTO CREDITS</div>
+      <p>All photos are licensed under Creative Commons Attribution. They were cropped, converted to black and white, and edited: the figures, shadows, the offering and the blacked-out eyes were added by this site.</p>
+      <ul id="creditList"></ul>
+      <div class="actions"><button class="btn ghost" type="button" id="closeCredits">CLOSE</button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  /* ================= text in three languages ================= */
+  const T = {
+    en: {
+      gate_eyebrow: 'CCTV RECOVERY · SHANTI KUNJ SOCIETY, GATE NO. 2',
+      gate_title: 'KALI CHAUDAS NIGHT, 11:52 PM',
+      gate_p1: 'Every Kali Chaudas, someone leaves vada, lemon and chilli at the crossroads outside our gate. Nobody in the society admits to it.',
+      gate_p2: 'Last year our night watchman, Ramesh kaka, went out to clear it away. He never came back to his cabin. These are the six society cameras from that night.',
+      gate_warn: 'Use headphones and switch off the lights. Contains flashing images and a loud jump scare.',
+      play: '▶ PLAY FOOTAGE', play_safe: 'PLAY WITHOUT JUMP SCARE',
+      stories_link: 'Read and share Kali Chaudas stories →',
+      fiction: 'A work of fiction for Kali Chaudas. Photos are Creative Commons, edited.', credits: 'Photo credits',
+      whisper_idle: 'why did you stop moving', title_away: 'come back', tonight: 'tonight is Kali Chaudas',
+      end_title: 'RAMESH KAKA WAS NEVER FOUND.',
+      end_p: 'By morning the offering at the crossroads was gone. Tonight someone will leave it there again.',
+      end_viewer: (t, m, s) => `Last viewer: you, at ${t}. You watched for ${m} min ${s} s.`,
+      end_viewers: 'VIEWERS CONNECTED: 2', again: '▶ WATCH AGAIN', share: 'SEND TO A FRIEND ON WHATSAPP',
+      share_text: 'Watch this alone tonight, with headphones. Kali Chaudas CCTV: ',
+      st_eyebrow: 'KALI CHAUDAS STORIES', st_title: 'Your Kali Chaudas story',
+      st_intro: 'Pranked a friend? Saw something you can’t explain? Heard a story from your nani? Write it here. We read every story and publish the best ones.',
+      st_name: 'Your name or nickname (optional)', st_city: 'City (optional)', st_type: 'What kind of story is it?',
+      k_prank: 'A prank I played', k_real: 'It happened to me', k_heard: 'A story I heard',
+      st_story: 'Your story', st_consent: 'This story can be shown on the site. It doesn’t include anyone’s full name, phone number or address.',
+      st_submit: 'SEND STORY', st_sent: 'Got it. We’ll read it tonight. If we publish it, it will appear below.',
+      st_offline: 'Sending stories isn’t switched on in this preview yet. It opens when the site launches.',
+      st_short: 'Please write a few lines at least (40 characters or more).', st_noconsent: 'Please tick the box so we’re allowed to show your story.',
+      st_fail: 'That didn’t send. Check your connection and try again.',
+      st_wall: 'STORIES FROM READERS', st_empty: 'No stories yet. Yours could be the first one people read.',
+      back_footage: '◀ BACK TO THE FOOTAGE',
+      kinds: { prank: 'PRANK', real: 'HAPPENED TO ME', heard: 'HEARD IT' }, anon: 'Anonymous'
+    },
+    hi: {
+      gate_eyebrow: 'सीसीटीवी रिकवरी · शांति कुंज सोसाइटी, गेट नंबर 2',
+      gate_title: 'काली चौदस की रात, 11:52',
+      gate_p1: 'हर काली चौदस को कोई हमारे गेट के बाहर चौराहे पर वड़े, नींबू और मिर्च रख जाता है। सोसाइटी में कोई नहीं मानता कि उसने रखे।',
+      gate_p2: 'पिछले साल हमारे चौकीदार रमेश काका उन्हें हटाने बाहर गए। वे अपनी केबिन में कभी वापस नहीं लौटे। यह उस रात के सोसाइटी के छह कैमरों की रिकॉर्डिंग है।',
+      gate_warn: 'हेडफ़ोन लगाइए और लाइट बंद कर दीजिए। इसमें चमकती तस्वीरें और एक ज़ोरदार जंप स्केयर है।',
+      play: '▶ फुटेज चलाएँ', play_safe: 'बिना जंप स्केयर के चलाएँ',
+      stories_link: 'काली चौदस की कहानियाँ पढ़ें और भेजें →',
+      fiction: 'काली चौदस के लिए एक काल्पनिक कहानी। तस्वीरें क्रिएटिव कॉमन्स की हैं, बदलाव के साथ।', credits: 'फ़ोटो क्रेडिट',
+      whisper_idle: 'तुम रुक क्यों गए', title_away: 'वापस आओ', tonight: 'आज रात काली चौदस है',
+      end_title: 'रमेश काका कभी नहीं मिले।',
+      end_p: 'सुबह तक चौराहे से वड़े गायब थे। आज रात कोई फिर उन्हें वहीं रख जाएगा।',
+      end_viewer: (t, m, s) => `आखिरी दर्शक: आप, ${t} बजे। आपने ${m} मिनट ${s} सेकंड देखा।`,
+      end_viewers: 'जुड़े हुए दर्शक: 2', again: '▶ फिर से देखें', share: 'WHATSAPP पर दोस्त को भेजें',
+      share_text: 'आज रात इसे अकेले, हेडफ़ोन लगाकर देखना। काली चौदस सीसीटीवी: ',
+      st_eyebrow: 'काली चौदस की कहानियाँ', st_title: 'आपकी काली चौदस की कहानी',
+      st_intro: 'किसी दोस्त को डराया? कुछ ऐसा देखा जो समझ नहीं आया? नानी से कोई कहानी सुनी? यहाँ लिखिए। हम हर कहानी पढ़ते हैं और सबसे अच्छी कहानियाँ यहाँ दिखाते हैं।',
+      st_name: 'आपका नाम या उपनाम (वैकल्पिक)', st_city: 'शहर (वैकल्पिक)', st_type: 'कैसी कहानी है?',
+      k_prank: 'मैंने किया हुआ प्रैंक', k_real: 'मेरे साथ हुआ', k_heard: 'सुनी हुई कहानी',
+      st_story: 'आपकी कहानी', st_consent: 'यह कहानी साइट पर दिखाई जा सकती है। इसमें किसी का पूरा नाम, फ़ोन नंबर या पता नहीं है।',
+      st_submit: 'कहानी भेजें', st_sent: 'मिल गई। हम आज रात इसे पढ़ेंगे। अगर हम इसे छापते हैं, तो यह नीचे दिखेगी।',
+      st_offline: 'इस प्रीव्यू में कहानी भेजना अभी चालू नहीं है। साइट लॉन्च होने पर खुलेगा।',
+      st_short: 'कृपया कम से कम कुछ पंक्तियाँ लिखें (40 अक्षर या अधिक)।', st_noconsent: 'कृपया बॉक्स पर टिक करें ताकि हम आपकी कहानी दिखा सकें।',
+      st_fail: 'कहानी नहीं गई। अपना इंटरनेट देखें और फिर से कोशिश करें।',
+      st_wall: 'पाठकों की कहानियाँ', st_empty: 'अभी कोई कहानी नहीं है। लोग सबसे पहले आपकी कहानी पढ़ सकते हैं।',
+      back_footage: '◀ फुटेज पर वापस',
+      kinds: { prank: 'प्रैंक', real: 'मेरे साथ हुआ', heard: 'सुनी हुई' }, anon: 'गुमनाम'
+    },
+    gu: {
+      gate_eyebrow: 'સીસીટીવી રિકવરી · શાંતિ કુંજ સોસાયટી, ગેટ નં. 2',
+      gate_title: 'કાળી ચૌદસની રાત, 11:52',
+      gate_p1: 'દર કાળી ચૌદસે કોઈક અમારા ગેટની બહાર ચાર રસ્તે વડાં, લીંબુ અને મરચાં મૂકી જાય છે. સોસાયટીમાં કોઈ માનતું નથી કે એણે મૂક્યાં.',
+      gate_p2: 'ગયા વર્ષે અમારા ચોકીદાર રમેશકાકા એ ઉપાડવા બહાર ગયા. તેઓ પોતાની કેબિનમાં ક્યારેય પાછા ન આવ્યા. આ એ રાતના સોસાયટીના છ કેમેરાનું રેકોર્ડિંગ છે.',
+      gate_warn: 'હેડફોન પહેરો અને લાઈટ બંધ કરો. આમાં ઝબકતી તસવીરો અને એક જોરદાર જમ્પ સ્કેર છે.',
+      play: '▶ ફૂટેજ ચલાવો', play_safe: 'જમ્પ સ્કેર વગર ચલાવો',
+      stories_link: 'કાળી ચૌદસની વાર્તાઓ વાંચો અને મોકલો →',
+      fiction: 'કાળી ચૌદસ માટેની કાલ્પનિક વાર્તા. ફોટા ક્રિએટિવ કોમન્સના છે, ફેરફાર સાથે.', credits: 'ફોટો ક્રેડિટ',
+      whisper_idle: 'તમે કેમ અટકી ગયા', title_away: 'પાછા આવો', tonight: 'આજે રાત્રે કાળી ચૌદસ છે',
+      end_title: 'રમેશકાકા ક્યારેય ન મળ્યા.',
+      end_p: 'સવાર સુધીમાં ચાર રસ્તેથી વડાં ગાયબ હતાં. આજે રાત્રે કોઈક ફરી ત્યાં મૂકી જશે.',
+      end_viewer: (t, m, s) => `છેલ્લા દર્શક: તમે, ${t} વાગ્યે. તમે ${m} મિનિટ ${s} સેકન્ડ જોયું.`,
+      end_viewers: 'જોડાયેલા દર્શકો: 2', again: '▶ ફરી જુઓ', share: 'WHATSAPP પર મિત્રને મોકલો',
+      share_text: 'આજે રાત્રે આ એકલા, હેડફોન પહેરીને જોજો. કાળી ચૌદસ સીસીટીવી: ',
+      st_eyebrow: 'કાળી ચૌદસની વાર્તાઓ', st_title: 'તમારી કાળી ચૌદસની વાર્તા',
+      st_intro: 'કોઈ મિત્રને ડરાવ્યો? કંઈક એવું જોયું જે સમજાયું નહીં? નાની પાસેથી કોઈ વાર્તા સાંભળી? અહીં લખો. અમે દરેક વાર્તા વાંચીએ છીએ અને સૌથી સારી વાર્તાઓ અહીં બતાવીએ છીએ.',
+      st_name: 'તમારું નામ કે ઉપનામ (વૈકલ્પિક)', st_city: 'શહેર (વૈકલ્પિક)', st_type: 'કેવી વાર્તા છે?',
+      k_prank: 'મેં કરેલો પ્રેન્ક', k_real: 'મારી સાથે બન્યું', k_heard: 'સાંભળેલી વાર્તા',
+      st_story: 'તમારી વાર્તા', st_consent: 'આ વાર્તા સાઈટ પર બતાવી શકાય. તેમાં કોઈનું પૂરું નામ, ફોન નંબર કે સરનામું નથી.',
+      st_submit: 'વાર્તા મોકલો', st_sent: 'મળી ગઈ. અમે આજે રાત્રે વાંચીશું. જો અમે છાપીશું, તો નીચે દેખાશે.',
+      st_offline: 'આ પ્રિવ્યૂમાં વાર્તા મોકલવાનું હજી ચાલુ નથી. સાઈટ લોન્ચ થશે ત્યારે ખુલશે.',
+      st_short: 'કૃપા કરીને ઓછામાં ઓછી થોડી લીટીઓ લખો (40 અક્ષર કે વધુ).', st_noconsent: 'કૃપા કરીને બોક્સ પર ટિક કરો જેથી અમે તમારી વાર્તા બતાવી શકીએ.',
+      st_fail: 'વાર્તા ન ગઈ. તમારું ઇન્ટરનેટ તપાસો અને ફરી પ્રયાસ કરો.',
+      st_wall: 'વાચકોની વાર્તાઓ', st_empty: 'હજી કોઈ વાર્તા નથી. લોકો સૌથી પહેલાં તમારી વાર્તા વાંચી શકે.',
+      back_footage: '◀ ફૂટેજ પર પાછા',
+      kinds: { prank: 'પ્રેન્ક', real: 'મારી સાથે બન્યું', heard: 'સાંભળેલી' }, anon: 'અનામી'
+    }
+  };
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  const guess = (navigator.language || 'en').slice(0, 2);
+  let lang = store.get('kc-lang') || (T[guess] ? guess : 'en');
+  const t = (k) => (T[lang][k] !== undefined ? T[lang][k] : T.en[k]);
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-t]').forEach((el) => { const v = t(el.dataset.t); if (typeof v === 'string') el.textContent = v; });
+    document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    const url = location.href.split('#')[0];
+    document.getElementById('share').href = 'https://wa.me/?text=' + encodeURIComponent(t('share_text') + url);
+    renderWall();
+  }
+  document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => { lang = b.dataset.lang; store.set('kc-lang', lang); applyLang(); }));
+
+  const $ = (s) => document.querySelector(s);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad = (n) => String(n).padStart(2, '0');
+
+  /* ================= audio (all synthesized) ================= */
+  const A = {
+    ctx: null, master: null, drone: null,
+    init() {
+      if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      try { this.ctx = new C(); } catch (e) { return; }
+      this.master = this.ctx.createGain(); this.master.gain.value = .75; this.master.connect(this.ctx.destination);
+      const len = this.ctx.sampleRate * 2; this.noise = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = this.noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    },
+    now() { return this.ctx.currentTime; },
+    src() { const s = this.ctx.createBufferSource(); s.buffer = this.noise; s.loop = true; return s; },
+    startBed() {
+      if (!this.ctx) return; const c = this.ctx;
+      if (this.drone) { this.drone.out.gain.cancelScheduledValues(c.currentTime); this.drone.out.gain.setTargetAtTime(1, c.currentTime, .5); return; }
+      const out = c.createGain(); out.gain.value = 0; out.gain.setTargetAtTime(1, c.currentTime, 1);
+      const hum = c.createOscillator(), hg = c.createGain(); hum.frequency.value = 50; hg.gain.value = .025; hum.connect(hg); hg.connect(out);
+      const hum2 = c.createOscillator(), hg2 = c.createGain(); hum2.type = 'square'; hum2.frequency.value = 100; hg2.gain.value = .004; hum2.connect(hg2); hg2.connect(out);
+      const hiss = this.src(), hp = c.createBiquadFilter(), sg = c.createGain(); hp.type = 'highpass'; hp.frequency.value = 4000; sg.gain.value = .012; hiss.connect(hp); hp.connect(sg); sg.connect(out);
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 140; lp.Q.value = 6;
+      const o1 = c.createOscillator(), o2 = c.createOscillator(); o1.type = o2.type = 'sawtooth'; o1.frequency.value = 41; o2.frequency.value = 41.4;
+      const dg = c.createGain(); dg.gain.value = 0; o1.connect(lp); o2.connect(lp); lp.connect(dg); dg.connect(out);
+      out.connect(this.master); [hum, hum2, hiss, o1, o2].forEach((x) => x.start());
+      this.drone = { out, dg, o2 };
+    },
+    dread(l) { if (!this.drone) return; const tt = this.now(); this.drone.dg.gain.setTargetAtTime(l * .05, tt, 3); this.drone.o2.frequency.setTargetAtTime(41.4 + l * .8, tt, 3); },
+    cut() { if (this.drone) { this.drone.out.gain.cancelScheduledValues(this.now()); this.drone.out.gain.setValueAtTime(0, this.now()); } },
+    stop() { if (this.drone) this.drone.out.gain.setTargetAtTime(0, this.now(), .4); },
+    click() { if (!this.ctx) return; const c = this.ctx, tt = this.now(), n = this.src(), hp = c.createBiquadFilter(), g = c.createGain(); hp.type = 'highpass'; hp.frequency.value = 2500; g.gain.setValueAtTime(.25, tt); g.gain.exponentialRampToValueAtTime(.001, tt + .03); n.connect(hp); hp.connect(g); g.connect(this.master); n.start(tt); n.stop(tt + .05); },
+    static(dur = .5, v = .35) { if (!this.ctx) return; const c = this.ctx, tt = this.now(), n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = .4; g.gain.setValueAtTime(v, tt); g.gain.setValueAtTime(v, tt + dur * .8); g.gain.linearRampToValueAtTime(0, tt + dur); n.connect(bp); bp.connect(g); g.connect(this.master); n.start(tt, Math.random()); n.stop(tt + dur + .05); },
+    thump(v = .6) { if (!this.ctx) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(90, tt); o.frequency.exponentialRampToValueAtTime(38, tt + .2); g.gain.setValueAtTime(.0001, tt); g.gain.exponentialRampToValueAtTime(v, tt + .01); g.gain.exponentialRampToValueAtTime(.0001, tt + .6); o.connect(g); g.connect(this.master); o.start(tt); o.stop(tt + .65); },
+    anklet() {
+      if (!this.ctx) return; const c = this.ctx; let tt = this.now();
+      for (let step = 0; step < 4; step++) {
+        for (let k = 0; k < 5; k++) { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = 4200 + Math.random() * 2600; const at = tt + k * .018 + Math.random() * .01; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(.05, at + .003); g.gain.exponentialRampToValueAtTime(.0001, at + .25); o.connect(g); g.connect(this.master); o.start(at); o.stop(at + .3); }
+        tt += .55 + Math.random() * .15;
+      }
+    },
+    whisper(pan = 0) {
+      if (!this.ctx) return; const c = this.ctx, tt0 = this.now(), n = this.src(), bp = c.createBiquadFilter(), g = c.createGain();
+      bp.type = 'bandpass'; bp.frequency.value = 1700 + Math.random() * 1500; bp.Q.value = 2.2; g.gain.setValueAtTime(0, tt0); let tt = tt0;
+      for (let i = 0; i < 9; i++) { const d = .06 + Math.random() * .13; g.gain.linearRampToValueAtTime(.12 + Math.random() * .14, tt + d * .4); g.gain.linearRampToValueAtTime(.01, tt + d); tt += d; }
+      g.gain.linearRampToValueAtTime(0, tt + .1); n.connect(bp); bp.connect(g);
+      if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; g.connect(p); p.connect(this.master); } else g.connect(this.master);
+      n.start(tt0, Math.random()); n.stop(tt + .2);
+    },
+    scream() {
+      if (!this.ctx) return; const c = this.ctx, tt = this.now();
+      const ws = c.createWaveShaper(), curve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; curve[i] = Math.tanh(x * 6); } ws.curve = curve;
+      const g = c.createGain(); g.gain.setValueAtTime(.9, tt); g.gain.exponentialRampToValueAtTime(.001, tt + 1.4); ws.connect(g); g.connect(this.master);
+      [310, 327, 466, 620].forEach((f) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, tt); o.frequency.linearRampToValueAtTime(f * 1.25, tt + .15); o.frequency.linearRampToValueAtTime(f * .8, tt + 1.3); const og = c.createGain(); og.gain.value = .18; o.connect(og); og.connect(ws); o.start(tt); o.stop(tt + 1.5); });
+      const n = this.src(), ng = c.createGain(); ng.gain.value = .5; n.connect(ng); ng.connect(ws); n.start(tt); n.stop(tt + 1.5);
+      this.thump(1);
+    }
+  };
+
+  /* ================= images ================= */
+  const IMG = { road: 'assets/cams/road.jpg', parking: 'assets/cams/parking.jpg', hall: 'assets/cams/hall.jpg', stairs: 'assets/cams/stairs.jpg', bedroom: 'assets/cams/bedroom.jpg', corridor: 'assets/cams/corridor.jpg', doll: 'assets/cams/doll.jpg' };
+  const imgs = {}; let dollEyes = null;
+  const ready = Promise.all(Object.entries(IMG).map(([k, src]) => new Promise((res) => { const i = new Image(); i.onload = () => { imgs[k] = i; res(); }; i.onerror = res; i.src = src; }))).then(() => {
+    if (!imgs.doll) return;
+    const c = document.createElement('canvas'); c.width = 640; c.height = 480; const g = c.getContext('2d');
+    g.drawImage(imgs.doll, 0, 0); g.filter = 'blur(3px)'; g.fillStyle = '#000';
+    g.beginPath(); g.ellipse(275, 170, 28, 20, 0, 0, 7); g.ellipse(362, 170, 28, 20, 0, 0, 7); g.fill();
+    g.globalAlpha = .7; g.beginPath(); g.ellipse(318, 262, 34, 9, 0, 0, 7); g.fill(); g.globalAlpha = 1;
+    g.filter = 'blur(1px)'; g.fillStyle = 'rgba(235,240,225,.9)'; g.beginPath(); g.arc(277, 172, 2.2, 0, 7); g.arc(360, 172, 2.2, 0, 7); g.fill();
+    g.filter = 'none'; dollEyes = c;
+  });
+
+  /* ================= cameras ================= */
+  const FEED_DEFS = [
+    { ch: '01', name: 'GATE ROAD', img: 'road', offering: { x: 400, y: 338 }, figs: [null, { x: 332, y: 250, h: 44, shape: 'man' }, { x: 446, y: 350, h: 150, shape: 'lady' }, null] },
+    { ch: '02', name: 'PARKING', img: 'parking', figs: [null, { x: 432, y: 330, h: 120, shape: 'lady' }, { x: 432, y: 448, h: 280, shape: 'lady' }] },
+    { ch: '03', name: '3RD FLOOR', img: 'hall', figs: [null, { x: 290, y: 300, h: 56, shape: 'lady' }, { x: 300, y: 374, h: 150, shape: 'lady' }, { x: 330, y: 520, h: 470, shape: 'lady' }] },
+    { ch: '04', name: 'STAIRWELL', img: 'stairs', figs: [null, { x: 330, y: 360, h: 280, shadow: true, shape: 'lady' }, { x: 365, y: 470, h: 430, shadow: true, shape: 'lady' }] },
+    { ch: '05', name: 'FLAT 302 (LOCKED)', img: 'bedroom', figs: [null, { x: 482, y: 292, h: 172, shape: 'lady', clip: { cx: 482, cy: 190, rx: 33, ry: 136 } }, { x: 405, y: 372, h: 300, shape: 'lady' }] },
+    { ch: '06', name: 'BACK PASSAGE', img: 'corridor', figs: [null, { x: 292, y: 331, h: 126, shape: 'man' }, { x: 300, y: 430, h: 310, shape: 'lady' }] }
+  ];
+  let feeds = [];
+  const tilesEl = $('#tiles');
+  FEED_DEFS.forEach((f, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tile'; b.setAttribute('aria-label', `Open camera ${f.ch}, ${f.name.toLowerCase()}`);
+    const cv = document.createElement('canvas'); cv.width = 320; cv.height = 240; b.appendChild(cv); tilesEl.appendChild(b);
+    b.addEventListener('click', () => openFull(i)); f.ctx = cv.getContext('2d');
+  });
+  const resetFeeds = () => { feeds = FEED_DEFS.map((d) => ({ ...d, stage: 0, signal: true, subUntil: 0, restoreAt: 0 })); };
+
+  /* ================= rendering ================= */
+  const noise = Array.from({ length: 6 }, () => { const c = document.createElement('canvas'); c.width = 320; c.height = 240; const g = c.getContext('2d'), d = g.createImageData(320, 240); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } g.putImageData(d, 0, 0); return c; });
+  const scan = (() => { const c = document.createElement('canvas'); c.width = 4; c.height = 3; const g = c.getContext('2d'); g.fillStyle = 'rgba(0,0,0,.38)'; g.fillRect(0, 0, 4, 1); return c; })();
+  const vigCache = {};
+  const vignette = (w, h) => { const k = w + 'x' + h; if (vigCache[k]) return vigCache[k]; const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); const gr = g.createRadialGradient(w / 2, h / 2, h * .25, w / 2, h / 2, w * .72); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.8)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); return (vigCache[k] = c); };
+  const SHAPES = {
+    man: [[-.03, .13], [-.12, .18], [-.155, .63], [-.125, .64], [-.1, .32], [-.09, .6], [-.075, 1], [-.02, 1], [0, .62], [.02, 1], [.075, 1], [.09, .6], [.1, .32], [.125, .64], [.155, .63], [.12, .18], [.03, .13]],
+    lady: [[-.075, .05], [-.085, .22], [-.115, .24], [-.135, .56], [-.105, .57], [-.095, .36], [-.1, .6], [-.18, 1], [.18, 1], [.1, .6], [.095, .36], [.105, .57], [.135, .56], [.115, .24], [.085, .22], [.075, .05]]
+  };
+  function drawFigure(g, f, sx, sy, now) {
+    g.save();
+    if (f.clip) { g.beginPath(); g.ellipse(f.clip.cx * sx, f.clip.cy * sy, f.clip.rx * sx, f.clip.ry * sy, 0, 0, 7); g.clip(); }
+    const sway = reduced ? 0 : Math.sin(now / 1100) * .8;
+    const x = (f.x + sway) * sx, y = f.y * sy, h = f.h * sy, P = SHAPES[f.shape || 'man'];
+    g.filter = `blur(${(f.shadow ? 5 : Math.max(1, f.h / 110)) * sx}px)`;
+    g.fillStyle = f.shadow ? 'rgba(0,0,0,.78)' : 'rgba(6,7,6,.93)';
+    g.beginPath(); g.moveTo(x + P[0][0] * h, y - h + P[0][1] * h);
+    for (let i = 1; i < P.length; i++) g.lineTo(x + P[i][0] * h, y - h + P[i][1] * h);
+    g.closePath(); g.ellipse(x, y - h + .075 * h, .058 * h, .075 * h, 0, 0, 7); g.fill();
+    g.restore();
+  }
+  function drawOffering(g, o, sx, sy, now) {
+    const x = o.x * sx, y = o.y * sy, s = sx;
+    g.save(); g.filter = `blur(${.6 * s}px)`;
+    g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.ellipse(x, y + 3 * s, 24 * s, 6 * s, 0, 0, 7); g.fill();
+    g.fillStyle = '#cfcab8'; g.beginPath(); g.ellipse(x, y, 21 * s, 5.5 * s, 0, 0, 7); g.fill();
+    g.fillStyle = '#4b4136'; [[-9, -2], [-2, -3], [6, -2]].forEach(([dx, dy]) => { g.beginPath(); g.ellipse(x + dx * s, y + dy * s, 4.5 * s, 2.6 * s, 0, 0, 7); g.fill(); });
+    g.fillStyle = '#e8e4d2'; g.beginPath(); g.arc(x + 13 * s, y - 3 * s, 3 * s, 0, 7); g.fill();
+    g.strokeStyle = '#2e2a24'; g.lineWidth = 1.4 * s; g.beginPath(); g.moveTo(x - 17 * s, y + 1 * s); g.quadraticCurveTo(x - 12 * s, y - 4 * s, x - 6 * s, y + 2 * s); g.stroke();
+    const flick = reduced ? .8 : .65 + Math.random() * .35;
+    const gr = g.createRadialGradient(x + 18 * s, y - 6 * s, 0, x + 18 * s, y - 6 * s, 16 * s); gr.addColorStop(0, `rgba(255,250,225,${flick})`); gr.addColorStop(1, 'rgba(255,250,225,0)');
+    g.fillStyle = gr; g.fillRect(x, y - 24 * s, 36 * s, 36 * s);
+    g.restore();
+  }
+  function clockText() {
+    if (S.glitchUntil > performance.now()) return `${pad(Math.random() * 31 | 0)}-${pad(Math.random() * 12 + 1 | 0)}-${2000 + (Math.random() * 40 | 0)}  ${pad(Math.random() * 24 | 0)}:${pad(Math.random() * 60 | 0)}:${pad(Math.random() * 60 | 0)}`;
+    if (S.live) { const d = new Date(); return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()}  ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+    const s = 23 * 3600 + 52 * 60 + 7 + Math.floor(S.elapsed);
+    const day = s >= 86400 ? '20' : '19';
+    return `${day}-10-2025  ${pad(Math.floor(s / 3600) % 24)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+  }
+  function render(ctx, f, now) {
+    const w = ctx.canvas.width, h = ctx.canvas.height, sx = w / 640, sy = h / 480, s = sx;
+    ctx.save(); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
+    if (!f.signal) {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = .12; ctx.imageSmoothingEnabled = false; ctx.drawImage(noise[(now / 60 | 0) % 6], 0, 0, w, h); ctx.globalAlpha = 1;
+      ctx.font = `${44 * s}px VT323, monospace`; ctx.fillStyle = '#d9e2d2'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('NO SIGNAL', w / 2, h / 2);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = `${30 * s}px VT323, monospace`; ctx.fillText(`CH${f.ch}  ${f.name}`, 18 * s, 14 * s);
+      ctx.restore(); return;
+    }
+    ctx.imageSmoothingEnabled = true;
+    if (imgs[f.img]) ctx.drawImage(imgs[f.img], 0, 0, w, h);
+    if (f.offering && f.stage < 3) drawOffering(ctx, f.offering, sx, sy, now);
+    const fig = f.figs[f.stage]; if (fig) drawFigure(ctx, fig, sx, sy, now);
+    if (now < f.subUntil && dollEyes) { ctx.globalAlpha = .62; ctx.drawImage(dollEyes, 0, 0, w, h); ctx.globalAlpha = 1; }
+    ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = '#c3d8b2'; ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    if (!reduced) { const fl = .03 * Math.sin(now / 150 + w) + (Math.random() < .02 ? .06 : 0); if (fl > 0) { ctx.fillStyle = `rgba(210,232,198,${fl})`; ctx.fillRect(0, 0, w, h); } }
+    ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = .22; ctx.imageSmoothingEnabled = false; ctx.drawImage(noise[reduced ? 0 : (now / 55 + w | 0) % 6], 0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    ctx.fillStyle = ctx.createPattern(scan, 'repeat'); ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(vignette(w, h), 0, 0);
+    if (!reduced && Math.random() < .012) { const y = Math.random() * h, sh = h * (.02 + Math.random() * .06); ctx.drawImage(ctx.canvas, 0, y, w, sh, w * (.01 + Math.random() * .03), y, w, sh); }
+    ctx.font = `${30 * s}px VT323, monospace`; ctx.textBaseline = 'top'; ctx.fillStyle = 'rgba(232,242,226,.92)';
+    ctx.fillText(`CH${f.ch}  ${f.name}`, 18 * s, 14 * s);
+    const ct = clockText(); ctx.fillText(ct, w - 18 * s - ctx.measureText(ct).width, 14 * s);
+    if (S.live) { if ((now / 700 | 0) % 2 === 0) { ctx.fillStyle = '#e5484b'; ctx.beginPath(); ctx.arc(28 * s, h - 30 * s, 8 * s, 0, 7); ctx.fill(); } ctx.fillStyle = 'rgba(232,242,226,.92)'; ctx.fillText('LIVE', 44 * s, h - 44 * s); }
+    else ctx.fillText('▶ PLAY  x1', 18 * s, h - 44 * s);
+    ctx.restore();
+  }
+
+  /* ================= state + timeline ================= */
+  const S = { phase: 'gate', elapsed: 0, live: false, safe: false, full: -1, glitchUntil: 0, lastInput: performance.now(), idle: false, hiddenAt: 0, startedWall: 0, nextSub: Infinity, idx: 0, ended: false };
+  const logEl = $('#log');
+  function log(msg, kind = '') {
+    const li = document.createElement('li'); li.className = kind + ' new';
+    const tm = document.createElement('time'); tm.textContent = clockText().split('  ')[1] || ''; const sp = document.createElement('span'); sp.textContent = msg;
+    li.append(tm, sp); logEl.prepend(li); while (logEl.children.length > 60) logEl.lastChild.remove();
+  }
+  const F = (ch) => feeds[+ch - 1];
+  const stage = (ch, st, quiet) => { F(ch).stage = st; if (!quiet && st > 0) { log(`MOTION  CH${ch}`, 'motion'); A.click(); } };
+  const lose = (ch, after = 0) => { F(ch).signal = false; A.static(.45, .3); log(`VIDEO LOSS  CH${ch}`, 'alarm'); if (after) F(ch).restoreAt = S.elapsed + after; };
+  function showWhisper(text, ms) { const w = $('#whisper'); w.textContent = text; w.hidden = false; if (ms) setTimeout(() => { if (!S.idle) w.hidden = true; }, ms); }
+
+  const TIMELINE = [
+    [0.5, () => { log('PLAYBACK START'); log('6 CHANNELS OK'); }],
+    [7, () => { stage('01', 1); log('GATE 2  WATCHMAN OUT', 'motion'); }],
+    [16, () => stage('04', 1)],
+    [25, () => stage('06', 1)],
+    [31, () => { stage('01', 2); A.anklet(); A.dread(1); }],
+    [40, () => { lose('05', 2.6); F('05').stage = 1; }],
+    [48, () => { stage('06', 0, true); stage('02', 1); A.anklet(); }],
+    [55, () => { stage('01', 3, true); log('CH01  OBJECT REMOVED', 'alarm'); stage('04', 2); A.dread(2); }],
+    [63, goLive],
+    [73, () => { setViewers(2); log('VIEWER CONNECTED  UNKNOWN', 'alarm'); A.whisper(.7); }],
+    [79, () => { if (!S.safe) S.nextSub = S.elapsed; }],
+    [85, () => { stage('03', 2); stage('02', 2); A.dread(3); A.anklet(); }],
+    [97, () => { stage('06', 2); A.whisper(-.7); }],
+    [106, () => lose('06')], [107.6, () => lose('05')], [109.2, () => lose('04')], [110.8, () => lose('02')], [112.4, () => lose('01')],
+    [115, () => { S.nextSub = Infinity; if (S.full !== 2) openFull(2); stage('03', 3); A.dread(4); A.anklet(); }],
+    [120.5, () => { lose('03'); A.cut(); }],
+    [124, finale]
+  ];
+  function goLive() {
+    S.glitchUntil = performance.now() + 1600; A.static(1.4, .45);
+    setTimeout(() => {
+      S.live = true; const m = $('#mode'); m.textContent = '● LIVE'; m.classList.add('live');
+      log('PLAYBACK ENDED'); log('LIVE FEED CONNECTED', 'alarm'); log('VIEWER CONNECTED  YOU', 'alarm'); A.whisper(0);
+      const d = new Date(); const y = d.getFullYear(), mo = d.getMonth(), da = d.getDate();
+      if (y === 2026 && mo === 10 && da >= 6 && da <= 8) showWhisper(t('tonight'), 3500);
+    }, 1600);
+  }
+  function setViewers(n) { const v = $('#viewers'); v.textContent = 'VIEWERS ' + n; v.classList.toggle('more', n > 1); }
+
+  /* ================= watching the viewer ================= */
+  const onInput = () => { S.lastInput = performance.now(); if (S.idle) { S.idle = false; $('#whisper').hidden = true; } };
+  ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((e) => addEventListener(e, onInput, { passive: true }));
+  function advanceSomewhere() { const f = feeds.find((x) => x.signal && x.stage < x.figs.length - 1 && x.ch !== '03' && x.ch !== '01'); if (f) { f.stage++; log(`MOTION  CH${f.ch}`, 'motion'); } }
+  function checkIdle(now) {
+    if (!S.live || S.idle || S.ended || now - S.lastInput < 7000) return;
+    S.idle = true; showWhisper(t('whisper_idle')); log('VIEWER IDLE 7s', 'alarm'); A.whisper(Math.random() * 2 - 1); advanceSomewhere();
+  }
+  const baseTitle = document.title; let titleTimer = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (S.phase !== 'dvr') return;
+    if (document.hidden) { S.hiddenAt = Date.now(); if (S.live) document.title = t('title_away'); }
+    else {
+      clearTimeout(titleTimer); titleTimer = setTimeout(() => { document.title = baseTitle; }, 2500);
+      if (S.live && S.hiddenAt) { log(`VIEWER LOOKED AWAY  ${Math.round((Date.now() - S.hiddenAt) / 1000)}s`, 'alarm'); A.whisper(0); advanceSomewhere(); }
+    }
+  });
+
+  /* ================= full view ================= */
+  const fullEl = $('#full'), fullCtx = $('#fullCanvas').getContext('2d');
+  function openFull(i) { S.full = i; fullEl.hidden = false; $('#fullName').textContent = `CH${feeds[i].ch}  ${feeds[i].name}`; A.click(); $('#back').focus(); }
+  function closeFull() { S.full = -1; fullEl.hidden = true; }
+  $('#back').addEventListener('click', () => { if (S.elapsed < 115) closeFull(); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.full >= 0 && S.elapsed < 115) closeFull(); });
+
+  /* ================= screens ================= */
+  const screens = ['gate', 'end', 'stories'];
+  function show(id) { screens.forEach((s) => { $('#' + s).hidden = s !== id; }); document.body.classList.toggle('in-dvr', id === 'dvr'); window.scrollTo(0, 0); }
+  function start(safe) {
+    A.init(); A.startBed(); A.dread(0); resetFeeds();
+    Object.assign(S, { phase: 'dvr', elapsed: 0, live: false, safe, full: -1, glitchUntil: 0, idx: 0, nextSub: Infinity, idle: false, ended: false, hiddenAt: 0, startedWall: Date.now(), lastInput: performance.now() });
+    logEl.innerHTML = ''; setViewers(1); const m = $('#mode'); m.textContent = '▶ PLAYBACK'; m.classList.remove('live');
+    show('dvr'); $('#dvr').hidden = false; fullEl.hidden = true; $('#whisper').hidden = true;
+  }
+  $('#play').addEventListener('click', () => start(false));
+  $('#playSafe').addEventListener('click', () => start(true));
+  $('#again').addEventListener('click', () => start(S.safe));
+  function finale() {
+    S.ended = true; $('#whisper').hidden = true;
+    const sc = $('#scare'), g = $('#scareCanvas').getContext('2d');
+    if (dollEyes) { g.drawImage(dollEyes, -96, -72, 1152, 864); g.globalCompositeOperation = 'multiply'; g.fillStyle = '#c3d8b2'; g.fillRect(0, 0, 960, 720); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,.25)'; for (let y = 0; y < 720; y += 3) g.fillRect(0, y, 960, 1); }
+    sc.className = ''; sc.hidden = false;
+    if (S.safe) { sc.classList.add('slow'); setTimeout(showEnd, 7000); }
+    else { sc.classList.add('shake'); A.scream(); setTimeout(showEnd, 1100); }
+  }
+  function showEnd() {
+    $('#scare').hidden = true; $('#dvr').hidden = true; fullEl.hidden = true; S.phase = 'end'; A.stop();
+    const secs = Math.round((Date.now() - S.startedWall) / 1000);
+    const tm = new Date().toLocaleTimeString(lang === 'en' ? [] : lang + '-IN', { hour: 'numeric', minute: '2-digit' });
+    $('#endViewer').textContent = t('end_viewer')(tm, Math.floor(secs / 60), secs % 60);
+    document.title = baseTitle; show('end');
+    $('#stories').hidden = false; // the story form sits right under the ending
+  }
+  $('#toStories').addEventListener('click', () => show('stories'));
+  $('#storiesBack').addEventListener('click', () => show('gate'));
+
+  /* ================= stories ================= */
+  let stories = [];
+  fetch('stories.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).then((d) => { stories = Array.isArray(d) ? d : []; renderWall(); }).catch(() => {});
+  function renderWall() {
+    const wall = $('#wall'); wall.innerHTML = '';
+    if (!stories.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = t('st_empty'); wall.appendChild(li); return; }
+    stories.forEach((s) => {
+      const li = document.createElement('li'); li.className = 'story';
+      const meta = document.createElement('div'); meta.className = 'meta';
+      meta.textContent = [(T[lang].kinds[s.kind] || ''), s.name || t('anon'), s.city].filter(Boolean).join(' · ');
+      const p = document.createElement('p'); p.textContent = s.story;
+      li.append(meta, p); wall.appendChild(li);
+    });
+  }
+  $('#storyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = $('#sMsg'); msg.className = 'msg';
+    const story = $('#sStory').value.trim();
+    if (story.length < 40) { msg.textContent = t('st_short'); msg.classList.add('err'); $('#sStory').focus(); return; }
+    if (!$('#sConsent').checked) { msg.textContent = t('st_noconsent'); msg.classList.add('err'); return; }
+    const body = { name: $('#sName').value.trim(), city: $('#sCity').value.trim(), kind: document.querySelector('input[name="kind"]:checked').value, story, lang };
+    try {
+      const r = await fetch('api/stories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if ([404, 405, 501].includes(r.status)) { msg.textContent = t('st_offline'); msg.classList.add('err'); return; }
+      if (!r.ok) throw new Error(r.status);
+      msg.textContent = t('st_sent'); msg.classList.add('ok'); $('#sStory').value = ''; $('#sConsent').checked = false;
+    } catch (err) { msg.textContent = t('st_fail'); msg.classList.add('err'); }
+  });
+
+  /* ================= credits ================= */
+  fetch('assets/credits.json').then((r) => (r.ok ? r.json() : [])).then((list) => {
+    const ul = $('#creditList');
+    list.forEach((c) => {
+      const li = document.createElement('li');
+      li.append(`${c.use}: “${c.title}” by ${c.creator || 'creator not listed'}, `);
+      const a1 = document.createElement('a'); a1.href = c.source; a1.target = '_blank'; a1.rel = 'noopener'; a1.textContent = 'source';
+      const a2 = document.createElement('a'); a2.href = c.license_url; a2.target = '_blank'; a2.rel = 'noopener'; a2.textContent = c.license;
+      li.append(a1, ', ', a2, '.'); ul.appendChild(li);
+    });
+  }).catch(() => {});
+  document.querySelectorAll('[data-credits]').forEach((b) => b.addEventListener('click', () => { $('#credits').hidden = false; }));
+  $('#closeCredits').addEventListener('click', () => { $('#credits').hidden = true; });
+
+  /* ================= loop ================= */
+  let last = performance.now(), lastDraw = 0;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    const dt = Math.min(.25, (now - last) / 1000); last = now;
+    if (S.phase !== 'dvr') return;
+    if (!document.hidden && !S.ended) {
+      S.elapsed += dt;
+      while (S.idx < TIMELINE.length && TIMELINE[S.idx][0] <= S.elapsed) TIMELINE[S.idx++][1]();
+      feeds.forEach((f) => { if (f.restoreAt && S.elapsed >= f.restoreAt) { f.restoreAt = 0; f.signal = true; log(`VIDEO RESTORED  CH${f.ch}`); } });
+      if (S.elapsed >= S.nextSub) {
+        const on = feeds.filter((f) => f.signal); const f = S.full >= 0 && Math.random() < .6 ? feeds[S.full] : on[Math.random() * on.length | 0];
+        if (f && f.signal) f.subUntil = now + 110;
+        S.nextSub = S.elapsed + 5 + Math.random() * 4;
+      }
+      checkIdle(now);
+    }
+    if (now - lastDraw < 66) return; lastDraw = now;
+    $('#clockBar').textContent = clockText();
+    if (S.full >= 0) render(fullCtx, feeds[S.full], now); else feeds.forEach((f) => render(f.ctx, f, now));
+  }
+  applyLang();
+  ready.then(() => requestAnimationFrame(tick));
+})();
+</script>
+</body>
+</html>
