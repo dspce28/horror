@@ -547,6 +547,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
             <label><input type="radio" name="kind" value="heard" id="kHeard"><span data-t="k_heard"></span></label>
           </div>
         </fieldset>
+        <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label for="sWeb">Website</label><input type="text" id="sWeb" tabindex="-1" autocomplete="off"></div>
         <div class="field"><label for="sStory" data-t="st_story"></label><textarea id="sStory" maxlength="3000"></textarea></div>
         <label class="consent"><input type="checkbox" id="sConsent"><span data-t="st_consent"></span></label>
         <div><button class="btn" type="submit" data-t="st_submit"></button></div>
@@ -709,21 +710,21 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       r1: 'Light a diya at the door before midnight, facing south.', after_p: 'Send it to a friend tonight and find out if they do.',
       share_text: 'Watch this alone tonight, with headphones on: ', st_kicker: 'Ghost stories', fiction: 'A work of fiction.', credits: 'Credits',
       face_1: 'She heard you come in.', face_2: 'Stay. She has stories to tell you.',
-      hands_1: 'Don’t let her in.', hands_2: 'Too late.', hands_3: 'Now listen. These are the stories nani never finished.' },
+      hands_1: 'Don’t let her in.', hands_2: 'Too late.', hands_3: 'Now listen. These are the stories nani never finished.', st_rate: 'You’ve sent a few stories already. Try again in an hour.' },
     hi: { kicker: 'कुछ कहानियाँ सच होती हैं', hero_sub: 'वह घड़ी जब आत्माएँ घूमती हैं।',
       cross_1: 'सबसे अँधेरी रातों में कोई चौराहे पर वड़े, नींबू और मिर्च रख जाता है।',
       mirror_1: 'आधी रात के बाद हर आईना ढक दीजिए।', rules_kicker: 'रात के लिए नानी के नियम', rules_title: 'रात कैसे बचें',
       r1: 'आधी रात से पहले दरवाज़े पर दक्षिण की ओर दीया जलाइए।', after_p: 'आज रात किसी दोस्त को भेजिए और देखिए उसकी निकलती है या नहीं।',
       share_text: 'आज रात इसे अकेले, हेडफ़ोन लगाकर देखना: ', st_kicker: 'भूतों की कहानियाँ', fiction: 'एक काल्पनिक कहानी।', credits: 'क्रेडिट',
       face_1: 'उसने आपके आने की आहट सुन ली है।', face_2: 'रुकिए। उसके पास आपको सुनाने के लिए कहानियाँ हैं।',
-      hands_1: 'उसे अंदर मत आने देना।', hands_2: 'बहुत देर हो चुकी है।', hands_3: 'अब सुनिए। ये वो कहानियाँ हैं जो नानी ने कभी पूरी नहीं कीं।' },
+      hands_1: 'उसे अंदर मत आने देना।', hands_2: 'बहुत देर हो चुकी है।', hands_3: 'अब सुनिए। ये वो कहानियाँ हैं जो नानी ने कभी पूरी नहीं कीं।', st_rate: 'आपने अभी कई कहानियाँ भेजी हैं। एक घंटे बाद फिर कोशिश करें।' },
     gu: { kicker: 'કેટલીક વાર્તાઓ સાચી હોય છે', hero_sub: 'એ ઘડી જ્યારે આત્માઓ ફરે છે.',
       cross_1: 'સૌથી અંધારી રાતોમાં કોઈક ચાર રસ્તે વડાં, લીંબુ અને મરચાં મૂકી જાય છે.',
       mirror_1: 'મધરાત પછી દરેક અરીસો ઢાંકી દો.', rules_kicker: 'રાત માટે નાનીના નિયમો', rules_title: 'રાત કેવી રીતે બચવી',
       r1: 'મધરાત પહેલાં દરવાજે દક્ષિણ તરફ દીવો પ્રગટાવો.', after_p: 'આજે રાત્રે કોઈ મિત્રને મોકલો અને જુઓ કે એની નીકળે છે કે નહીં.',
       share_text: 'આજે રાત્રે આ એકલા, હેડફોન પહેરીને જોજો: ', st_kicker: 'ભૂતની વાર્તાઓ', fiction: 'એક કાલ્પનિક વાર્તા.', credits: 'ક્રેડિટ',
       face_1: 'એણે તમારા આવવાનો અવાજ સાંભળી લીધો છે.', face_2: 'રોકાઓ. એની પાસે તમને કહેવા માટે વાર્તાઓ છે.',
-      hands_1: 'એને અંદર આવવા દેતા નહીં.', hands_2: 'હવે બહુ મોડું થઈ ગયું.', hands_3: 'હવે સાંભળો. આ એ વાર્તાઓ છે જે નાનીએ ક્યારેય પૂરી ન કરી.' }
+      hands_1: 'એને અંદર આવવા દેતા નહીં.', hands_2: 'હવે બહુ મોડું થઈ ગયું.', hands_3: 'હવે સાંભળો. આ એ વાર્તાઓ છે જે નાનીએ ક્યારેય પૂરી ન કરી.', st_rate: 'તમે હમણાં ઘણી વાર્તાઓ મોકલી છે. એક કલાક પછી ફરી પ્રયાસ કરો.' }
   };
   Object.keys(GEN).forEach((k) => Object.assign(T[k], GEN[k]));
   const $ = (s) => document.querySelector(s);
@@ -1197,10 +1198,12 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     const story = $('#sStory').value.trim();
     if (story.length < 40) { msg.textContent = t('st_short'); msg.classList.add('err'); $('#sStory').focus(); return; }
     if (!$('#sConsent').checked) { msg.textContent = t('st_noconsent'); msg.classList.add('err'); return; }
-    const body = { name: $('#sName').value.trim(), city: $('#sCity').value.trim(), kind: document.querySelector('input[name="kind"]:checked').value, story, lang };
+    const body = { website: $('#sWeb').value, name: $('#sName').value.trim(), city: $('#sCity').value.trim(), kind: document.querySelector('input[name="kind"]:checked').value, story, lang };
     try {
-      const r = await fetch('api/stories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch('api/stories.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if ([404, 405, 501].includes(r.status)) { msg.textContent = t('st_offline'); msg.classList.add('err'); return; }
+      if (r.status === 429) { msg.textContent = t('st_rate'); msg.classList.add('err'); return; }
+      if (r.status === 422) { msg.textContent = t('st_short'); msg.classList.add('err'); return; }
       if (!r.ok) throw new Error(String(r.status));
       msg.textContent = t('st_sent'); msg.classList.add('ok'); $('#sStory').value = ''; $('#sConsent').checked = false;
     } catch (err) { msg.textContent = t('st_fail'); msg.classList.add('err'); }

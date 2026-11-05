@@ -1,0 +1,14 @@
+Options -Indexes
+<FilesMatch "\.(md|json\.tmp.*)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType audio/mp4 "access plus 30 days"
+  ExpiresByType video/mp4 "access plus 30 days"
+</IfModule>
+<Files "stories.json">
+  Header set Cache-Control "no-cache"
+</Files>

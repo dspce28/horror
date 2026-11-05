@@ -16,3 +16,19 @@ python3 -m http.server 8000
 ## Theme music
 
 The site plays `assets/audio/theme.mp4` (or `theme.mp3` / `theme.m4a`) on the opening screens if the file exists, and lowers it once the stories start. No theme file is committed here; add your own.
+
+## Story submissions (PHP)
+
+- `api/stories.php` receives the form and saves each story to `data/pending/` (max 5 per hour per visitor). Nothing goes public automatically.
+- `admin.php` is your private page to **Publish**, **Delete** or **Remove from site**. Published stories are written to `stories.json`, which the site reads.
+- First visit to `admin.php` walks you through setting a password; it ends with creating `data/config.php` in Hostinger's File Manager. That file is never committed.
+- `data/` and `assets/incoming/` are blocked from the web by `.htaccess`.
+
+## Deploying on Hostinger
+
+1. hPanel → **Domains → Subdomains**: create the subdomain. If the domain's DNS is managed somewhere else, add an **A record** for the subdomain pointing to the server IP shown in hPanel (Websites → Dashboard → Plan details / DNS).
+2. hPanel → **Advanced → Git**: repository `git@github.com:dspce28/horror.git`, branch `claude/stoic-archimedes-axihrk`, install path = the subdomain's folder. Because the repo is private, copy the SSH key hPanel shows into GitHub → repo **Settings → Deploy keys** (read-only).
+   Or upload a ZIP of the repo through **File Manager** and extract it in the subdomain folder.
+3. hPanel → **Security → SSL**: install the free SSL certificate for the subdomain.
+4. Open `https://<subdomain>/admin.php` and set your password.
+5. Optional: put your theme track at `assets/audio/theme.mp4`.
