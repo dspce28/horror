@@ -831,7 +831,7 @@ body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
       const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
       try { this.ctx = new C(); } catch (e) { return; }
       const c = this.ctx;
-      this.master = c.createGain(); this.master.gain.value = this.muted ? 0 : .9;
+      this.master = c.createGain(); this.master.gain.value = this.muted ? 0 : .7;
       const comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; this.master.connect(comp); comp.connect(c.destination);
       const len = c.sampleRate * 2; this.noise = c.createBuffer(1, len, c.sampleRate);
       const d = this.noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -957,7 +957,7 @@ body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
       const d = buf.getChannelData(0), thr = .004; let a = 0, b = d.length - 1;
       while (a < d.length && Math.abs(d[a]) < thr) a++; while (b > a && Math.abs(d[b]) < thr) b--;
       const start = a / buf.sampleRate, len = (b - a) / buf.sampleRate, xf = Math.min(2.5, len / 6);
-      const master = this.ctx.createGain(); master.gain.value = 0; master.gain.setTargetAtTime(.8, this.now(), .5); master.connect(this.master); this.themeGain = master;
+      const master = this.ctx.createGain(); master.gain.value = 0; master.gain.setTargetAtTime(.22, this.now(), .5); master.connect(this.master); this.themeGain = master;
       const play = (at) => {
         const s = this.ctx.createBufferSource(), g = this.ctx.createGain(); s.buffer = buf; s.connect(g); g.connect(master);
         g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(1, at + xf); g.gain.setValueAtTime(1, at + len - xf); g.gain.linearRampToValueAtTime(0, at + len);
@@ -967,7 +967,7 @@ body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
       play(this.now() + .05);
     },
     themeLevel(v) { if (this.themeGain) this.themeGain.gain.setTargetAtTime(v, this.now(), 1.2); },
-    setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .9, this.now(), .05); }
+    setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .7, this.now(), .05); }
   };
   function paintSound() { const b = $('#soundBtn'); b.textContent = A.muted ? t('sound_off') : t('sound_on'); b.setAttribute('aria-pressed', String(!A.muted)); }
   $('#soundBtn').addEventListener('click', () => { A.init(); A.setMuted(!A.muted); paintSound(); });
@@ -1340,7 +1340,7 @@ body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
       if (active === 'face') updFace(S.face.p, now);
       if (active === 'hands') updHands(S.hands.p);
       if (active === 'hero') spawnEyes($('#eyesHero'), now);
-      A.themeLevel(['hero', 'face', 'hands'].includes(active) ? .8 : active === 'scare' ? 0 : .14);
+      A.themeLevel(['hero', 'face', 'hands'].includes(active) ? .22 : active === 'scare' ? 0 : .07);
       if (active === 'tree') updTree(S.tree.p);
       if (active === 'name') updName(S.name.p);
       if (active === 'mirror') updMirror(S.mirror.p);
