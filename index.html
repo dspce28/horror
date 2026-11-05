@@ -451,17 +451,18 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
             <filter id="waver3" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence id="turb3" type="fractalNoise" baseFrequency="0.03 0.08" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter>
           </defs>
           <g clip-path="url(#glass)">
-            <rect x="360" y="90" width="280" height="420" fill="url(#glassG)" opacity=".55"/>
-            <rect x="560" y="150" width="50" height="220" fill="#07080b" opacity=".8"/>
+            <rect x="360" y="90" width="280" height="420" fill="url(#glassG)" opacity=".35"/><rect x="360" y="90" width="280" height="420" fill="#000" opacity=".35" filter="url(#tarnish)"/>
+            
             <circle id="mDiya" cx="500" cy="420" r="40" fill="url(#mDiyaG)"/>
             <g id="mGhost" opacity="0" filter="url(#waver3)"><image href="assets/art/mirror-ghost.webp" x="-120" y="-110" width="240" height="240" mask="url(#mGhostMask)" style="mix-blend-mode:screen;filter:grayscale(.75) contrast(1.25) brightness(.9)"/></g>
-            <g fill="#040305"><circle cx="500" cy="350" r="38"/><path d="M420 520 Q430 400 500 392 Q570 400 580 520 Z"/></g>
-            <path d="M380 110 L560 520" stroke="#fff" stroke-width="40" opacity=".04"/>
+            
+            <path d="M380 110 L560 520" stroke="#fff" stroke-width="30" opacity=".025"/>
             <g id="cracks" stroke="#d9e0e6" stroke-width="1.6" fill="none" opacity=".85"><path d="M528 262 L470 140"/><path d="M528 262 L610 180"/><path d="M528 262 L640 330"/><path d="M528 262 L560 470"/><path d="M528 262 L420 360"/><path d="M528 262 L380 250"/><path d="M500 200 L540 230 L590 220"/><path d="M470 320 L510 300 L560 330 L600 300"/></g>
           </g>
-          <ellipse cx="500" cy="300" rx="146" ry="216" fill="none" stroke="#6b5428" stroke-width="18" opacity=".8"/>
+          <defs><linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2a12"/><stop offset=".3" stop-color="#8a6a2e"/><stop offset=".5" stop-color="#2a1d0b"/><stop offset=".72" stop-color="#6e5222"/><stop offset="1" stop-color="#1e1508"/></linearGradient><filter id="tarnish"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" result="n"/><feColorMatrix in="n" type="saturate" values="0" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="t"/><feBlend in="SourceGraphic" in2="t" mode="multiply"/></filter></defs>
+          <ellipse cx="500" cy="300" rx="146" ry="216" fill="none" stroke="url(#brass)" stroke-width="20" filter="url(#tarnish)" opacity=".75"/>
           <ellipse cx="500" cy="300" rx="158" ry="228" fill="none" stroke="#3c2e15" stroke-width="4" opacity=".8"/>
-          <g fill="#7a6230" opacity=".8"><circle cx="500" cy="76" r="12"/><circle cx="500" cy="524" r="9"/><circle cx="354" cy="300" r="8"/><circle cx="646" cy="300" r="8"/></g>
+          
         </svg>
       </div>
       <div class="txt">
@@ -1187,7 +1188,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 
   /* ================= stories ================= */
   let stories = [];
-  fetch('stories.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).then((d) => { stories = Array.isArray(d) ? d : []; renderWall(); }).catch(() => {});
+  fetch('/api/published').then((r) => (r.ok ? r : fetch('stories.json'))).catch(() => fetch('stories.json')).then((r) => (r && r.ok ? r.json() : [])).then((d) => { stories = Array.isArray(d) ? d : []; renderWall(); }).catch(() => {});
   function renderWall() {
     const wall = $('#wall'); if (!wall) return; wall.innerHTML = '';
     if (!stories.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = t('st_empty'); wall.appendChild(li); return; }
@@ -1200,7 +1201,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (!$('#sConsent').checked) { msg.textContent = t('st_noconsent'); msg.classList.add('err'); return; }
     const body = { website: $('#sWeb').value, name: $('#sName').value.trim(), city: $('#sCity').value.trim(), kind: document.querySelector('input[name="kind"]:checked').value, story, lang };
     try {
-      const r = await fetch('api/stories.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch('/api/stories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if ([404, 405, 501].includes(r.status)) { msg.textContent = t('st_offline'); msg.classList.add('err'); return; }
       if (r.status === 429) { msg.textContent = t('st_rate'); msg.classList.add('err'); return; }
       if (r.status === 422) { msg.textContent = t('st_short'); msg.classList.add('err'); return; }

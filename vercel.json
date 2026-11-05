@@ -1,0 +1,7 @@
+{
+  "rewrites": [{ "source": "/admin", "destination": "/api/admin" }],
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] },
+    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] }
+  ]
+}

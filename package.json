@@ -1,0 +1,6 @@
+{
+  "name": "aadhi-raat",
+  "private": true,
+  "engines": { "node": "20.x" },
+  "dependencies": { "@vercel/blob": "^1.0.0" }
+}
