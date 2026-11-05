@@ -172,6 +172,37 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 #credits { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.94); overflow-y: auto; display: grid; place-items: center; padding: 24px 16px; }
 #credits .box { max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
 #credits a { color: var(--turmeric); overflow-wrap: anywhere; }
+
+/* ---------- round 2: effects ---------- */
+.dark { background: radial-gradient(circle var(--lr) at var(--lx) var(--ly), rgba(7,5,11,0) 0%, rgba(7,5,11,.05) 32%, rgba(7,5,11,calc(var(--dk, .9) * (1 - var(--flash, 0)))) 100%); }
+#grain { position: fixed; inset: -50%; z-index: 25; pointer-events: none; opacity: .08; mix-blend-mode: overlay; animation: grain .5s steps(4) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } 100% { transform: translate(1%, 3%); } }
+#bolt { position: fixed; inset: 0; z-index: 15; pointer-events: none; background: rgba(190,200,255,.0); }
+.gate-name { display: flex; flex-direction: column; gap: 6px; width: min(380px, 100%); text-align: left; }
+.gate-name label { font-size: 13px; color: var(--smoke); }
+.gate-name input { background: rgba(0,0,0,.5); color: var(--bone); border: 1px solid rgba(239,230,214,.22); border-radius: 999px; padding: 10px 16px; text-align: center; font-size: 17px; }
+.calls { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+.call { position: absolute; font-family: var(--f-display); color: var(--bone); opacity: 0; filter: blur(14px); transition: opacity 1.2s ease, filter 1.2s ease, transform 2.4s ease; text-shadow: 0 0 22px rgba(200,210,255,.5); white-space: nowrap; }
+.call.on { opacity: .9; filter: blur(.4px); }
+.call.c1 { left: 7%; top: 64%; font-size: clamp(22px, 3.4vw, 38px); transform: translateX(-20px); }
+.call.c2 { right: 7%; top: 30%; font-size: clamp(28px, 4.6vw, 52px); transform: translateX(20px); }
+.call.c3 { left: 0; right: 0; text-align: center; top: 46%; font-size: clamp(46px, 10vw, 120px); color: var(--blood-hi); letter-spacing: .08em; text-shadow: 0 0 40px rgba(179,18,27,.9); }
+.call.on.c1, .call.on.c2 { transform: none; }
+.turnL { animation: turnL .9s ease; } .turnR { animation: turnR .9s ease; }
+@keyframes turnL { 30% { transform: translateX(-4%) rotate(-1deg); } } @keyframes turnR { 30% { transform: translateX(4%) rotate(1deg); } }
+#cracks path { stroke-dasharray: 400; stroke-dashoffset: 400; transition: stroke-dashoffset .5s ease-out; }
+#cracks.on path { stroke-dashoffset: 0; }
+#rules { padding-block: 90px 30px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: linear-gradient(#000, var(--night)); }
+.rules { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .rules { grid-template-columns: minmax(0, 1fr); } }
+.rule { border: 1px solid rgba(239,230,214,.12); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.03); display: flex; flex-direction: column; gap: 10px; transition: opacity .9s ease, transform .9s ease, border-color .4s; }
+.rule.pre { opacity: 0; transform: translateY(26px); }
+.rule:hover { border-color: rgba(255,138,42,.5); }
+.rule svg { width: 56px; height: 56px; }
+.rule p { margin: 0; font-size: 16px; }
+.rule .n { font-family: var(--f-display); color: var(--ember); font-size: 22px; line-height: 1; }
+@media (prefers-reduced-motion: reduce) { #grain { animation: none; } .turnL, .turnR { animation: none; } }
 </style>
 </head>
 <body>
@@ -185,6 +216,8 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   </div>
 </div>
 <canvas id="fx" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+<div id="bolt" aria-hidden="true"></div>
 <div id="flame" aria-hidden="true"></div>
 
 <!-- GATE -->
@@ -192,6 +225,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <div class="gate-card">
     <div class="kicker" data-t="kicker"></div>
     <p data-t="enter_line" style="font-size:18px"></p>
+    <div class="gate-name"><label for="nick" data-t="nick_label"></label><input type="text" id="nick" maxlength="20" autocomplete="off"></div>
     <div class="btns">
       <button class="btn" type="button" id="enter" data-t="enter_btn"></button>
       <button class="btn ghost" type="button" id="enterSafe" data-t="enter_safe"></button>
@@ -235,6 +269,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
           <defs>
             <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0710"/><stop offset="1" stop-color="#241622"/></linearGradient>
             <linearGradient id="sariG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4efe6"/><stop offset=".75" stop-color="#d9d2c6"/><stop offset="1" stop-color="#d9d2c6" stop-opacity="0"/></linearGradient>
+            <filter id="waver" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.012 0.06" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter>
             <g id="lady">
               <path d="M-26 -262 Q0 -292 26 -262 L32 -150 L-32 -150 Z" fill="#0b0809"/>
               <path d="M-40 0 L-31 -150 Q-29 -205 -11 -218 L11 -218 Q29 -205 31 -150 L40 0 Z" fill="url(#sariG)"/>
@@ -262,7 +297,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
             <g fill="#b3121b"><circle cx="476" cy="470" r="1.6"/><circle cx="520" cy="472" r="1.6"/><circle cx="500" cy="474" r="1.6"/></g>
             <path d="M532 466 q8 -8 16 0 Z" fill="#8a4a24"/>
           </g>
-          <g id="ladyWrap"><use href="#lady" id="ladyUse"/></g>
+          <g id="ladyWrap" filter="url(#waver)"><use href="#lady" id="ladyUse"/></g>
         </svg>
       </div>
       <div class="layer dark" style="--dk:.92"></div>
@@ -276,6 +311,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
           <g id="lamp"><polygon points="368,212 396,212 470,470 290,470" fill="url(#coneG)"/><circle cx="382" cy="212" r="16" fill="url(#emberG)"/><circle cx="382" cy="211" r="4" fill="#fff4cf"/></g>
           <g id="offerGlow"><ellipse cx="540" cy="455" rx="70" ry="40" fill="url(#emberG)" opacity=".7"/><path d="M540 460 q-4 -8 0 -16 q4 8 0 16 Z" fill="#ffe38a" class="flk"/></g>
           <g id="ladyGhost" opacity=".2" filter="url(#soft)"><use href="#lady"/></g>
+          <g id="cat" transform="translate(-80 448)"><g id="catBody"><ellipse cx="0" cy="-12" rx="22" ry="9" fill="#020102"/><circle cx="22" cy="-22" r="8" fill="#020102"/><path d="M17 -28 l3 -9 l4 8 Z M24 -28 l4 -8 l2 9 Z" fill="#020102"/><path d="M-20 -14 q-16 -4 -14 -24" stroke="#020102" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M-12 -6 l-2 8 M-4 -5 l1 8 M8 -5 l-1 8 M15 -6 l2 8" stroke="#020102" stroke-width="3"/><ellipse cx="25" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/><ellipse cx="20" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/></g></g>
           <g id="toran" transform="translate(0 -6)">
             <path d="M0 28 Q250 56 500 34 T1000 30" stroke="#6a5a40" stroke-width="2" fill="none"/>
             <g id="toranItems"></g>
@@ -309,12 +345,14 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       <div class="layer dark" style="--dk:.93"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <defs><filter id="waver2" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb2" type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+          <g id="owl"><path d="M700 196 q-12 -26 0 -46 q14 -6 28 0 q12 20 0 46 Z" fill="#0b0809"/><path d="M702 152 l-4 -10 l9 6 Z M726 152 l4 -10 l-9 6 Z" fill="#0b0809"/><g class="blinker"><circle cx="708" cy="166" r="6" fill="#ffc21a"/><circle cx="722" cy="166" r="6" fill="#ffc21a"/><circle cx="708" cy="166" r="2.4" fill="#000"/><circle cx="722" cy="166" r="2.4" fill="#000"/></g></g>
           <g fill="#ff2a2a">
             <g class="blinker"><ellipse cx="250" cy="180" rx="5" ry="2.6"/><ellipse cx="268" cy="180" rx="5" ry="2.6"/></g>
             <g class="blinker"><ellipse cx="760" cy="150" rx="4.5" ry="2.4"/><ellipse cx="776" cy="150" rx="4.5" ry="2.4"/></g>
             <g class="blinker"><ellipse cx="470" cy="80" rx="4" ry="2.2"/><ellipse cx="484" cy="80" rx="4" ry="2.2"/></g>
           </g>
-          <g id="hanger"><g id="hangSwing">
+          <g id="hanger" filter="url(#waver2)"><g id="hangSwing">
             <path d="M604 190 L604 240 M616 190 L616 240" stroke="#cfc6b8" stroke-width="7" stroke-linecap="round"/>
             <path d="M590 236 Q610 228 630 236 L640 300 L580 300 Z" fill="#e9e3d8"/>
             <path d="M584 300 Q610 296 636 300 L640 330 L580 330 Z" fill="#e9e3d8"/>
@@ -334,6 +372,82 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
         <p class="line red" data-t="tree_3" data-r="0.74,1.01"></p>
       </div>
       <div class="hint" id="treeHint" data-t="tree_hint"></div>
+    </div>
+  </section>
+
+  <!-- 3b. YOUR NAME -->
+  <section class="scene" id="s-name" style="--len:320vh">
+    <div class="stage" id="nameStage">
+      <div class="layer">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="1000" height="600" fill="#09070b"/>
+          <polygon points="0,0 420,190 420,430 0,600" fill="#1b1517"/><polygon points="1000,0 580,190 580,430 1000,600" fill="#181316"/>
+          <polygon points="0,600 420,430 580,430 1000,600" fill="#120e10"/>
+          <rect x="420" y="190" width="160" height="240" fill="#0d0a0c"/>
+          <rect x="470" y="270" width="60" height="160" fill="#2a1a12"/><rect x="476" y="276" width="48" height="150" fill="#3a2418"/>
+          <g stroke="#2a2326" stroke-width="2"><path d="M0 120 Q300 170 420 200"/><path d="M1000 90 Q700 150 580 196"/><path d="M60 0 L60 560"/><path d="M930 0 L930 560"/></g>
+          <g fill="#241c1f"><rect x="120" y="250" width="70" height="110"/><rect x="820" y="240" width="64" height="120"/><rect x="300" y="280" width="40" height="70"/><rect x="660" y="278" width="40" height="72"/></g>
+          <path d="M0 150 Q500 120 1000 150" stroke="#2a2326" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+      <div class="layer dark" style="--dk:.93"></div>
+      <div class="layer glow">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><radialGradient id="bulbG"><stop offset="0" stop-color="#ffe6a8" stop-opacity=".8"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient></defs>
+          <g id="bulb"><line x1="500" y1="0" x2="500" y2="140" stroke="#111" stroke-width="2"/><circle cx="500" cy="150" r="60" fill="url(#bulbG)"/><circle cx="500" cy="148" r="6" fill="#fff2c8"/></g>
+          <path d="M478 430 L522 430 L560 600 L440 600 Z" fill="#ffb347" opacity=".05"/>
+          <rect x="476" y="276" width="48" height="150" fill="#000" opacity="0" id="doorDark"/>
+          <g id="doorFace" opacity="0"><ellipse cx="500" cy="300" rx="11" ry="14" fill="#d8d0c2"/><ellipse cx="496" cy="298" rx="2.6" ry="3.4" fill="#000"/><ellipse cx="505" cy="298" rx="2.6" ry="3.4" fill="#000"/><path d="M486 290 Q500 270 514 290 L516 330 L484 330 Z" fill="#070506"/></g>
+        </svg>
+      </div>
+      <div class="calls"><div class="call c1" id="call1"></div><div class="call c2" id="call2"></div><div class="call c3" id="call3"></div></div>
+      <div class="txt">
+        <p class="line" data-t="name_1" data-r="0.03,0.26"></p>
+        <p class="line" data-t="name_2" data-r="0.27,0.46"></p>
+        <p class="line red" data-t="name_3" data-r="0.84,1.01"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3c. MIRROR -->
+  <section class="scene" id="s-mirror" style="--len:320vh">
+    <div class="stage" id="mirrorStage">
+      <div class="layer">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs><pattern id="damask" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="#1a1013"/><path d="M30 6 q10 14 0 24 q-10 -10 0 -24 Z M30 36 q10 14 0 24 q-10 -10 0 -24 Z M0 21 q10 14 0 24 M60 21 q-10 14 0 24" fill="#241519"/></pattern></defs>
+          <rect width="1000" height="600" fill="url(#damask)"/>
+          <rect y="520" width="1000" height="80" fill="#0e090a"/>
+          <rect x="380" y="520" width="240" height="22" fill="#2a1a12"/>
+        </svg>
+      </div>
+      <div class="layer dark" style="--dk:.9"></div>
+      <div class="layer glow">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <clipPath id="glass"><ellipse cx="500" cy="300" rx="134" ry="204"/></clipPath>
+            <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b3340"/><stop offset="1" stop-color="#0c0e14"/></linearGradient>
+            <radialGradient id="mDiyaG"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+            <filter id="waver3" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence id="turb3" type="fractalNoise" baseFrequency="0.03 0.08" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter>
+          </defs>
+          <g clip-path="url(#glass)">
+            <rect x="360" y="90" width="280" height="420" fill="url(#glassG)" opacity=".55"/>
+            <rect x="560" y="150" width="50" height="220" fill="#07080b" opacity=".8"/>
+            <circle id="mDiya" cx="500" cy="420" r="40" fill="url(#mDiyaG)"/>
+            <g id="mGhost" opacity="0" filter="url(#waver3)"><path d="M-40 -40 Q0 -80 40 -40 L52 60 L-52 60 Z" fill="#070506"/><ellipse cx="0" cy="2" rx="25" ry="40" fill="#cfc7b9" opacity=".9"/><path d="M-17 -10 q6 -5 12 0 q-2 14 -6 20 q-5 -6 -6 -20 Z M17 -10 q-6 -5 -12 0 q2 14 6 20 q5 -6 6 -20 Z" fill="#000"/><path d="M-6 26 q6 -4 12 0 q-2 14 -6 18 q-4 -4 -6 -18 Z" fill="#1a0507"/><path d="M-30 -10 Q-42 40 -36 90 M30 -10 Q42 40 36 90" stroke="#070506" stroke-width="10" fill="none"/></g>
+            <g fill="#040305"><circle cx="500" cy="350" r="38"/><path d="M420 520 Q430 400 500 392 Q570 400 580 520 Z"/></g>
+            <path d="M380 110 L560 520" stroke="#fff" stroke-width="40" opacity=".04"/>
+            <g id="cracks" stroke="#d9e0e6" stroke-width="1.6" fill="none" opacity=".85"><path d="M528 262 L470 140"/><path d="M528 262 L610 180"/><path d="M528 262 L640 330"/><path d="M528 262 L560 470"/><path d="M528 262 L420 360"/><path d="M528 262 L380 250"/><path d="M500 200 L540 230 L590 220"/><path d="M470 320 L510 300 L560 330 L600 300"/></g>
+          </g>
+          <ellipse cx="500" cy="300" rx="146" ry="216" fill="none" stroke="#6b5428" stroke-width="18" opacity=".8"/>
+          <ellipse cx="500" cy="300" rx="158" ry="228" fill="none" stroke="#3c2e15" stroke-width="4" opacity=".8"/>
+          <g fill="#7a6230" opacity=".8"><circle cx="500" cy="76" r="12"/><circle cx="500" cy="524" r="9"/><circle cx="354" cy="300" r="8"/><circle cx="646" cy="300" r="8"/></g>
+        </svg>
+      </div>
+      <div class="txt">
+        <p class="line" data-t="mirror_1" data-r="0.03,0.30"></p>
+        <p class="line" data-t="mirror_2" data-r="0.32,0.62"></p>
+        <p class="line red" data-t="mirror_3" data-r="0.66,1.01"></p>
+      </div>
     </div>
   </section>
 
@@ -378,6 +492,22 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
           <button class="btn ghost" type="button" id="again" data-t="again"></button>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- 5b. NANI'S RULES -->
+  <section id="rules">
+    <div class="wrap">
+      <div class="kicker" data-t="rules_kicker"></div>
+      <h2 data-t="rules_title"></h2>
+      <ul class="rules" id="rulesList">
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 34 Q30 40 52 34 Q48 52 30 52 Q12 52 8 34 Z" fill="#a8541f"/><path d="M30 32 q-6 -10 0 -22 q6 12 0 22 Z" fill="#ffc94a"/><path d="M30 6 v-4 M42 12 l3 -3 M18 12 l-3 -3" stroke="#ff8a2a" stroke-width="2"/></svg><span class="n">1</span><p data-t="r1"></p></li>
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 30 Q30 14 52 30 Q30 46 8 30 Z" fill="none" stroke="#efe6d6" stroke-width="2"/><circle cx="30" cy="30" r="8" fill="#0a0a0a" stroke="#efe6d6" stroke-width="1.5"/><path d="M8 32 Q30 50 52 32" stroke="#111" stroke-width="4" fill="none"/></svg><span class="n">2</span><p data-t="r2"></p></li>
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M30 2 V16" stroke="#8a7a5a" stroke-width="1.5"/><circle cx="30" cy="22" r="7" fill="#e3c02a"/><g stroke="#2f7a2a" stroke-width="3.5" stroke-linecap="round" fill="none"><path d="M24 30 q-3 12 0 24"/><path d="M30 30 v26"/><path d="M36 30 q3 12 0 24"/></g></svg><span class="n">3</span><p data-t="r3"></p></li>
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M0 30 H60 M30 0 V60" stroke="#3a3640" stroke-width="10"/><ellipse cx="30" cy="32" rx="14" ry="4" fill="#bdb3a0"/><path d="M14 14 L46 46 M46 14 L14 46" stroke="#ff3b3b" stroke-width="3"/></svg><span class="n">4</span><p data-t="r4"></p></li>
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M16 6 V56" stroke="#8a7a5a" stroke-width="2.5"/><path d="M16 8 L50 18 L16 28 Z" fill="#ff8a2a"/></svg><span class="n">5</span><p data-t="r5"></p></li>
+        <li class="rule"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M18 10 Q30 2 42 10 Q48 30 40 54 M18 10 Q12 30 20 54 M26 12 Q24 34 28 56 M34 12 Q36 34 32 56" stroke="#efe6d6" stroke-width="2" fill="none"/><path d="M16 30 H44" stroke="#ff3b3b" stroke-width="4"/></svg><span class="n">6</span><p data-t="r6"></p></li>
+      </ul>
     </div>
   </section>
 
@@ -522,6 +652,39 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       fiction: 'કાળી ચૌદસ માટે બનાવેલી કાલ્પનિક વાર્તા.', credits: 'ફોટો ક્રેડિટ'
     }
   };
+  Object.assign(T.en, {
+    nick_label: 'What does your family call you at home? (optional, stays on this phone)', nick_default: 'beta',
+    name_1: 'Nani’s rule: if someone calls your name from behind tonight, don’t turn around.',
+    name_2: 'They call three times. They only need you to answer once.',
+    name_3: 'You turned around, didn’t you?',
+    mirror_1: 'Cover every mirror on Kali Chaudas night.', mirror_2: 'What looks back at you isn’t always you.', mirror_3: 'She is standing right behind you.',
+    rules_kicker: 'Nani’s rules for tonight', rules_title: 'How to survive Kali Chaudas night',
+    r1: 'Light a diya at the door, facing south, for Yama.', r2: 'Make kajal from the diya’s soot and put it on. Nazar can’t stick to it.',
+    r3: 'Hang a lemon and seven chillies at the door.', r4: 'Never step over vada left at a crossroads.',
+    r5: 'If your name is called from behind, finish the Hanuman Chalisa before you turn.', r6: 'Tie your hair before you sleep. Open hair calls them.'
+  });
+  Object.assign(T.hi, {
+    nick_label: 'घर पर आपको क्या कहकर बुलाते हैं? (वैकल्पिक, सिर्फ़ इसी फ़ोन पर रहेगा)', nick_default: 'बेटा',
+    name_1: 'नानी का नियम: आज रात अगर कोई पीछे से आपका नाम पुकारे, तो पलटना मत।',
+    name_2: 'वे तीन बार पुकारते हैं। उन्हें बस एक बार जवाब चाहिए।',
+    name_3: 'आप पलट गए, है ना?',
+    mirror_1: 'काली चौदस की रात हर आईना ढक दीजिए।', mirror_2: 'जो आपको वापस देखता है, वह हमेशा आप नहीं होते।', mirror_3: 'वह ठीक आपके पीछे खड़ी है।',
+    rules_kicker: 'आज रात के लिए नानी के नियम', rules_title: 'काली चौदस की रात कैसे बचें',
+    r1: 'दरवाज़े पर दक्षिण की ओर मुँह करके यम के लिए दीया जलाइए।', r2: 'दीये की कालिख से काजल बनाकर लगाइए। नज़र नहीं लगेगी।',
+    r3: 'दरवाज़े पर नींबू और सात मिर्चें टाँगिए।', r4: 'चौराहे पर रखे वड़ों को कभी मत लांघिए।',
+    r5: 'अगर पीछे से कोई नाम पुकारे, तो पलटने से पहले हनुमान चालीसा पूरी कीजिए।', r6: 'सोने से पहले बाल बाँध लीजिए। खुले बाल उन्हें बुलाते हैं।'
+  });
+  Object.assign(T.gu, {
+    nick_label: 'ઘરે તમને શું કહીને બોલાવે છે? (વૈકલ્પિક, ફક્ત આ ફોનમાં રહેશે)', nick_default: 'બેટા',
+    name_1: 'નાનીનો નિયમ: આજે રાત્રે જો કોઈ પાછળથી તમારું નામ બોલાવે, તો ફરતા નહીં.',
+    name_2: 'એ ત્રણ વાર બોલાવે છે. એમને બસ એક વાર જવાબ જોઈએ.',
+    name_3: 'તમે ફરી ગયા, ખરું ને?',
+    mirror_1: 'કાળી ચૌદસની રાત્રે દરેક અરીસો ઢાંકી દો.', mirror_2: 'જે તમને સામે જુએ છે, એ હંમેશાં તમે નથી હોતા.', mirror_3: 'એ બરાબર તમારી પાછળ ઊભી છે.',
+    rules_kicker: 'આજની રાત માટે નાનીના નિયમો', rules_title: 'કાળી ચૌદસની રાત કેવી રીતે બચવું',
+    r1: 'દરવાજે દક્ષિણ દિશા તરફ યમ માટે દીવો પ્રગટાવો.', r2: 'દીવાની મેશમાંથી કાજળ બનાવીને આંજો. નજર નહીં લાગે.',
+    r3: 'દરવાજે લીંબુ અને સાત મરચાં લટકાવો.', r4: 'ચાર રસ્તે મૂકેલાં વડાં ક્યારેય ઓળંગશો નહીં.',
+    r5: 'જો પાછળથી કોઈ નામ બોલાવે, તો ફરતાં પહેલાં હનુમાન ચાલીસા પૂરી કરો.', r6: 'સૂતાં પહેલાં વાળ બાંધી લો. ખુલ્લા વાળ એમને બોલાવે છે.'
+  });
   const $ = (s) => document.querySelector(s);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -538,32 +701,49 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   }
   document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => { lang = b.dataset.lang; store.set('kc-lang', lang); applyLang(); }));
 
-  /* ================= audio, all synthesized ================= */
+  /* ================= audio: real recordings if present in assets/audio, otherwise synthesized, all through a dark-room reverb ================= */
   const A = {
-    ctx: null, master: null, bed: null, muted: false,
+    ctx: null, master: null, rev: null, bed: null, muted: false, sfx: {},
     init() {
       if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
       const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
       try { this.ctx = new C(); } catch (e) { return; }
-      this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : .8; this.master.connect(this.ctx.destination);
-      const len = this.ctx.sampleRate * 2; this.noise = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const c = this.ctx;
+      this.master = c.createGain(); this.master.gain.value = this.muted ? 0 : .9;
+      const comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; this.master.connect(comp); comp.connect(c.destination);
+      const len = c.sampleRate * 2; this.noise = c.createBuffer(1, len, c.sampleRate);
       const d = this.noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const irLen = Math.floor(c.sampleRate * 3.6), ir = c.createBuffer(2, irLen, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const x = ir.getChannelData(ch); for (let i = 0; i < irLen; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 3) * (i < 300 ? i / 300 : 1); }
+      this.rev = c.createConvolver(); this.rev.buffer = ir; const rl = c.createBiquadFilter(); rl.type = 'lowpass'; rl.frequency.value = 2800; const rg = c.createGain(); rg.gain.value = .9; this.rev.connect(rl); rl.connect(rg); rg.connect(this.master);
+      fetch('assets/audio/manifest.json').then((r) => (r.ok ? r.json() : [])).then((list) => (Array.isArray(list) ? list : []).forEach((n) => {
+        fetch('assets/audio/' + n + '.mp3').then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => b && c.decodeAudioData(b)).then((buf) => { if (buf) this.sfx[n] = buf; }).catch(() => {});
+      })).catch(() => {});
     },
     ok() { return !!this.ctx; },
     now() { return this.ctx.currentTime; },
     src() { const s = this.ctx.createBufferSource(); s.buffer = this.noise; s.loop = true; return s; },
-    out(node, pan = 0) { if (this.ctx.createStereoPanner) { const p = this.ctx.createStereoPanner(); p.pan.value = pan; node.connect(p); p.connect(this.master); } else node.connect(this.master); },
+    out(node, pan = 0, wet = .3) {
+      let n = node; if (this.ctx.createStereoPanner) { const p = this.ctx.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); node.connect(p); n = p; }
+      n.connect(this.master); if (wet > 0) { const w = this.ctx.createGain(); w.gain.value = wet; n.connect(w); w.connect(this.rev); }
+    },
+    play(n, { v = 1, pan = 0, wet = .3, rate = 1 } = {}) {
+      const buf = this.sfx[n]; if (!buf || !this.ok()) return false;
+      const s = this.ctx.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = this.ctx.createGain(); g.gain.value = v; s.connect(g); this.out(g, pan, wet); s.start(); return true;
+    },
+    env(g, at, pts) { g.gain.setValueAtTime(0, at); pts.forEach(([dt, v]) => g.gain.linearRampToValueAtTime(v, at + dt)); },
     startBed() {
       if (!this.ok() || this.bed) return; const c = this.ctx;
       const out = c.createGain(); out.gain.value = 0; out.gain.setTargetAtTime(1, c.currentTime, 2); out.connect(this.master);
-      const w = this.src(), lp = c.createBiquadFilter(), wg = c.createGain(); lp.type = 'lowpass'; lp.frequency.value = 380; wg.gain.value = .09;
-      const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = .09; lg.gain.value = .06; lfo.connect(lg); lg.connect(wg.gain);
-      const lfo2 = c.createOscillator(), lg2 = c.createGain(); lfo2.frequency.value = .05; lg2.gain.value = 220; lfo2.connect(lg2); lg2.connect(lp.frequency);
-      w.connect(lp); lp.connect(wg); wg.connect(out);
-      const dl = c.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 130; dl.Q.value = 5;
+      const mkWind = (f, q, amt, rate) => { const w = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; g.gain.value = amt;
+        const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = rate; lg.gain.value = amt * .9; l.connect(lg); lg.connect(g.gain);
+        const l2 = c.createOscillator(), lg2 = c.createGain(); l2.frequency.value = rate * 1.7; lg2.gain.value = f * .5; l2.connect(lg2); lg2.connect(bp.frequency);
+        w.connect(bp); bp.connect(g); g.connect(out); [w, l, l2].forEach((x) => x.start(0, x === w ? Math.random() : undefined)); };
+      if (this.sfx.wind) { const s = c.createBufferSource(); s.buffer = this.sfx.wind; s.loop = true; const g = c.createGain(); g.gain.value = .35; s.connect(g); g.connect(out); s.start(); }
+      else { mkWind(320, .8, .12, .07); mkWind(900, 4, .05, .11); mkWind(1700, 9, .025, .05); }
+      const dl = c.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 120; dl.Q.value = 5;
       const o1 = c.createOscillator(), o2 = c.createOscillator(); o1.type = o2.type = 'sawtooth'; o1.frequency.value = 43; o2.frequency.value = 43.4;
-      const dg = c.createGain(); dg.gain.value = .03; o1.connect(dl); o2.connect(dl); dl.connect(dg); dg.connect(out);
-      [w, lfo, lfo2, o1, o2].forEach((x) => x.start());
+      const dg = c.createGain(); dg.gain.value = .03; o1.connect(dl); o2.connect(dl); dl.connect(dg); dg.connect(out); o1.start(); o2.start();
       this.bed = { out, dg, o2 };
     },
     dread(l) { if (!this.bed) return; const tt = this.now(); this.bed.dg.gain.setTargetAtTime(.03 + l * .025, tt, 2); this.bed.o2.frequency.setTargetAtTime(43.4 + l * .7, tt, 2); },
@@ -571,37 +751,81 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     resume() { if (this.bed) this.bed.out.gain.setTargetAtTime(1, this.now(), 1.5); },
     cricket() {
       if (!this.ok()) return; const c = this.ctx; let tt = this.now(); const pan = Math.random() * 1.6 - .8, f = 4300 + Math.random() * 600;
-      for (let i = 0; i < 3; i++) { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; g.gain.setValueAtTime(0, tt); for (let k = 0; k < 4; k++) { g.gain.setValueAtTime(.025, tt + k * .012); g.gain.setValueAtTime(0, tt + k * .012 + .006); } o.connect(g); this.out(g, pan); o.start(tt); o.stop(tt + .06); tt += .09; }
+      for (let i = 0; i < 3; i++) { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; g.gain.setValueAtTime(0, tt); for (let k = 0; k < 4; k++) { g.gain.setValueAtTime(.022, tt + k * .012); g.gain.setValueAtTime(0, tt + k * .012 + .006); } o.connect(g); this.out(g, pan, .15); o.start(tt); o.stop(tt + .06); tt += .09; }
     },
     howl() {
-      if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain(), v = c.createOscillator(), vg = c.createGain(), lp = c.createBiquadFilter();
-      o.type = 'triangle'; o.frequency.setValueAtTime(380, tt); o.frequency.linearRampToValueAtTime(620, tt + .7); o.frequency.linearRampToValueAtTime(560, tt + 2.2); o.frequency.linearRampToValueAtTime(330, tt + 3);
-      v.frequency.value = 5.5; vg.gain.value = 9; v.connect(vg); vg.connect(o.frequency); lp.type = 'lowpass'; lp.frequency.value = 1400;
-      g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.08, tt + .5); g.gain.linearRampToValueAtTime(.06, tt + 2.4); g.gain.linearRampToValueAtTime(0, tt + 3.1);
-      o.connect(lp); lp.connect(g); this.out(g, .7); o.start(tt); v.start(tt); o.stop(tt + 3.2); v.stop(tt + 3.2);
+      if (!this.ok() || this.play('howl', { v: .6, pan: .6, wet: .6 })) return; const c = this.ctx, t0 = this.now();
+      for (let k = 0; k < 4; k++) {
+        const st = t0 + k * .35 + Math.random() * .3, base = 420 + Math.random() * 160, o = c.createOscillator(), g = c.createGain(), v = c.createOscillator(), vg = c.createGain(), bp = c.createBiquadFilter();
+        o.type = 'sawtooth'; o.frequency.setValueAtTime(base, st); o.frequency.linearRampToValueAtTime(base * 1.9, st + .5); o.frequency.linearRampToValueAtTime(base * 1.7, st + 1.8); o.frequency.linearRampToValueAtTime(base * 1.05, st + 2.6);
+        v.frequency.value = 6 + Math.random() * 2; vg.gain.value = 14; v.connect(vg); vg.connect(o.frequency);
+        bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 1.4;
+        this.env(g, st, [[.4, .045], [2.2, .03], [2.8, 0]]);
+        o.connect(bp); bp.connect(g); this.out(g, .2 + Math.random() * .7, 1.1); o.start(st); v.start(st); o.stop(st + 3); v.stop(st + 3);
+      }
     },
-    anklet(pan = 0, v = .05) {
-      if (!this.ok()) return; const c = this.ctx, tt = this.now();
-      for (let k = 0; k < 6; k++) { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 4200 + Math.random() * 2800; const at = tt + k * .016 + Math.random() * .01; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v, at + .003); g.gain.exponentialRampToValueAtTime(.0001, at + .28); o.connect(g); this.out(g, pan); o.start(at); o.stop(at + .3); }
+    owl() {
+      if (!this.ok() || this.play('owl', { v: .6, pan: .5, wet: .5 })) return; const c = this.ctx, t0 = this.now();
+      [[0, .32], [.55, .9]].forEach(([s, d]) => { const o = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter(); o.frequency.setValueAtTime(400, t0 + s); o.frequency.linearRampToValueAtTime(340, t0 + s + d); lp.type = 'lowpass'; lp.frequency.value = 900;
+        this.env(g, t0 + s, [[.06, .09], [d * .7, .07], [d, 0]]); o.connect(lp); lp.connect(g); this.out(g, .55, .9); o.start(t0 + s); o.stop(t0 + s + d + .05); });
     },
+    bells(pan = 0, v = .05) {
+      if (!this.ok() || this.play('bells', { v: v * 10, pan, wet: .4, rate: .9 + Math.random() * .2 })) return; const c = this.ctx, tt = this.now();
+      for (let k = 0; k < 7; k++) { const f = 2600 + Math.random() * 1200, at = tt + k * .014 + Math.random() * .012;
+        [1, 2.76, 5.4].forEach((r, j) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f * r; g.gain.setValueAtTime(.0001, at); g.gain.exponentialRampToValueAtTime(v / (j + 1), at + .002); g.gain.exponentialRampToValueAtTime(.0001, at + .32 / (j + 1)); o.connect(g); this.out(g, pan, .45); o.start(at); o.stop(at + .35); }); }
+    },
+    anklet(pan, v) { this.bells(pan, v); },
     whisper(pan = 0, v = 1) {
-      if (!this.ok()) return; const c = this.ctx, t0 = this.now(), n = this.src(), bp = c.createBiquadFilter(), g = c.createGain();
-      bp.type = 'bandpass'; bp.frequency.value = 1700 + Math.random() * 1500; bp.Q.value = 2.2; g.gain.setValueAtTime(0, t0); let tt = t0;
-      for (let i = 0; i < 10; i++) { const d = .06 + Math.random() * .13; g.gain.linearRampToValueAtTime((.12 + Math.random() * .14) * v, tt + d * .4); g.gain.linearRampToValueAtTime(.01, tt + d); tt += d; }
-      g.gain.linearRampToValueAtTime(0, tt + .1); n.connect(bp); bp.connect(g); this.out(g, pan); n.start(t0, Math.random()); n.stop(tt + .2);
+      if (!this.ok()) return; if (this.play('whisper', { v: .7 * v, pan, wet: .5 })) return;
+      const c = this.ctx, t0 = this.now(), n = this.src(), bp = c.createBiquadFilter(), bp2 = c.createBiquadFilter(), g = c.createGain();
+      bp.type = 'bandpass'; bp.frequency.value = 1900 + Math.random() * 1200; bp.Q.value = 3; bp2.type = 'bandpass'; bp2.frequency.value = 5200; bp2.Q.value = 2;
+      g.gain.setValueAtTime(0, t0); let tt = t0;
+      for (let i = 0; i < 12; i++) { const d = .06 + Math.random() * .14; g.gain.linearRampToValueAtTime((.13 + Math.random() * .15) * v, tt + d * .35); g.gain.linearRampToValueAtTime(.008, tt + d); bp.frequency.setValueAtTime(1500 + Math.random() * 2000, tt); tt += d + (i % 4 === 3 ? .18 : 0); }
+      g.gain.linearRampToValueAtTime(0, tt + .1); n.connect(bp); n.connect(bp2); bp.connect(g); bp2.connect(g);
+      if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.setValueAtTime(pan, t0); p.pan.linearRampToValueAtTime(-pan * .8, tt); g.connect(p); p.connect(this.master); const w = c.createGain(); w.gain.value = .55; p.connect(w); w.connect(this.rev); } else this.out(g, pan, .55);
+      n.start(t0, Math.random()); n.stop(tt + .2);
     },
-    thump(v = .6, f = 90) { if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(f, tt); o.frequency.exponentialRampToValueAtTime(f * .42, tt + .2); g.gain.setValueAtTime(.0001, tt); g.gain.exponentialRampToValueAtTime(v, tt + .01); g.gain.exponentialRampToValueAtTime(.0001, tt + .6); o.connect(g); g.connect(this.master); o.start(tt); o.stop(tt + .65); },
-    heartbeat(v = .5) { if (!this.ok()) return; this.thump(v, 60); setTimeout(() => this.thump(v * .75, 55), 210); },
+    hum(pan = 0) {
+      if (!this.ok() || this.play('hum', { v: .6, pan, wet: .7 })) return; const c = this.ctx; let tt = this.now() + .05;
+      const notes = [64, 67, 69, 67, 64, 62, 64, 60, 59];
+      const o = c.createOscillator(); o.type = 'sawtooth'; const vib = c.createOscillator(), vg = c.createGain(); vib.frequency.value = 5.3; vg.gain.value = 5; vib.connect(vg); vg.connect(o.frequency);
+      const g = c.createGain(); g.gain.value = 0;
+      [[820, 1], [1180, .55], [2850, .25], [3500, .12]].forEach(([f, a]) => { const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 10; const ag = c.createGain(); ag.gain.value = a * 2.4; o.connect(bp); bp.connect(ag); ag.connect(g); });
+      notes.forEach((m, i) => { const f = 440 * Math.pow(2, (m - 69) / 12) * (1 - i * .004), d = i === notes.length - 1 ? 2 : .7; o.frequency.setTargetAtTime(f, tt, .05); g.gain.setTargetAtTime(.06, tt, .1); g.gain.setTargetAtTime(.015, tt + d * .8, .07); tt += d; });
+      g.gain.setTargetAtTime(0, tt, .4); this.out(g, pan, 1); o.start(); vib.start(); o.stop(tt + 2); vib.stop(tt + 2);
+    },
+    breath() {
+      if (!this.ok() || this.play('breath', { v: .9, pan: .85, wet: .05 })) return; const c = this.ctx; let tt = this.now();
+      for (let i = 0; i < 3; i++) {
+        [[950, .55, .16], [620, .8, .2]].forEach(([f, d, v]) => { const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = .9; this.env(g, tt, [[d * .3, v], [d, 0]]); n.connect(bp); bp.connect(g); this.out(g, .9, .04); n.start(tt, Math.random()); n.stop(tt + d + .05); tt += d + .05; });
+        tt += .15;
+      }
+    },
+    thunder() {
+      if (!this.ok() || this.play('thunder', { v: .9, wet: .4 })) return; const c = this.ctx, t0 = this.now();
+      const n = this.src(), lp = c.createBiquadFilter(), g = c.createGain(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t0); lp.frequency.exponentialRampToValueAtTime(90, t0 + 3.5);
+      this.env(g, t0, [[.05, .5], [.4, .35], [1.2, .45], [3.8, 0]]); n.connect(lp); lp.connect(g); this.out(g, -.3, .6); n.start(t0); n.stop(t0 + 4);
+    },
+    crack() {
+      if (!this.ok() || this.play('crack', { v: .8, wet: .3 })) return; const c = this.ctx, t0 = this.now();
+      const n = this.src(), hp = c.createBiquadFilter(), g = c.createGain(); hp.type = 'highpass'; hp.frequency.value = 2500; this.env(g, t0, [[.005, .6], [.18, 0]]); n.connect(hp); hp.connect(g); this.out(g, 0, .3); n.start(t0); n.stop(t0 + .2);
+      for (let i = 0; i < 12; i++) { const at = t0 + .05 + Math.random() * .7, o = c.createOscillator(), og = c.createGain(); o.frequency.value = 3000 + Math.random() * 5000; og.gain.setValueAtTime(.0001, at); og.gain.exponentialRampToValueAtTime(.05, at + .002); og.gain.exponentialRampToValueAtTime(.0001, at + .2); o.connect(og); this.out(og, Math.random() * 2 - 1, .4); o.start(at); o.stop(at + .22); }
+    },
+    thump(v = .6, f = 90) { if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(f, tt); o.frequency.exponentialRampToValueAtTime(f * .42, tt + .2); g.gain.setValueAtTime(.0001, tt); g.gain.exponentialRampToValueAtTime(v, tt + .01); g.gain.exponentialRampToValueAtTime(.0001, tt + .6); o.connect(g); this.out(g, 0, .15); o.start(tt); o.stop(tt + .65); },
+    heartbeat(v = .5) { if (!this.ok()) return; if (this.play('heartbeat', { v, wet: 0 })) return; this.thump(v, 60); setTimeout(() => this.thump(v * .75, 55), 210); },
     glitch() { if (!this.ok()) return; const c = this.ctx, tt = this.now(), n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .5; for (let i = 0; i < 8; i++) { g.gain.setValueAtTime(Math.random() * .35, tt + i * .09); } g.gain.setValueAtTime(0, tt + .8); n.connect(bp); bp.connect(g); g.connect(this.master); n.start(tt); n.stop(tt + .85); },
     scream() {
-      if (!this.ok()) return; const c = this.ctx, tt = this.now();
-      const ws = c.createWaveShaper(), curve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; curve[i] = Math.tanh(x * 6); } ws.curve = curve;
-      const g = c.createGain(); g.gain.setValueAtTime(.9, tt); g.gain.exponentialRampToValueAtTime(.001, tt + 1.5); ws.connect(g); g.connect(this.master);
-      [310, 327, 466, 620].forEach((f) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, tt); o.frequency.linearRampToValueAtTime(f * 1.25, tt + .15); o.frequency.linearRampToValueAtTime(f * .8, tt + 1.4); const og = c.createGain(); og.gain.value = .18; o.connect(og); og.connect(ws); o.start(tt); o.stop(tt + 1.6); });
-      const n = this.src(), ng = c.createGain(); ng.gain.value = .5; n.connect(ng); ng.connect(ws); n.start(tt); n.stop(tt + 1.6);
-      this.thump(1, 80);
+      if (!this.ok()) return; this.thump(1, 80); if (this.play('scream', { v: 1, wet: .35 })) return; const c = this.ctx, tt = this.now();
+      const ws = c.createWaveShaper(), curve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; curve[i] = Math.tanh(x * 5); } ws.curve = curve;
+      const g = c.createGain(); g.gain.setValueAtTime(.95, tt); g.gain.setValueAtTime(.95, tt + .9); g.gain.exponentialRampToValueAtTime(.001, tt + 1.7); ws.connect(g); this.out(g, 0, .45);
+      const voice = c.createOscillator(); voice.type = 'sawtooth'; voice.frequency.setValueAtTime(620, tt); voice.frequency.linearRampToValueAtTime(1150, tt + .12); voice.frequency.linearRampToValueAtTime(980, tt + 1.4);
+      const vib = c.createOscillator(), vg = c.createGain(); vib.frequency.value = 9; vg.gain.value = 45; vib.connect(vg); vg.connect(voice.frequency);
+      [[1000, 1], [1600, .7], [3100, .5]].forEach(([f, a]) => { const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 5; const ag = c.createGain(); ag.gain.value = a * 1.4; voice.connect(bp); bp.connect(ag); ag.connect(ws); });
+      [310, 466].forEach((f) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, tt); o.frequency.linearRampToValueAtTime(f * .8, tt + 1.5); const og = c.createGain(); og.gain.value = .1; o.connect(og); og.connect(ws); o.start(tt); o.stop(tt + 1.8); });
+      const n = this.src(), nb = c.createBiquadFilter(), ng = c.createGain(); nb.type = 'bandpass'; nb.frequency.value = 2500; ng.gain.value = .6; n.connect(nb); nb.connect(ng); ng.connect(ws);
+      voice.start(tt); vib.start(tt); n.start(tt); voice.stop(tt + 1.8); vib.stop(tt + 1.8); n.stop(tt + 1.8);
     },
-    setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .8, this.now(), .05); }
+    setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .9, this.now(), .05); }
   };
   function paintSound() { const b = $('#soundBtn'); b.textContent = A.muted ? t('sound_off') : t('sound_on'); b.setAttribute('aria-pressed', String(!A.muted)); }
   $('#soundBtn').addEventListener('click', () => { A.init(); A.setMuted(!A.muted); paintSound(); });
@@ -641,10 +865,12 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   let safe = false, entered = false;
   function enter(isSafe) {
     safe = isSafe; entered = true; A.init(); A.startBed();
+    nick = ($('#nick').value || '').trim().slice(0, 20); store.set('kc-nick', nick);
     document.documentElement.classList.remove('locked'); document.body.classList.add('entered');
     $('#gate').classList.add('gone'); setTimeout(() => { $('#gate').hidden = true; }, 1300);
     burnTitle(); setTimeout(() => A.howl(), 2400);
   }
+  $('#nick').value = store.get('kc-nick') || '';
   $('#enter').addEventListener('click', () => enter(false));
   $('#enterSafe').addEventListener('click', () => enter(true));
 
@@ -657,7 +883,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 
   /* ================= scenes ================= */
   const sc = (id) => ({ el: $('#' + id), p: 0, lines: [...document.querySelectorAll('#' + id + ' .line')].map((l) => ({ el: l, r: l.dataset.r.split(',').map(Number) })) });
-  const S = { hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), feet: sc('s-feet'), scare: sc('s-scare') };
+  const S = { hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), feet: sc('s-feet'), scare: sc('s-scare') };
   const prog = (s) => { const r = s.el.getBoundingClientRect(); const span = r.height - innerHeight; return { p: Math.min(1, Math.max(0, -r.top / Math.max(1, span))), active: r.top < innerHeight * .5 && r.bottom > innerHeight * .5, top: r.top }; };
   const fired = {};
   const once = (k, fn) => { if (!fired[k]) { fired[k] = true; fn(); } };
@@ -677,6 +903,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     let lo = 1; if (p > .9) lo = p > .97 ? 0 : (Math.random() < .5 ? .15 : 1);
     ladyWrap.setAttribute('opacity', lo); ladyGhost.setAttribute('opacity', .2 * lo);
     const lampOn = p > .95 ? 0 : (Math.random() < .03 + p * .08 ? .15 : 1); lamp.setAttribute('opacity', lampOn);
+    const cq = Math.min(1, Math.max(0, (p - .13) / .17)); $('#cat').setAttribute('transform', `translate(${(-80 + 1160 * cq).toFixed(1)} ${(448 + Math.sin(cq * 60) * 1.5).toFixed(1)})`);
     if (p > .3) once('c1', () => A.anklet(.3)); if (p > .5) once('c2', () => A.anklet(.1, .07)); if (p > .7) once('c3', () => A.anklet(-.1, .09));
     if (p > .88) once('c4', () => { A.whisper(-.6); A.dread(1); });
     L.focus = () => { const r = ladyWrap.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height * .4 } : null; };
@@ -688,6 +915,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     setLines(S.tree, p);
     $('#treeHint').classList.toggle('on', !dropped && p > .3 && p < .72);
     if (p > .74) dropHanger();
+    if (p > .05) once('t0', () => A.owl());
     if (p > .2) once('t1', () => A.whisper(-.9, .8)); if (p > .5) once('t2', () => A.whisper(.9, .9));
     L.focus = () => ({ x: innerWidth / 2 + (dropped ? innerWidth * .08 : 0), y: innerHeight * (dropped ? .55 : .3) });
   }
@@ -702,6 +930,34 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (now > nextBeat && p > .05) { A.heartbeat(.25 + p * .4); nextBeat = now + (1300 - p * 800); }
     L.scale = p > .9 ? Math.max(0, 1 - (p - .9) / .08) : 1;
     L.focus = () => { const u = printEls[Math.max(0, n - 1)]; const r = u.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
+  }
+  let nick = '';
+  const calls = [$('#call1'), $('#call2'), $('#call3')];
+  function updName(p) {
+    setLines(S.name, p);
+    const nm = nick || t('nick_default');
+    calls[0].textContent = nm + '…'; calls[1].textContent = nm + '…'; calls[2].textContent = nm.toUpperCase() + '!';
+    [[.3, 0, -.9, 'turnL'], [.5, 1, .9, 'turnR'], [.68, 2, 0, 'turnL']].forEach(([at, i, pan, cls]) => {
+      const on = p >= at && p < .97; calls[i].classList.toggle('on', on);
+      if (p >= at) once('n' + i, () => { A.whisper(pan, 1.3 + i * .3); if (i === 2) { A.thump(.6, 70); A.dread(2); } if (!reduced) { const st = $('#nameStage'); st.classList.remove('turnL', 'turnR'); void st.offsetWidth; st.classList.add(cls); } });
+    });
+    const dd = Math.min(1, Math.max(0, (p - .55) / .2)); $('#doorDark').setAttribute('opacity', (dd * .95).toFixed(2));
+    $('#doorFace').setAttribute('opacity', p > .74 ? Math.min(1, (p - .74) / .08).toFixed(2) : 0);
+    $('#bulb').setAttribute('opacity', p > .66 && Math.random() < .25 ? .1 : 1);
+    L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .52 });
+  }
+  const mGhost = $('#mGhost'), mDiya = $('#mDiya');
+  function updMirror(p) {
+    setLines(S.mirror, p);
+    const q = Math.min(1, Math.max(0, (p - .22) / .5)), lerp = (a, b) => a + (b - a) * q;
+    mGhost.setAttribute('transform', `translate(${lerp(578, 556).toFixed(1)} ${lerp(232, 288).toFixed(1)}) scale(${lerp(.5, 1.05).toFixed(3)})`);
+    mGhost.setAttribute('opacity', (q * .96).toFixed(2));
+    mDiya.setAttribute('cx', (500 - (L.x / innerWidth - .5) * 200).toFixed(1)); mDiya.setAttribute('cy', (300 + (L.y / innerHeight - .5) * 300).toFixed(1));
+    if (p > .1) once('m0', () => A.hum(.2));
+    if (p > .5) once('m1', () => A.breath());
+    const cracked = p > .8; $('#cracks').classList.toggle('on', cracked);
+    if (cracked) once('m2', () => { A.crack(); A.dread(3); if (!reduced) { const st = $('#mirrorStage'); st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 400); } });
+    L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .5 });
   }
   function updHero(p) {
     document.documentElement.style.setProperty('--moonY', (p * 60).toFixed(1) + 'px');
@@ -737,6 +993,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     }
     gl.classList.add('on'); A.glitch();
     setTimeout(() => { gl.classList.remove('on'); A.cut(); }, 900);
+    setTimeout(() => A.breath(), 1000);
     setTimeout(() => { face.classList.add('on'); if (!reduced) face.classList.add('shaking'); A.scream(); }, 2600);
     setTimeout(() => { face.classList.remove('on', 'shaking'); }, 3500);
     setTimeout(() => { after.classList.add('on'); A.resume(); A.dread(0); unlock(); }, 4300);
@@ -744,7 +1001,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   function unlock() { document.documentElement.classList.remove('locked'); }
   $('#again').addEventListener('click', () => {
     scared = false; dropped = false; printsShown = 0; Object.keys(fired).forEach((k) => delete fired[k]);
-    $('#hanger').classList.remove('down'); $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
+    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
     A.dread(0); window.scrollTo({ top: 0, behavior: 'instant' });
   });
 
@@ -753,7 +1010,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   const resize = () => { const d = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; fx.width = W * d; fx.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); };
   addEventListener('resize', resize); resize();
   const fog = Array.from({ length: 6 }, () => ({ x: Math.random(), y: .45 + Math.random() * .5, r: .3 + Math.random() * .3, v: (Math.random() * .4 + .15) * (Math.random() < .5 ? -1 : 1) }));
-  let bats = [], leaves = [], embers = [], nextFlock = 2500;
+  let bats = [], leaves = [], embers = [], mist = [], nextFlock = 2500;
   function flock() { const dir = Math.random() < .5 ? 1 : -1, n = 3 + (Math.random() * 5 | 0), y0 = H * (.12 + Math.random() * .3); for (let i = 0; i < n; i++) bats.push({ x: dir > 0 ? -40 - i * 30 : W + 40 + i * 30, y: y0 + (Math.random() - .5) * 60, v: dir * (2.2 + Math.random() * 1.6), s: 10 + Math.random() * 10, ph: Math.random() * 6, wob: Math.random() * 6 }); A.whisper(dir > 0 ? -.8 : .8, .35); }
   function drawBat(b) {
     const f = Math.sin(b.ph), s = b.s, tip = -s * .55 * f;
@@ -769,12 +1026,47 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (!entered || reduced) return;
     if ((active === 'hero' || active === 'cross') && now > nextFlock) { flock(); nextFlock = now + 7000 + Math.random() * 7000; }
     bats = bats.filter((b) => b.x > -120 && b.x < W + 120); bats.forEach((b) => { b.x += b.v * dt * .06; b.ph += dt * .025; b.y += Math.sin(now / 300 + b.wob) * .4; drawBat(b); });
+    if (active === 'cross' && S.cross.p > .1 && S.cross.p < .95 && Math.random() < .5) { const r = ladyWrap.getBoundingClientRect(); if (r.width) mist.push({ x: r.left + Math.random() * r.width, y: r.bottom - Math.random() * r.height * .3, r: r.width * (.3 + Math.random() * .5), life: 1, vx: (Math.random() - .5) * .4 }); }
+    mist = mist.filter((m) => m.life > 0); mist.forEach((m) => { m.y -= .35; m.x += m.vx; m.life -= .008; const gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r); gr.addColorStop(0, `rgba(225,220,235,${(m.life * .07).toFixed(3)})`); gr.addColorStop(1, 'rgba(225,220,235,0)'); g.fillStyle = gr; g.fillRect(m.x - m.r, m.y - m.r, m.r * 2, m.r * 2); });
     if (active === 'tree' && Math.random() < .08) leaves.push({ x: Math.random() * W, y: -20, s: 12 + Math.random() * 14, a: Math.random() * 6, va: (Math.random() - .5) * .04, vy: .6 + Math.random() * .8, ph: Math.random() * 6, c: Math.random() < .7 ? '#1f3a1c' : '#5d6b26' });
     if (active === 'feet' || active === 'scare') leaves.forEach((l) => { l.vy = Math.max(l.vy, 5); });
     leaves = leaves.filter((l) => l.y < H + 40); leaves.forEach((l) => { l.y += l.vy * dt * .06; l.x += Math.sin(now / 600 + l.ph) * .9; l.a += l.va * dt * .06; drawLeaf(l); });
     if (active === 'hero' && Math.random() < .25) { const dl = document.querySelectorAll('.diya .f'); const d = dl[Math.random() * dl.length | 0]; if (d) { const r = d.getBoundingClientRect(); if (r.width) embers.push({ x: r.left + r.width / 2, y: r.top, vx: (Math.random() - .5) * .6, vy: -(.6 + Math.random()), life: 1 }); } }
     embers = embers.filter((e) => e.life > 0); embers.forEach((e) => { e.x += e.vx; e.y += e.vy; e.life -= .012; g.fillStyle = `rgba(255,${140 + (e.life * 80 | 0)},40,${e.life})`; g.beginPath(); g.arc(e.x, e.y, 1.6, 0, 7); g.fill(); });
   }
+
+  /* ================= ambience, lightning, wavering ghosts ================= */
+  let nextAmb = 9000, nextBolt = 6000, flashT = -1;
+  function ambience(now) {
+    if (now < nextAmb || active === 'scare') return; nextAmb = now + 11000 + Math.random() * 12000;
+    const pick = { hero: ['howl', 'owl'], cross: ['howl', 'bells', 'whisper'], tree: ['owl', 'whisper'], name: ['whisper', 'bells'], mirror: ['bells', 'whisper'], feet: ['bells'] }[active] || [];
+    const k = pick[Math.random() * pick.length | 0]; if (k === 'bells') A.bells(Math.random() * 2 - 1, .03); else if (k === 'whisper') A.whisper(Math.random() < .5 ? -1 : 1, .7); else if (k) A[k]();
+  }
+  function lightning(now) {
+    if (safe || reduced || !(active === 'hero' || active === 'cross')) { root.setProperty('--flash', 0); $('#bolt').style.background = 'transparent'; return; }
+    if (now > nextBolt) { flashT = now; nextBolt = now + 13000 + Math.random() * 10000; setTimeout(() => A.thunder(), 600 + Math.random() * 500); }
+    const e = now - flashT; let f = 0;
+    if (flashT > 0 && e < 520) f = e < 70 ? 1 : e < 160 ? 0 : e < 230 ? .7 : Math.max(0, 1 - (e - 230) / 290) * .25;
+    root.setProperty('--flash', f.toFixed(2)); $('#bolt').style.background = `rgba(190,200,255,${(f * .22).toFixed(3)})`;
+  }
+  const turbs = [$('#turb'), $('#turb2'), $('#turb3')];
+  let wv = 0;
+  function waver(now) {
+    if (reduced || ++wv % 2) return;
+    const s = Math.sin(now / 700), s2 = Math.cos(now / 430);
+    turbs[0].setAttribute('baseFrequency', `${(.012 + .004 * s).toFixed(4)} ${(.06 + .02 * s2).toFixed(4)}`);
+    turbs[1].setAttribute('baseFrequency', `${(.02 + .006 * s2).toFixed(4)} ${(.05 + .02 * s).toFixed(4)}`);
+    turbs[2].setAttribute('baseFrequency', `${(.03 + .01 * s).toFixed(4)} ${(.08 + .03 * s2).toFixed(4)}`);
+  }
+  /* rules reveal */
+  const rulesEls = [...document.querySelectorAll('.rule')];
+  if ('IntersectionObserver' in window && !reduced) {
+    rulesEls.forEach((r) => r.classList.add('pre'));
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { const i = rulesEls.indexOf(e.target); setTimeout(() => e.target.classList.remove('pre'), i % 3 * 160); io.unobserve(e.target); } }), { threshold: .3 });
+    rulesEls.forEach((r) => io.observe(r));
+  }
+  /* film grain tile */
+  (() => { const c = document.createElement('canvas'); c.width = c.height = 160; const x = c.getContext('2d'), d = x.createImageData(160, 160); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); $('#grain').style.backgroundImage = `url(${c.toDataURL()})`; })();
 
   /* ================= main loop ================= */
   let last = performance.now(), nextCricket = 0;
@@ -789,8 +1081,11 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       updHero(S.hero.p);
       if (active === 'cross') updCross(S.cross.p, now);
       if (active === 'tree') updTree(S.tree.p);
+      if (active === 'name') updName(S.name.p);
+      if (active === 'mirror') updMirror(S.mirror.p);
       if (active === 'feet') updFeet(S.feet.p, now); else L.scale = active === 'scare' ? 0 : 1;
-      if (active !== 'hero' && active !== 'cross') { if (active !== 'tree' && active !== 'feet') L.focus = null; }
+      if (!['hero', 'cross', 'tree', 'feet', 'name', 'mirror'].includes(active)) L.focus = null;
+      ambience(now); lightning(now); waver(now);
       if (S.scare.top <= 2 && S.scare.top > -innerHeight) scare();
       if ((active === 'hero' || active === 'cross') && now > nextCricket) { A.cricket(); nextCricket = now + 500 + Math.random() * 1400; }
     }
