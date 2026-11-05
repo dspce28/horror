@@ -8,6 +8,8 @@
 <meta name="description" content="An animated horror night for Kali Chaudas. Headphones on, lights off. Then share your own Kali Chaudas story.">
 <meta property="og:title" content="काली चौदस · Kali Chaudas Night">
 <meta property="og:description" content="Headphones on. Lights off. Scroll slowly.">
+<meta property="og:image" content="assets/art/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Rasa:wght@500;700&family=Mukta:wght@400;600&family=Hind+Vadodara:wght@400;600&display=swap">
@@ -80,7 +82,7 @@ html[lang="gu"] .line { font-family: "Rasa", var(--f-display); font-weight: 700;
 .hint.on { opacity: .9; }
 
 /* hero */
-.moon { position: absolute; z-index: 6; width: min(44vmin, 400px); aspect-ratio: 1; border-radius: 50%; left: 50%; top: 13%; transform: translate(-50%, var(--moonY, 0px));
+.moon { position: absolute; z-index: 6; width: min(34vmin, 300px); aspect-ratio: 1; border-radius: 50%; left: 50%; top: 13%; transform: translate(-50%, var(--moonY, 0px));
   background: radial-gradient(circle at 36% 33%, #ffb08a 0%, #f0603a 24%, #b9141c 60%, #520609 100%);
   box-shadow: 0 0 70px 14px rgba(240,96,58,.5), 0 0 220px 80px rgba(185,20,28,.3); animation: breathe 7s ease-in-out infinite; }
 .moon::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 62% 58%, rgba(60,0,5,.35) 0 9%, transparent 10%), radial-gradient(circle at 30% 64%, rgba(60,0,5,.28) 0 6%, transparent 7%), radial-gradient(circle at 55% 26%, rgba(60,0,5,.22) 0 5%, transparent 6%); }
@@ -214,6 +216,13 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 #face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
 #face.shaking img { animation: shakeit .07s steps(2) infinite; transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { #face.shaking img { animation: none; } }
+.ghostimg { position: absolute; transform: translate(-50%, -100%); width: auto; mix-blend-mode: lighten; filter: url(#waver); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+.lampglow { position: absolute; width: 26%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,200,120,.5), rgba(255,160,60,0) 62%); mix-blend-mode: screen; }
+.diyaglow { position: absolute; width: 9%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,190,90,.75), rgba(255,120,30,0) 62%); mix-blend-mode: screen; animation: glowflick 1.7s infinite; }
+@keyframes glowflick { 0%,100% { opacity: 1; } 30% { opacity: .75; } 55% { opacity: .95; } 75% { opacity: .7; } }
+.offcover { position: absolute; width: 24%; aspect-ratio: 2.4; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(ellipse, rgba(9,9,11,.97) 50%, rgba(9,9,11,0) 72%); opacity: 0; }
+.treehit { position: absolute; left: 25%; right: 25%; top: 12%; bottom: 8%; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .diyaglow { animation: none; } }
 </style>
 </head>
 <body>
@@ -251,17 +260,9 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-hero" style="--len:170vh">
     <div class="stage">
       <div class="layer">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-          <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05030a"/><stop offset=".6" stop-color="#1a0b16"/><stop offset="1" stop-color="#2a0c12"/></linearGradient></defs>
-          <rect width="1000" height="600" fill="url(#sky)"/>
-          <g fill="#ffffff" opacity=".55" id="stars"></g>
-          <path fill="#040207" d="M0 600 L0 480 L40 480 L40 440 L95 440 L95 462 L140 462 L140 410 L160 410 L160 392 L178 392 L178 410 L215 410 L215 472 L260 472 L260 430 L300 430 L300 455 L340 455 L340 470 L420 470 L420 430 L440 430 L462 350 Q 492 280 500 248 Q 508 280 538 350 L560 430 L580 430 L580 470 L640 470 L640 420 L700 420 L700 400 L716 400 L716 420 L760 420 L760 455 L800 455 L800 470 L1000 470 L1000 600 Z"/>
-          <path d="M500 248 L500 214" stroke="#040207" stroke-width="3"/><path d="M500 214 L528 222 L500 231 Z" fill="#7a0a10"/>
-          <g fill="#040207"><rect x="845" y="300" width="22" height="180"/><circle cx="820" cy="300" r="62"/><circle cx="880" cy="270" r="70"/><circle cx="930" cy="320" r="58"/><circle cx="860" cy="340" r="54"/><circle cx="790" cy="350" r="40"/></g>
-          <g fill="#ffb347" opacity=".55"><rect x="60" y="452" width="8" height="10"/><rect x="190" y="428" width="7" height="9"/><rect x="270" y="440" width="8" height="10"/><rect x="655" y="432" width="8" height="10"/><rect x="725" y="436" width="7" height="9"/></g>
-        </svg>
+        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/hero.webp" alt=""><div class="diyaglow" style="left:12.5%;top:83%"></div><div class="diyaglow" style="left:51%;top:81.5%"></div></div>
       </div>
-      <div class="layer dark" style="--dk:.55"></div>
+      <div class="layer dark" style="--dk:.72"></div>
       <div class="moon" aria-hidden="true"></div>
       <div class="title">
         <h1 id="heroTitle">काली चौदस</h1>
@@ -277,42 +278,16 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-cross" style="--len:420vh">
     <div class="stage">
       <div class="layer">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0710"/><stop offset="1" stop-color="#241622"/></linearGradient>
-            <linearGradient id="sariG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4efe6"/><stop offset=".75" stop-color="#d9d2c6"/><stop offset="1" stop-color="#d9d2c6" stop-opacity="0"/></linearGradient>
-            <filter id="waver" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.012 0.06" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter>
-            <g id="lady">
-              <path d="M-26 -262 Q0 -292 26 -262 L32 -150 L-32 -150 Z" fill="#0b0809"/>
-              <path d="M-40 0 L-31 -150 Q-29 -205 -11 -218 L11 -218 Q29 -205 31 -150 L40 0 Z" fill="url(#sariG)"/>
-              <path d="M-23 -252 Q0 -290 23 -252 L33 -196 Q0 -175 -36 -150 Z" fill="#f6f2ea"/>
-              <ellipse cx="0" cy="-246" rx="12" ry="16" fill="#cfc6b8"/>
-              <path d="M-14 -258 Q0 -272 14 -258 L13 -210 Q0 -204 -13 -210 Z" fill="#0b0809"/>
-              <path d="M-26 -206 L-33 -112 M26 -206 L33 -112" stroke="#d6cdbf" stroke-width="5" stroke-linecap="round"/>
-              <g id="ladyFeet" opacity="0"><path d="M-16 4 q-10 -2 -12 -8 q8 -2 14 2 Z M16 4 q10 -2 12 -8 q-8 -2 -14 2 Z" fill="#cfc6b8"/></g>
-            </g>
-          </defs>
-          <rect width="1000" height="600" fill="url(#sky2)"/>
-          <path fill="#0d0a10" d="M0 300 L0 250 L60 250 L60 230 L120 230 L120 262 L200 262 L200 240 L260 240 L260 300 Z M740 300 L740 236 L800 236 L800 214 L860 214 L860 248 L940 248 L940 228 L1000 228 L1000 300 Z"/>
-          <rect y="300" width="1000" height="300" fill="#100d12"/>
-          <polygon points="478,300 522,300 800,600 200,600" fill="#1c1a1f"/>
-          <polygon points="0,420 1000,420 1000,500 0,500" fill="#1c1a1f"/>
-          <g fill="#3a3640"><polygon points="498,310 502,310 503,322 497,322"/><polygon points="497,338 503,338 504,356 496,356"/><polygon points="495,380 505,380 507,405 493,405"/><polygon points="491,520 509,520 513,560 487,560"/></g>
-          <g stroke="#3a3640" stroke-width="3" stroke-dasharray="26 22"><line x1="0" y1="460" x2="380" y2="460"/><line x1="620" y1="460" x2="1000" y2="460"/></g>
-          <rect x="326" y="200" width="8" height="262" fill="#0a080b"/><path d="M330 206 Q352 196 382 206" stroke="#0a080b" stroke-width="6" fill="none"/>
-          <g id="offering">
-            <ellipse cx="500" cy="471" rx="44" ry="10" fill="#000" opacity=".5"/>
-            <ellipse cx="500" cy="466" rx="40" ry="10" fill="#bdb3a0"/>
-            <ellipse cx="482" cy="461" rx="10" ry="5" fill="#6a4a26"/><ellipse cx="497" cy="458" rx="10" ry="5" fill="#7a5530"/><ellipse cx="512" cy="461" rx="10" ry="5" fill="#6a4a26"/>
-            <circle cx="526" cy="458" r="6" fill="#e3c02a"/><circle cx="524" cy="456" r="2" fill="#fff3a0"/>
-            <path d="M468 466 Q478 455 490 466" stroke="#2f6b2a" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M506 470 Q516 463 528 470" stroke="#2f6b2a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-            <g fill="#b3121b"><circle cx="476" cy="470" r="1.6"/><circle cx="520" cy="472" r="1.6"/><circle cx="500" cy="474" r="1.6"/></g>
-            <path d="M532 466 q8 -8 16 0 Z" fill="#8a4a24"/>
-          </g>
-          <g id="ladyWrap" filter="url(#waver)"><use href="#lady" id="ladyUse"/></g>
-        </svg>
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="waver" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.012 0.06" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+        <div class="photo" style="--ar:1376/768">
+          <img class="base" src="assets/art/cross.webp" alt="">
+          <div class="lampglow" id="lamp" style="left:30%;top:13%"></div>
+          <div class="offcover" id="offering" style="left:50.5%;top:78.5%"></div>
+          <div class="diyaglow" id="offerGlow" style="left:54%;top:76%"></div>
+          <img class="ghostimg" id="ladyWrap" src="assets/art/lady.webp" alt="" style="left:56%;top:59%;height:12%">
+        </div>
       </div>
-      <div class="layer dark" style="--dk:.92"></div>
+      <div class="layer dark" style="--dk:.8"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
@@ -320,9 +295,6 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
             <radialGradient id="emberG"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset=".4" stop-color="#ff7a1a" stop-opacity=".35"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
             <filter id="soft"><feGaussianBlur stdDeviation="2"/></filter>
           </defs>
-          <g id="lamp"><polygon points="368,212 396,212 470,470 290,470" fill="url(#coneG)"/><circle cx="382" cy="212" r="16" fill="url(#emberG)"/><circle cx="382" cy="211" r="4" fill="#fff4cf"/></g>
-          <g id="offerGlow"><ellipse cx="540" cy="455" rx="70" ry="40" fill="url(#emberG)" opacity=".7"/><path d="M540 460 q-4 -8 0 -16 q4 8 0 16 Z" fill="#ffe38a" class="flk"/></g>
-          <g id="ladyGhost" opacity=".2" filter="url(#soft)"><use href="#lady"/></g>
           <g id="cat" transform="translate(-80 448)"><g id="catBody"><ellipse cx="0" cy="-12" rx="22" ry="9" fill="#020102"/><circle cx="22" cy="-22" r="8" fill="#020102"/><path d="M17 -28 l3 -9 l4 8 Z M24 -28 l4 -8 l2 9 Z" fill="#020102"/><path d="M-20 -14 q-16 -4 -14 -24" stroke="#020102" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M-12 -6 l-2 8 M-4 -5 l1 8 M8 -5 l-1 8 M15 -6 l2 8" stroke="#020102" stroke-width="3"/><ellipse cx="25" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/><ellipse cx="20" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/></g></g>
           <g id="toran" transform="translate(0 -6)">
             <path d="M0 28 Q250 56 500 34 T1000 30" stroke="#6a5a40" stroke-width="2" fill="none"/>
@@ -343,18 +315,10 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-tree" style="--len:330vh">
     <div class="stage">
       <div class="layer">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-          <rect width="1000" height="600" fill="#0b0810"/>
-          <rect y="520" width="1000" height="80" fill="#0f0c0d"/>
-          <path fill="#1a1210" d="M440 600 Q455 520 470 430 Q478 360 470 300 L530 300 Q522 360 532 430 Q548 520 568 600 Z M470 330 Q420 250 330 210 L340 196 Q430 230 482 300 Z M528 330 Q590 230 690 186 L700 200 Q600 250 520 320 Z M480 300 Q470 220 440 150 L456 144 Q488 220 500 300 Z M500 300 Q540 210 610 150 L620 162 Q556 220 520 300 Z M600 186 Q612 192 615 205"/>
-          <path fill="#1a1210" d="M420 600 Q400 570 360 560 L364 552 Q410 560 440 590 Z M580 600 Q610 570 650 566 L648 556 Q604 562 568 592 Z"/>
-          <g fill="#0f160d" opacity=".95"><ellipse cx="300" cy="170" rx="160" ry="90"/><ellipse cx="500" cy="110" rx="220" ry="110"/><ellipse cx="720" cy="160" rx="170" ry="95"/><ellipse cx="420" cy="210" rx="120" ry="60"/><ellipse cx="620" cy="220" rx="130" ry="60"/><ellipse cx="160" cy="230" rx="110" ry="60"/><ellipse cx="860" cy="240" rx="120" ry="60"/></g>
-          <g id="leafEdge" fill="#16240f"></g>
-          <path d="M150 600 Q170 560 160 530 M820 600 Q840 570 830 540" stroke="#1d1a12" stroke-width="3" fill="none"/>
-          <rect class="tree-hit" id="treeHit" x="300" y="80" width="400" height="520" fill="transparent"/>
-        </svg>
+        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/tree.webp" alt=""><div class="diyaglow" style="left:51%;top:77%"></div></div>
+        <div class="treehit" id="treeHit"></div>
       </div>
-      <div class="layer dark" style="--dk:.93"></div>
+      <div class="layer dark" style="--dk:.84"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
           <defs><filter id="waver2" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb2" type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
@@ -382,9 +346,9 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     <div class="stage" id="nameStage">
       <div class="layer">
         <div class="photo" style="--ar:1408/768">
-          <img class="base" src="assets/art/lane.webp" alt="">
-          <div class="bulbglow" id="bulbGlow" style="left:33.4%;top:21.5%"></div>
-          <img class="doorface" id="doorFaceImg" src="assets/art/door-face.webp" alt="" style="left:58.6%;top:55%">
+          <img class="base" src="assets/art/lane2.webp" alt="">
+          <div class="bulbglow" id="bulbGlow" style="left:44.7%;top:26.5%"></div>
+          <img class="doorface" id="doorFaceImg" src="assets/art/door-face.webp" alt="" style="left:51.5%;top:56%">
         </div>
       </div>
       <div class="layer dark" style="--dk:.86"></div>
@@ -449,13 +413,9 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-feet" style="--len:340vh">
     <div class="stage" id="feetStage">
       <div class="layer">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <rect width="1000" height="600" fill="#0a0709"/>
-          <polygon points="455,230 545,230 920,600 80,600" fill="#17121a"/>
-          <g stroke="#1f2a17" stroke-width="2" fill="none"><path d="M120 590 l6 -18 l4 18 l6 -14 l3 14"/><path d="M860 580 l5 -16 l4 16 l6 -12"/><path d="M300 400 l4 -12 l3 12 l5 -9"/><path d="M700 420 l4 -12 l3 12"/></g>
-        </svg>
+        <div class="photo" style="--ar:1408/768"><img class="base" src="assets/art/lane.webp" alt=""></div>
       </div>
-      <div class="layer dark" style="--dk:.94"></div>
+      <div class="layer dark" style="--dk:.86"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
@@ -828,7 +788,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent.appendChild(el); return el; };
   let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 70; i++) mk('circle', { cx: rnd() * 1000, cy: rnd() * 330, r: (rnd() * 1.2 + .3).toFixed(2), opacity: (rnd() * .7 + .2).toFixed(2) }, $('#stars'));
+  if ($('#stars')) for (let i = 0; i < 70; i++) mk('circle', { cx: rnd() * 1000, cy: rnd() * 330, r: (rnd() * 1.2 + .3).toFixed(2), opacity: (rnd() * .7 + .2).toFixed(2) }, $('#stars'));
   const diyaSvg = '<svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/><path d="M14 22 Q50 30 86 22" stroke="#d98a3a" stroke-width="2" fill="none" opacity=".6"/></svg><span class="f"></span>';
   for (let i = 0; i < 7; i++) { const d = document.createElement('div'); d.className = 'diya'; d.innerHTML = diyaSvg; $('#diyas').appendChild(d); }
   for (let i = 0; i < 14; i++) {
@@ -838,10 +798,10 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (i % 2 === 0) { mk('circle', { cx: x, cy: y + 32, r: 7, fill: '#e3c02a' }, g); mk('circle', { cx: x - 2, cy: y + 30, r: 2, fill: '#fff3a0' }, g); }
     else { mk('path', { d: `M${x} ${y + 26} q4 14 0 30`, stroke: '#2f7a2a', 'stroke-width': 5, fill: 'none', 'stroke-linecap': 'round' }, g); mk('path', { d: `M${x + 6} ${y + 26} q4 12 1 24`, stroke: '#3a8a30', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }, g); }
   }
-  for (let i = 0; i < 46; i++) { const cx = 60 + rnd() * 880, cy = 40 + rnd() * 240; const l = 10 + rnd() * 8, a = rnd() * 360; mk('path', { d: `M0 ${l * .45} C${l * .55} ${l * .2} ${l * .45} ${-l * .35} 0 ${-l * .75} C${-l * .45} ${-l * .35} ${-l * .55} ${l * .2} 0 ${l * .45} Z`, transform: `translate(${cx} ${cy}) rotate(${a})` }, $('#leafEdge')); }
+  if ($('#leafEdge')) for (let i = 0; i < 46; i++) { const cx = 60 + rnd() * 880, cy = 40 + rnd() * 240; const l = 10 + rnd() * 8, a = rnd() * 360; mk('path', { d: `M0 ${l * .45} C${l * .55} ${l * .2} ${l * .45} ${-l * .35} 0 ${-l * .75} C${-l * .45} ${-l * .35} ${-l * .55} ${l * .2} 0 ${l * .45} Z`, transform: `translate(${cx} ${cy}) rotate(${a})` }, $('#leafEdge')); }
   const PRINTS = 12, printEls = [];
   for (let i = 0; i < PRINTS; i++) {
-    const k = i / (PRINTS - 1), y = 255 + 320 * Math.pow(k, 1.35), side = i % 2 ? 1 : -1, x = 500 + side * (6 + 30 * k), s = .25 + .95 * k;
+    const k = i / (PRINTS - 1), y = 345 + 250 * Math.pow(k, 1.35), side = i % 2 ? 1 : -1, x = 418 - 10 * k + side * (5 + 26 * k), s = .22 + .8 * k;
     const u = mk('use', { href: '#foot', transform: `translate(${x} ${y}) scale(${side > 0 ? -s : s} ${s})`, opacity: 0 }, $('#prints'));
     u.style.transition = 'opacity .5s ease'; printEls.push(u);
   }
@@ -884,19 +844,16 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   const setLines = (s, p) => s.lines.forEach((l) => l.el.classList.toggle('on', p >= l.r[0] && p < l.r[1]));
   let active = 'hero';
 
-  const ladyWrap = $('#ladyWrap'), ladyGhost = $('#ladyGhost'), offering = $('#offering'), offerGlow = $('#offerGlow'), lamp = $('#lamp');
+  const ladyWrap = $('#ladyWrap'), offering = $('#offering'), offerGlow = $('#offerGlow'), lamp = $('#lamp');
   function updCross(p, now) {
     setLines(S.cross, p);
-    const q = Math.min(1, Math.max(0, (p - .1) / .7));
-    const x = 500 + 50 * q, y = 300 + 172 * q, s = .17 + .83 * q, bob = Math.sin(p * 120) * 3 * s;
-    const tf = `translate(${x} ${y + bob}) scale(${s})`;
-    ladyWrap.setAttribute('transform', tf); ladyGhost.setAttribute('transform', tf);
-    $('#ladyFeet').setAttribute('opacity', q > .82 ? 1 : 0);
+    const q = Math.min(1, Math.max(0, (p - .1) / .7)), bob = Math.sin(p * 120) * .25 * q;
+    ladyWrap.style.left = (56 + 6 * q).toFixed(2) + '%'; ladyWrap.style.top = (59 + 27 * q + bob).toFixed(2) + '%'; ladyWrap.style.height = (12 + 52 * q).toFixed(2) + '%';
     const gone = p > .86 ? Math.min(1, (p - .86) / .04) : 0;
-    offering.setAttribute('opacity', 1 - gone); offerGlow.setAttribute('opacity', 1 - gone);
+    offering.style.opacity = gone; offerGlow.style.opacity = 1 - gone;
     let lo = 1; if (p > .9) lo = p > .97 ? 0 : (Math.random() < .5 ? .15 : 1);
-    ladyWrap.setAttribute('opacity', lo); ladyGhost.setAttribute('opacity', .2 * lo);
-    const lampOn = p > .95 ? 0 : (Math.random() < .03 + p * .08 ? .15 : 1); lamp.setAttribute('opacity', lampOn);
+    ladyWrap.style.opacity = lo;
+    lamp.style.opacity = p > .95 ? 0 : (Math.random() < .03 + p * .08 ? .1 : 1);
     const cq = Math.min(1, Math.max(0, (p - .13) / .17)); $('#cat').setAttribute('transform', `translate(${(-80 + 1160 * cq).toFixed(1)} ${(448 + Math.sin(cq * 60) * 1.5).toFixed(1)})`);
     if (p > .3) once('c1', () => A.anklet(.3)); if (p > .5) once('c2', () => A.anklet(.1, .07)); if (p > .7) once('c3', () => A.anklet(-.1, .09));
     if (p > .88) once('c4', () => { A.whisper(-.6); A.dread(1); });
@@ -1005,12 +962,12 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   function drawLeaf(l) { g.save(); g.translate(l.x, l.y); g.rotate(l.a); const s = l.s; g.fillStyle = l.c; g.beginPath(); g.moveTo(0, s * .45); g.bezierCurveTo(s * .55, s * .2, s * .45, -s * .35, 0, -s * .75); g.bezierCurveTo(-s * .45, -s * .35, -s * .55, s * .2, 0, s * .45); g.fill(); g.restore(); }
   function particles(now, dt) {
     g.clearRect(0, 0, W, H);
-    fog.forEach((f) => { if (!reduced) f.x += f.v * dt * .00003; if (f.x > 1.5) f.x = -.5; if (f.x < -.5) f.x = 1.5; const cx = f.x * W, cy = f.y * H, r = f.r * Math.max(W, H); const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r); gr.addColorStop(0, 'rgba(150,135,165,.07)'); gr.addColorStop(1, 'rgba(150,135,165,0)'); g.fillStyle = gr; g.fillRect(cx - r, cy - r, r * 2, r * 2); });
+    fog.forEach((f) => { if (!reduced) f.x += f.v * dt * .00003; if (f.x > 1.5) f.x = -.5; if (f.x < -.5) f.x = 1.5; const cx = f.x * W, cy = f.y * H, r = f.r * Math.max(W, H); const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r); gr.addColorStop(0, 'rgba(150,135,165,.03)'); gr.addColorStop(1, 'rgba(150,135,165,0)'); g.fillStyle = gr; g.fillRect(cx - r, cy - r, r * 2, r * 2); });
     if (!entered || reduced) return;
     if ((active === 'hero' || active === 'cross') && now > nextFlock) { flock(); nextFlock = now + 7000 + Math.random() * 7000; }
     bats = bats.filter((b) => b.x > -120 && b.x < W + 120); bats.forEach((b) => { b.x += b.v * dt * .06; b.ph += dt * .025; b.y += Math.sin(now / 300 + b.wob) * .4; drawBat(b); });
     if (active === 'cross' && S.cross.p > .1 && S.cross.p < .95 && Math.random() < .5) { const r = ladyWrap.getBoundingClientRect(); if (r.width) mist.push({ x: r.left + Math.random() * r.width, y: r.bottom - Math.random() * r.height * .3, r: r.width * (.3 + Math.random() * .5), life: 1, vx: (Math.random() - .5) * .4 }); }
-    mist = mist.filter((m) => m.life > 0); mist.forEach((m) => { m.y -= .35; m.x += m.vx; m.life -= .008; const gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r); gr.addColorStop(0, `rgba(225,220,235,${(m.life * .07).toFixed(3)})`); gr.addColorStop(1, 'rgba(225,220,235,0)'); g.fillStyle = gr; g.fillRect(m.x - m.r, m.y - m.r, m.r * 2, m.r * 2); });
+    mist = mist.filter((m) => m.life > 0); mist.forEach((m) => { m.y -= .35; m.x += m.vx; m.life -= .008; const gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r); gr.addColorStop(0, `rgba(225,220,235,${(m.life * .035).toFixed(3)})`); gr.addColorStop(1, 'rgba(225,220,235,0)'); g.fillStyle = gr; g.fillRect(m.x - m.r, m.y - m.r, m.r * 2, m.r * 2); });
     if (active === 'tree' && Math.random() < .08) leaves.push({ x: Math.random() * W, y: -20, s: 12 + Math.random() * 14, a: Math.random() * 6, va: (Math.random() - .5) * .04, vy: .6 + Math.random() * .8, ph: Math.random() * 6, c: Math.random() < .7 ? '#1f3a1c' : '#5d6b26' });
     if (active === 'feet' || active === 'scare') leaves.forEach((l) => { l.vy = Math.max(l.vy, 5); });
     leaves = leaves.filter((l) => l.y < H + 40); leaves.forEach((l) => { l.y += l.vy * dt * .06; l.x += Math.sin(now / 600 + l.ph) * .9; l.a += l.va * dt * .06; drawLeaf(l); });
