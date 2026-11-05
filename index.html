@@ -113,7 +113,7 @@ body.entered .cue { opacity: var(--cueO, 1); }
 @keyframes blinkEyes { 0%, 88%, 100% { transform: scaleY(1); } 92% { transform: scaleY(.05); } }
 #hanger { transition: transform 1.1s cubic-bezier(.3,1.6,.5,1); transform: translateY(-560px); }
 #hanger.down { transform: translateY(0); }
-#hanger.down #hangSwing { animation: pend 4s ease-in-out 1.1s infinite; transform-box: view-box; transform-origin: 610px 190px; }
+#hanger.down #hangSwing { animation: pend 4s ease-in-out 1.1s infinite; transform-box: view-box; transform-origin: 614px -14px; }
 @keyframes pend { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
 .tree-hit { pointer-events: auto; cursor: pointer; }
 .redpulse { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: var(--red, 0); background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 40%, rgba(150,0,10,.75) 100%); animation: pulse 1s ease-in-out infinite; }
@@ -203,6 +203,17 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 .rule p { margin: 0; font-size: 16px; }
 .rule .n { font-family: var(--f-display); color: var(--ember); font-size: 22px; line-height: 1; }
 @media (prefers-reduced-motion: reduce) { #grain { animation: none; } .turnL, .turnR { animation: none; } }
+
+/* ---------- round 3: AI art ---------- */
+.photo { position: absolute; left: 50%; top: 50%; width: max(100%, calc(100svh * var(--ar))); aspect-ratio: var(--ar); transform: translate(-50%, -50%); }
+.photo > img.base { width: 100%; height: 100%; display: block; }
+.bulbglow { position: absolute; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,214,140,.45), rgba(255,170,60,0) 60%); mix-blend-mode: screen; }
+.doorface { position: absolute; width: 3.4%; transform: translate(-50%, -50%); opacity: 0; -webkit-mask-image: radial-gradient(circle, #000 42%, transparent 70%); mask-image: radial-gradient(circle, #000 42%, transparent 70%); filter: brightness(.85) contrast(1.1); }
+#sub { position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0; background: #000 url(assets/art/flash.webp) center / cover no-repeat; }
+#sub.on { opacity: .9; }
+#face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
+#face.shaking img { animation: shakeit .07s steps(2) infinite; transform: scale(1.12); }
+@media (prefers-reduced-motion: reduce) { #face.shaking img { animation: none; } }
 </style>
 </head>
 <body>
@@ -218,6 +229,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 <canvas id="fx" aria-hidden="true"></canvas>
 <div id="grain" aria-hidden="true"></div>
 <div id="bolt" aria-hidden="true"></div>
+<div id="sub" aria-hidden="true"></div>
 <div id="flame" aria-hidden="true"></div>
 
 <!-- GATE -->
@@ -345,25 +357,15 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       <div class="layer dark" style="--dk:.93"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-          <defs><filter id="waver2" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb2" type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
+          <defs><filter id="waver2" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb2" type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
           <g id="owl"><path d="M700 196 q-12 -26 0 -46 q14 -6 28 0 q12 20 0 46 Z" fill="#0b0809"/><path d="M702 152 l-4 -10 l9 6 Z M726 152 l4 -10 l-9 6 Z" fill="#0b0809"/><g class="blinker"><circle cx="708" cy="166" r="6" fill="#ffc21a"/><circle cx="722" cy="166" r="6" fill="#ffc21a"/><circle cx="708" cy="166" r="2.4" fill="#000"/><circle cx="722" cy="166" r="2.4" fill="#000"/></g></g>
           <g fill="#ff2a2a">
             <g class="blinker"><ellipse cx="250" cy="180" rx="5" ry="2.6"/><ellipse cx="268" cy="180" rx="5" ry="2.6"/></g>
             <g class="blinker"><ellipse cx="760" cy="150" rx="4.5" ry="2.4"/><ellipse cx="776" cy="150" rx="4.5" ry="2.4"/></g>
             <g class="blinker"><ellipse cx="470" cy="80" rx="4" ry="2.2"/><ellipse cx="484" cy="80" rx="4" ry="2.2"/></g>
           </g>
-          <g id="hanger" filter="url(#waver2)"><g id="hangSwing">
-            <path d="M604 190 L604 240 M616 190 L616 240" stroke="#cfc6b8" stroke-width="7" stroke-linecap="round"/>
-            <path d="M590 236 Q610 228 630 236 L640 300 L580 300 Z" fill="#e9e3d8"/>
-            <path d="M584 300 Q610 296 636 300 L640 330 L580 330 Z" fill="#e9e3d8"/>
-            <path d="M592 330 L572 430 M628 330 L648 430" stroke="#cfc6b8" stroke-width="6" stroke-linecap="round"/>
-            <path d="M572 430 l-6 14 M572 430 l2 15 M572 430 l8 12 M648 430 l6 14 M648 430 l-2 15 M648 430 l-8 12" stroke="#cfc6b8" stroke-width="2.5" stroke-linecap="round"/>
-            <ellipse cx="610" cy="364" rx="30" ry="38" fill="#d7cfc1"/>
-            <ellipse cx="598" cy="378" rx="8" ry="10" fill="#000"/><ellipse cx="622" cy="378" rx="8" ry="10" fill="#000"/>
-            <circle cx="598" cy="380" r="1.8" fill="#ff3b3b"/><circle cx="622" cy="380" r="1.8" fill="#ff3b3b"/>
-            <ellipse cx="610" cy="346" rx="9" ry="12" fill="#1a0507"/>
-            <path d="M582 392 Q575 470 560 560 M592 398 Q590 480 584 575 M604 402 Q606 490 600 590 M616 402 Q620 490 626 585 M628 398 Q636 480 646 570 M638 392 Q650 470 664 556" stroke="#070506" stroke-width="7" fill="none" stroke-linecap="round"/>
-          </g></g>
+          <defs><radialGradient id="hangFadeG" cx=".5" cy=".42" r=".55"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient><mask id="hangMask" maskContentUnits="userSpaceOnUse"><rect x="464" y="-40" width="300" height="533" fill="url(#hangFadeG)"/></mask></defs>
+          <g id="hanger" filter="url(#waver2)"><g id="hangSwing"><image href="assets/art/hanging.webp" x="464" y="-40" width="300" height="533" mask="url(#hangMask)"/></g></g>
         </svg>
       </div>
       <div class="txt">
@@ -379,25 +381,16 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-name" style="--len:320vh">
     <div class="stage" id="nameStage">
       <div class="layer">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <rect width="1000" height="600" fill="#09070b"/>
-          <polygon points="0,0 420,190 420,430 0,600" fill="#1b1517"/><polygon points="1000,0 580,190 580,430 1000,600" fill="#181316"/>
-          <polygon points="0,600 420,430 580,430 1000,600" fill="#120e10"/>
-          <rect x="420" y="190" width="160" height="240" fill="#0d0a0c"/>
-          <rect x="470" y="270" width="60" height="160" fill="#2a1a12"/><rect x="476" y="276" width="48" height="150" fill="#3a2418"/>
-          <g stroke="#2a2326" stroke-width="2"><path d="M0 120 Q300 170 420 200"/><path d="M1000 90 Q700 150 580 196"/><path d="M60 0 L60 560"/><path d="M930 0 L930 560"/></g>
-          <g fill="#241c1f"><rect x="120" y="250" width="70" height="110"/><rect x="820" y="240" width="64" height="120"/><rect x="300" y="280" width="40" height="70"/><rect x="660" y="278" width="40" height="72"/></g>
-          <path d="M0 150 Q500 120 1000 150" stroke="#2a2326" stroke-width="1.5" fill="none"/>
-        </svg>
+        <div class="photo" style="--ar:1408/768">
+          <img class="base" src="assets/art/lane.webp" alt="">
+          <div class="bulbglow" id="bulbGlow" style="left:33.4%;top:21.5%"></div>
+          <img class="doorface" id="doorFaceImg" src="assets/art/door-face.webp" alt="" style="left:58.6%;top:55%">
+        </div>
       </div>
-      <div class="layer dark" style="--dk:.93"></div>
+      <div class="layer dark" style="--dk:.86"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs><radialGradient id="bulbG"><stop offset="0" stop-color="#ffe6a8" stop-opacity=".8"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient></defs>
-          <g id="bulb"><line x1="500" y1="0" x2="500" y2="140" stroke="#111" stroke-width="2"/><circle cx="500" cy="150" r="60" fill="url(#bulbG)"/><circle cx="500" cy="148" r="6" fill="#fff2c8"/></g>
-          <path d="M478 430 L522 430 L560 600 L440 600 Z" fill="#ffb347" opacity=".05"/>
-          <rect x="476" y="276" width="48" height="150" fill="#000" opacity="0" id="doorDark"/>
-          <g id="doorFace" opacity="0"><ellipse cx="500" cy="300" rx="11" ry="14" fill="#d8d0c2"/><ellipse cx="496" cy="298" rx="2.6" ry="3.4" fill="#000"/><ellipse cx="505" cy="298" rx="2.6" ry="3.4" fill="#000"/><path d="M486 290 Q500 270 514 290 L516 330 L484 330 Z" fill="#070506"/></g>
         </svg>
       </div>
       <div class="calls"><div class="call c1" id="call1"></div><div class="call c2" id="call2"></div><div class="call c3" id="call3"></div></div>
@@ -424,6 +417,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
+            <radialGradient id="mGhostFadeG" cx=".5" cy=".42" r=".5"><stop offset=".45" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient><mask id="mGhostMask" maskContentUnits="userSpaceOnUse"><rect x="-120" y="-110" width="240" height="240" fill="url(#mGhostFadeG)"/></mask>
             <clipPath id="glass"><ellipse cx="500" cy="300" rx="134" ry="204"/></clipPath>
             <linearGradient id="glassG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b3340"/><stop offset="1" stop-color="#0c0e14"/></linearGradient>
             <radialGradient id="mDiyaG"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
@@ -433,7 +427,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
             <rect x="360" y="90" width="280" height="420" fill="url(#glassG)" opacity=".55"/>
             <rect x="560" y="150" width="50" height="220" fill="#07080b" opacity=".8"/>
             <circle id="mDiya" cx="500" cy="420" r="40" fill="url(#mDiyaG)"/>
-            <g id="mGhost" opacity="0" filter="url(#waver3)"><path d="M-40 -40 Q0 -80 40 -40 L52 60 L-52 60 Z" fill="#070506"/><ellipse cx="0" cy="2" rx="25" ry="40" fill="#cfc7b9" opacity=".9"/><path d="M-17 -10 q6 -5 12 0 q-2 14 -6 20 q-5 -6 -6 -20 Z M17 -10 q-6 -5 -12 0 q2 14 6 20 q5 -6 6 -20 Z" fill="#000"/><path d="M-6 26 q6 -4 12 0 q-2 14 -6 18 q-4 -4 -6 -18 Z" fill="#1a0507"/><path d="M-30 -10 Q-42 40 -36 90 M30 -10 Q42 40 36 90" stroke="#070506" stroke-width="10" fill="none"/></g>
+            <g id="mGhost" opacity="0" filter="url(#waver3)"><image href="assets/art/mirror-ghost.webp" x="-120" y="-110" width="240" height="240" mask="url(#mGhostMask)" style="mix-blend-mode:screen;filter:grayscale(.75) contrast(1.25) brightness(.9)"/></g>
             <g fill="#040305"><circle cx="500" cy="350" r="38"/><path d="M420 520 Q430 400 500 392 Q570 400 580 520 Z"/></g>
             <path d="M380 110 L560 520" stroke="#fff" stroke-width="40" opacity=".04"/>
             <g id="cracks" stroke="#d9e0e6" stroke-width="1.6" fill="none" opacity=".85"><path d="M528 262 L470 140"/><path d="M528 262 L610 180"/><path d="M528 262 L640 330"/><path d="M528 262 L560 470"/><path d="M528 262 L420 360"/><path d="M528 262 L380 250"/><path d="M500 200 L540 230 L590 220"/><path d="M470 320 L510 300 L560 330 L600 300"/></g>
@@ -483,7 +477,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-scare" style="--len:120vh">
     <div class="stage">
       <div id="glitch"><span data-t="dont_look"></span></div>
-      <div id="face"><canvas id="faceCanvas" width="960" height="720"></canvas></div>
+      <div id="face"><img src="assets/art/scare.webp" alt=""></div>
       <div class="after" id="after">
         <h2 data-t="after_title"></h2>
         <p data-t="after_p"></p>
@@ -544,8 +538,8 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 
 <div id="credits" hidden>
   <div class="box">
-    <div class="kicker">Photo credits</div>
-    <p>The face at the end is a Creative Commons photo, cropped and edited by this site (eyes and mouth darkened). Everything else is drawn in code.</p>
+    <div class="kicker">Credits</div>
+    <p>The ghost images were created with an AI image generator for this site. Everything else is drawn and played in code.</p>
     <ul id="creditList"></ul>
     <div><button class="btn ghost" type="button" id="closeCredits">Close</button></div>
   </div>
@@ -926,11 +920,13 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     printEls.forEach((u, i) => u.setAttribute('opacity', i < n ? (.55 + .45 * i / PRINTS).toFixed(2) : 0));
     if (n > printsShown) { A.anklet((printsShown % 2 ? .3 : -.3), .03 + .06 * n / PRINTS); A.dread(1 + n / 6); }
     printsShown = n;
+    if (p > .55) once('fflash', () => { flash(120); A.whisper(0, 1.4); });
     $('#redpulse').style.setProperty('--red', (p * .75).toFixed(2));
     if (now > nextBeat && p > .05) { A.heartbeat(.25 + p * .4); nextBeat = now + (1300 - p * 800); }
     L.scale = p > .9 ? Math.max(0, 1 - (p - .9) / .08) : 1;
     L.focus = () => { const u = printEls[Math.max(0, n - 1)]; const r = u.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
   }
+  function flash(ms) { if (safe || reduced) return; const s = $('#sub'); s.classList.add('on'); setTimeout(() => s.classList.remove('on'), ms); }
   let nick = '';
   const calls = [$('#call1'), $('#call2'), $('#call3')];
   function updName(p) {
@@ -941,10 +937,10 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       const on = p >= at && p < .97; calls[i].classList.toggle('on', on);
       if (p >= at) once('n' + i, () => { A.whisper(pan, 1.3 + i * .3); if (i === 2) { A.thump(.6, 70); A.dread(2); } if (!reduced) { const st = $('#nameStage'); st.classList.remove('turnL', 'turnR'); void st.offsetWidth; st.classList.add(cls); } });
     });
-    const dd = Math.min(1, Math.max(0, (p - .55) / .2)); $('#doorDark').setAttribute('opacity', (dd * .95).toFixed(2));
-    $('#doorFace').setAttribute('opacity', p > .74 ? Math.min(1, (p - .74) / .08).toFixed(2) : 0);
-    $('#bulb').setAttribute('opacity', p > .66 && Math.random() < .25 ? .1 : 1);
-    L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .52 });
+    $('#doorFaceImg').style.opacity = p > .74 ? Math.min(1, (p - .74) / .08).toFixed(2) : 0;
+    $('#bulbGlow').style.opacity = p > .66 && Math.random() < .25 ? .1 : 1;
+    if (p > .5) once('nflash', () => flash(110));
+    L.focus = () => { const r = $('#doorFaceImg').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
   }
   const mGhost = $('#mGhost'), mDiya = $('#mDiya');
   function updMirror(p) {
@@ -956,7 +952,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (p > .1) once('m0', () => A.hum(.2));
     if (p > .5) once('m1', () => A.breath());
     const cracked = p > .8; $('#cracks').classList.toggle('on', cracked);
-    if (cracked) once('m2', () => { A.crack(); A.dread(3); if (!reduced) { const st = $('#mirrorStage'); st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 400); } });
+    if (cracked) once('m2', () => { flash(90); A.crack(); A.dread(3); if (!reduced) { const st = $('#mirrorStage'); st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 400); } });
     L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .5 });
   }
   function updHero(p) {
@@ -967,20 +963,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   }
 
   /* ================= the scare ================= */
-  let scared = false, dollEyes = null;
-  const doll = new Image(); doll.src = 'assets/cams/doll.jpg';
-  doll.onload = () => {
-    const c = document.createElement('canvas'); c.width = 640; c.height = 480; const g = c.getContext('2d');
-    g.drawImage(doll, 0, 0); g.filter = 'blur(3px)'; g.fillStyle = '#000';
-    g.beginPath(); g.ellipse(275, 170, 28, 20, 0, 0, 7); g.ellipse(362, 170, 28, 20, 0, 0, 7); g.fill();
-    g.globalAlpha = .7; g.beginPath(); g.ellipse(318, 262, 34, 9, 0, 0, 7); g.fill(); g.globalAlpha = 1;
-    g.filter = 'blur(1px)'; g.fillStyle = 'rgba(235,240,225,.9)'; g.beginPath(); g.arc(277, 172, 2.2, 0, 7); g.arc(360, 172, 2.2, 0, 7); g.fill(); g.filter = 'none';
-    const fc = $('#faceCanvas').getContext('2d');
-    fc.drawImage(c, -96, -72, 1152, 864);
-    fc.globalCompositeOperation = 'multiply'; fc.fillStyle = '#e8c9b8'; fc.fillRect(0, 0, 960, 720); fc.globalCompositeOperation = 'source-over';
-    const vg = fc.createRadialGradient(480, 330, 200, 480, 360, 620); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.85)'); fc.fillStyle = vg; fc.fillRect(0, 0, 960, 720);
-    dollEyes = true;
-  };
+  let scared = false;
   function scare() {
     if (scared) return; scared = true;
     const stage = S.scare.el; window.scrollTo({ top: stage.offsetTop, behavior: 'instant' });
@@ -1001,7 +984,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   function unlock() { document.documentElement.classList.remove('locked'); }
   $('#again').addEventListener('click', () => {
     scared = false; dropped = false; printsShown = 0; Object.keys(fired).forEach((k) => delete fired[k]);
-    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
+    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#doorFaceImg').style.opacity = 0; $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
     A.dread(0); window.scrollTo({ top: 0, behavior: 'instant' });
   });
 
