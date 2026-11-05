@@ -44,7 +44,7 @@ button { cursor: pointer; }
 .ui { position: fixed; z-index: 60; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; gap: 8px; }
 .pill { display: flex; border: 1px solid rgba(239,230,214,.18); background: rgba(7,5,11,.65); backdrop-filter: blur(6px); border-radius: 999px; overflow: hidden; }
 .pill button { background: none; border: 0; color: var(--smoke); padding: 5px 11px; font-size: 14px; font-weight: 600; }
-.pill button[aria-pressed="true"] { color: #1a0d05; background: var(--turmeric); }
+.pill button[aria-pressed="true"] { color: var(--bone); background: #7a0811; }
 #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
 #flame { position: fixed; z-index: 30; width: 14px; height: 26px; margin: -30px 0 0 -7px; left: 0; top: 0; pointer-events: none; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
   background: radial-gradient(ellipse at 50% 78%, #fffbe0 0%, #ffd34d 32%, #ff7a1a 62%, rgba(255,80,0,0) 74%);
@@ -98,7 +98,7 @@ html[lang="gu"] .line { font-family: "Rasa", var(--f-display); font-weight: 700;
 .title .scripts { font-family: "Rasa", var(--f-display); font-size: clamp(20px, 3vw, 30px); color: var(--turmeric); letter-spacing: .06em; margin-top: 6px; opacity: 0; transition: opacity 1.4s ease 1.6s; }
 .title .sub { font-size: clamp(16px, 2.2vw, 22px); color: var(--smoke); margin-top: 10px; opacity: 0; transition: opacity 1.4s ease 2.4s; }
 body.entered .title .scripts, body.entered .title .sub { opacity: 1; }
-.cue { position: absolute; z-index: 10; left: 50%; bottom: calc(15svh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--smoke); display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0; transition: opacity 1s 3s; }
+.cue { position: absolute; z-index: 10; left: 50%; bottom: calc(4svh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--smoke); display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0; transition: opacity 1s 3s; }
 body.entered .cue { opacity: var(--cueO, 1); }
 .cue i { width: 1px; height: 34px; background: linear-gradient(var(--smoke), transparent); animation: drip 1.8s ease-in infinite; }
 @keyframes drip { from { transform: scaleY(0); transform-origin: top; } 60% { transform: scaleY(1); transform-origin: top; } to { transform: scaleY(1); opacity: 0; } }
@@ -235,7 +235,13 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 
 /* ---------- round 4: landing ---------- */
 .drips { position: relative; height: 0; width: min(80%, 620px); margin: 0 auto; }
-.title .scripts { margin-top: 58px; }
+.title .scripts { margin-top: 6px; }
+.dripsvg { display: block; width: min(78%, 640px); height: 96px; margin: -.55em auto 0; overflow: visible; }
+.dripsvg rect { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: dripGrow var(--d) cubic-bezier(.5,.05,.6,1) var(--w) forwards; }
+.dripsvg circle { transform: translateY(calc(var(--L) * -1px)); animation: dripDrop var(--d) cubic-bezier(.5,.05,.6,1) var(--w) forwards; }
+@keyframes dripGrow { to { transform: scaleY(1); } }
+@keyframes dripDrop { to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .dripsvg rect, .dripsvg circle { animation-duration: .01s; } }
 .drip { position: absolute; top: -.35em; width: 7px; height: 0; border-radius: 0 0 6px 6px; background: linear-gradient(#9b0c14, #5c050a); animation: drip var(--d, 5s) cubic-bezier(.45,.05,.55,.95) var(--w, 0s) forwards; }
 .drip::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 11px; height: 13px; transform: translateX(-50%); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #8a0a12; }
 @keyframes drip { to { height: var(--h, 60px); } }
@@ -252,6 +258,49 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 #hands use.slap { animation: slap .28s ease-out; }
 @keyframes slap { from { transform: scale(1.35); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .drip { animation-duration: .01s; } .eyepair i { animation: none; } #hands use.slap { animation: none; } }
+
+/* ---------- round 5: gate, games ---------- */
+#gate { background: linear-gradient(to top, rgba(5,3,7,.98) 0%, rgba(5,3,7,.9) 55%, rgba(5,3,7,.7) 100%); place-items: center; padding-bottom: 0; }
+body:not(.entered) .title, body:not(.entered) .cue { visibility: hidden; }
+#gate .kicker { color: #c3141f; letter-spacing: .34em; animation: gflick 4s infinite; }
+@keyframes gflick { 0%, 100% { opacity: 1; } 47% { opacity: 1; } 48% { opacity: .2; } 49% { opacity: 1; } 71% { opacity: .5; } 72% { opacity: 1; } }
+#gate .btn { border-radius: 2px; background: rgba(120,6,14,.18); color: var(--bone); box-shadow: inset 0 0 0 1px rgba(200,20,30,.75), 0 0 28px rgba(179,18,27,.35); font-family: var(--f-display); font-weight: 400; font-size: 20px; letter-spacing: .04em; padding: 12px 26px; text-shadow: 0 0 12px rgba(255,40,40,.6); }
+#gate .btn:hover { background: rgba(160,10,20,.4); box-shadow: inset 0 0 0 1px #e0202c, 0 0 46px rgba(200,20,30,.6); }
+.gend .btn { border-radius: 2px; background: rgba(120,6,14,.25); color: var(--bone); box-shadow: inset 0 0 0 1px rgba(200,20,30,.75), 0 0 24px rgba(179,18,27,.35); font-family: var(--f-display); font-weight: 400; }
+.gend .btn.ghost { background: transparent; box-shadow: inset 0 0 0 1px rgba(239,230,214,.25); }
+#gate .btn.ghost { background: transparent; box-shadow: none; font-family: var(--f-body); font-size: 15px; color: var(--smoke); text-decoration: underline; text-underline-offset: 4px; text-shadow: none; padding: 8px 12px; }
+#gate .gate-name input { border-radius: 0; border: 0; border-bottom: 1px solid rgba(200,20,30,.6); background: transparent; font-family: var(--f-display); font-size: 22px; color: var(--bone); }
+#gate .gate-name input:focus { outline: none; border-bottom-color: #ff3b3b; }
+#gate .gate-name label { text-align: center; }
+#games { padding-block: 70px 30px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.gcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 600px) { .gcards { grid-template-columns: minmax(0, 1fr); } }
+.gcard { position: relative; overflow: hidden; border: 1px solid rgba(200,20,30,.35); border-radius: 12px; background: #000; color: var(--bone); text-align: left; padding: 0; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; }
+.gcard img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; transition: opacity .4s, transform 1.2s; }
+.gcard:hover img { opacity: .7; transform: scale(1.06); }
+.gcard span { position: relative; padding: 0 18px; }
+.gcard .gt { font-family: var(--f-display); font-size: 30px; }
+.gcard .gd { color: #d8d0c4; font-size: 15px; }
+.gcard .gp { margin: 10px 0 18px; color: #ff4a4a; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
+#game { position: fixed; inset: 0; z-index: 65; background: #000; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+#game .gpane { position: absolute; inset: 0; overflow: hidden; }
+.gdark { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle var(--gr, 150px) at var(--gx, 50%) var(--gy, 50%), rgba(0,0,0,0) 0%, rgba(0,0,0,.1) 30%, rgba(0,0,0,.975) 100%); }
+#g1ghost { position: absolute; transform: translate(-50%, -100%); mix-blend-mode: lighten; cursor: pointer; transition: left 1.2s ease, top 1.2s ease, height 1.2s ease, opacity .4s; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 60%, transparent 100%); filter: brightness(1.3); }
+#g2face { position: absolute; left: 50%; top: 42%; width: min(90vw, 90vh); transform: translate(-50%, -50%) scale(.15); opacity: .3; filter: blur(8px) grayscale(.4); -webkit-mask-image: radial-gradient(circle, #000 45%, transparent 72%); mask-image: radial-gradient(circle, #000 45%, transparent 72%); }
+#g2diya { position: absolute; left: 50%; bottom: calc(9svh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: 120px; height: 120px; border: 0; background: radial-gradient(circle at 50% 70%, rgba(255,140,40,calc(var(--f, 1) * .35)), transparent 65%); border-radius: 50%; }
+#g2diya svg { position: absolute; left: 20%; bottom: 18%; width: 60%; }
+#g2diya .fl { position: absolute; left: 50%; bottom: 48%; width: 18%; height: 40%; margin-left: -9%; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%; background: radial-gradient(ellipse at 50% 80%, #fffbe0 0%, #ffd34d 30%, #ff7a1a 60%, rgba(255,80,0,0) 74%); transform-origin: 50% 100%; transform: scale(var(--f, 1)); animation: flick 1.1s infinite; }
+.g2bar { position: absolute; left: 10%; right: 10%; top: calc(14px + env(safe-area-inset-top, 0px)); height: 4px; background: rgba(255,255,255,.12); }
+.g2bar i { display: block; height: 100%; width: 100%; background: #c3141f; transform-origin: left; }
+.ghud { position: absolute; left: 0; right: 0; top: calc(30px + env(safe-area-inset-top, 0px)); text-align: center; font-family: var(--f-display); font-size: clamp(20px, 3.4vw, 30px); color: var(--bone); text-shadow: 0 2px 14px #000; pointer-events: none; display: flex; flex-direction: column; gap: 4px; }
+.ghud #gtime { color: #ff4a4a; font-size: .9em; }
+.gend { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.82); text-align: center; padding: 16px; }
+.gend p { font-family: var(--f-display); font-size: clamp(28px, 6vw, 56px); margin: 0 0 18px; max-width: 18ch; line-height: 1.15; }
+.gx { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.6); color: #fff; font-size: 22px; z-index: 3; }
+#gscare { position: absolute; inset: 0; z-index: 4; background: #000; }
+#gscare img { width: 100%; height: 100%; object-fit: cover; }
+#gscare.shake img { animation: shakeit .07s steps(2) infinite; transform: scale(1.12); }
+@media (prefers-reduced-motion: reduce) { #gscare.shake img { animation: none; } }
 </style>
 </head>
 <body>
@@ -295,7 +344,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       <div class="eyesfield" id="eyesHero" aria-hidden="true"></div>
       <div class="title">
         <h1 id="heroTitle">आधी रात</h1>
-        <div class="drips" id="drips" aria-hidden="true"></div>
+        <svg class="dripsvg" id="drips" viewBox="0 0 600 110" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="goo" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter><linearGradient id="bloodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e0a14"/><stop offset="1" stop-color="#4a0309"/></linearGradient></defs><g filter="url(#goo)" fill="url(#bloodG)" id="dripG"></g></svg>
         <div class="scripts">આધી રાત · AADHI RAAT</div>
         <div class="sub" data-t="hero_sub"></div>
       </div>
@@ -502,6 +551,18 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     </div>
   </section>
 
+  <!-- 5a. GAMES -->
+  <section id="games">
+    <div class="wrap">
+      <div class="kicker" data-t="games_kicker"></div>
+      <h2 data-t="games_title"></h2>
+      <div class="gcards">
+        <button class="gcard" type="button" id="g1open"><img src="assets/art/lane2.webp" alt=""><span class="gt" data-t="g1_title"></span><span class="gd" data-t="g1_desc"></span><span class="gp" data-t="g1_play"></span></button>
+        <button class="gcard" type="button" id="g2open"><img src="assets/art/flash.webp" alt=""><span class="gt" data-t="g2_title"></span><span class="gd" data-t="g2_desc"></span><span class="gp" data-t="g2_play"></span></button>
+      </div>
+    </div>
+  </section>
+
   <!-- 5b. NANI'S RULES -->
   <section id="rules">
     <div class="wrap">
@@ -550,6 +611,21 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 </main>
 <footer><span data-t="fiction"></span> <button class="linkbtn" type="button" id="openCredits" data-t="credits"></button></footer>
 
+<div id="game" hidden>
+  <div class="gpane" id="g1" hidden>
+    <div class="photo" style="--ar:1408/768"><img class="base" src="assets/art/lane2.webp" alt=""><img id="g1ghost" src="assets/art/lady.webp" alt="Her" draggable="false"></div>
+    <div class="gdark" id="g1dark"></div>
+  </div>
+  <div class="gpane" id="g2" hidden>
+    <img id="g2face" src="assets/art/flash.webp" alt="" draggable="false">
+    <div class="g2bar"><i id="g2bar"></i></div>
+    <button type="button" id="g2diya" aria-label="Diya"><svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/></svg><span class="fl"></span></button>
+  </div>
+  <div class="ghud"><span id="ghint"></span><span id="gtime"></span></div>
+  <div class="gend" id="gend" hidden><div><p id="gmsg"></p><div class="btns"><button class="btn" type="button" id="gagain"></button><button class="btn ghost" type="button" id="gclose"></button></div></div></div>
+  <div id="gscare" hidden><img src="assets/art/scare.webp" alt=""></div>
+  <button type="button" class="gx" id="gx" aria-label="Close">×</button>
+</div>
 <div id="credits" hidden>
   <div class="box">
     <div class="kicker">Credits</div>
@@ -700,21 +776,33 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       r1: 'Light a diya at the door before midnight, facing south.', after_p: 'Send it to a friend tonight and find out if they do.',
       share_text: 'Watch this alone tonight, with headphones on: ', st_kicker: 'Ghost stories', fiction: 'A work of fiction.', credits: 'Credits',
       face_1: 'She heard you come in.', face_2: 'Stay. She has stories to tell you.',
-      hands_1: 'Don’t let her in.', hands_2: 'Too late.', hands_3: 'Now listen. These are the stories nani never finished.', st_rate: 'You’ve sent a few stories already. Try again in an hour.' },
+      hands_1: 'Don’t let her in.', hands_2: 'Too late.', hands_3: 'Now listen. These are the stories nani never finished.', st_rate: 'You’ve sent a few stories already. Try again in an hour.',
+      face_late: 'It’s {t}. Why are you still awake?',
+      games_kicker: 'Play if you dare', games_title: 'Two ways to meet her',
+      g1_title: 'Find her', g1_desc: 'She is hiding in the lane. Use your diya. You have 15 seconds.', g1_play: 'Find her →', g1_hint: 'Tap her when you see her', g1_win: 'You found her. Now she knows you can see her.', g1_lose: 'She found you first.',
+      g2_title: 'Keep the diya alive', g2_desc: 'She is coming. Tap the diya to keep the flame burning for 20 seconds.', g2_play: 'Start →', g2_hint: 'Tap the diya. Fast.', g2_win: 'The flame held. She’s gone, for tonight.', g2_lose: 'The diya went out.', g_again: 'Play again', g_close: 'Close' },
     hi: { kicker: 'कुछ कहानियाँ सच होती हैं', hero_sub: 'वह घड़ी जब आत्माएँ घूमती हैं।',
       cross_1: 'सबसे अँधेरी रातों में कोई चौराहे पर वड़े, नींबू और मिर्च रख जाता है।',
       mirror_1: 'आधी रात के बाद हर आईना ढक दीजिए।', rules_kicker: 'रात के लिए नानी के नियम', rules_title: 'रात कैसे बचें',
       r1: 'आधी रात से पहले दरवाज़े पर दक्षिण की ओर दीया जलाइए।', after_p: 'आज रात किसी दोस्त को भेजिए और देखिए उसकी निकलती है या नहीं।',
       share_text: 'आज रात इसे अकेले, हेडफ़ोन लगाकर देखना: ', st_kicker: 'भूतों की कहानियाँ', fiction: 'एक काल्पनिक कहानी।', credits: 'क्रेडिट',
       face_1: 'उसने आपके आने की आहट सुन ली है।', face_2: 'रुकिए। उसके पास आपको सुनाने के लिए कहानियाँ हैं।',
-      hands_1: 'उसे अंदर मत आने देना।', hands_2: 'बहुत देर हो चुकी है।', hands_3: 'अब सुनिए। ये वो कहानियाँ हैं जो नानी ने कभी पूरी नहीं कीं।', st_rate: 'आपने अभी कई कहानियाँ भेजी हैं। एक घंटे बाद फिर कोशिश करें।' },
+      hands_1: 'उसे अंदर मत आने देना।', hands_2: 'बहुत देर हो चुकी है।', hands_3: 'अब सुनिए। ये वो कहानियाँ हैं जो नानी ने कभी पूरी नहीं कीं।', st_rate: 'आपने अभी कई कहानियाँ भेजी हैं। एक घंटे बाद फिर कोशिश करें।',
+      face_late: '{t} बज रहे हैं। आप अब तक जाग क्यों रहे हैं?',
+      games_kicker: 'हिम्मत है तो खेलिए', games_title: 'उससे मिलने के दो तरीके',
+      g1_title: 'उसे ढूँढिए', g1_desc: 'वह गली में छिपी है। अपना दीया इस्तेमाल कीजिए। आपके पास 15 सेकंड हैं।', g1_play: 'उसे ढूँढिए →', g1_hint: 'दिखते ही उस पर टैप कीजिए', g1_win: 'आपने उसे ढूँढ लिया। अब उसे पता है कि आप उसे देख सकते हैं।', g1_lose: 'उसने आपको पहले ढूँढ लिया।',
+      g2_title: 'दीया जलता रखिए', g2_desc: 'वह आ रही है। 20 सेकंड तक लौ जलाए रखने के लिए दीये पर टैप करते रहिए।', g2_play: 'शुरू करें →', g2_hint: 'दीये पर टैप कीजिए। जल्दी।', g2_win: 'लौ बुझी नहीं। वह चली गई, आज रात के लिए।', g2_lose: 'दीया बुझ गया।', g_again: 'फिर से खेलें', g_close: 'बंद करें' },
     gu: { kicker: 'કેટલીક વાર્તાઓ સાચી હોય છે', hero_sub: 'એ ઘડી જ્યારે આત્માઓ ફરે છે.',
       cross_1: 'સૌથી અંધારી રાતોમાં કોઈક ચાર રસ્તે વડાં, લીંબુ અને મરચાં મૂકી જાય છે.',
       mirror_1: 'મધરાત પછી દરેક અરીસો ઢાંકી દો.', rules_kicker: 'રાત માટે નાનીના નિયમો', rules_title: 'રાત કેવી રીતે બચવી',
       r1: 'મધરાત પહેલાં દરવાજે દક્ષિણ તરફ દીવો પ્રગટાવો.', after_p: 'આજે રાત્રે કોઈ મિત્રને મોકલો અને જુઓ કે એની નીકળે છે કે નહીં.',
       share_text: 'આજે રાત્રે આ એકલા, હેડફોન પહેરીને જોજો: ', st_kicker: 'ભૂતની વાર્તાઓ', fiction: 'એક કાલ્પનિક વાર્તા.', credits: 'ક્રેડિટ',
       face_1: 'એણે તમારા આવવાનો અવાજ સાંભળી લીધો છે.', face_2: 'રોકાઓ. એની પાસે તમને કહેવા માટે વાર્તાઓ છે.',
-      hands_1: 'એને અંદર આવવા દેતા નહીં.', hands_2: 'હવે બહુ મોડું થઈ ગયું.', hands_3: 'હવે સાંભળો. આ એ વાર્તાઓ છે જે નાનીએ ક્યારેય પૂરી ન કરી.', st_rate: 'તમે હમણાં ઘણી વાર્તાઓ મોકલી છે. એક કલાક પછી ફરી પ્રયાસ કરો.' }
+      hands_1: 'એને અંદર આવવા દેતા નહીં.', hands_2: 'હવે બહુ મોડું થઈ ગયું.', hands_3: 'હવે સાંભળો. આ એ વાર્તાઓ છે જે નાનીએ ક્યારેય પૂરી ન કરી.', st_rate: 'તમે હમણાં ઘણી વાર્તાઓ મોકલી છે. એક કલાક પછી ફરી પ્રયાસ કરો.',
+      face_late: '{t} વાગ્યા છે. તમે હજી કેમ જાગો છો?',
+      games_kicker: 'હિંમત હોય તો રમો', games_title: 'એને મળવાના બે રસ્તા',
+      g1_title: 'એને શોધો', g1_desc: 'એ ગલીમાં છુપાયેલી છે. તમારો દીવો વાપરો. તમારી પાસે 15 સેકન્ડ છે.', g1_play: 'એને શોધો →', g1_hint: 'દેખાય કે તરત એના પર ટેપ કરો', g1_win: 'તમે એને શોધી કાઢી. હવે એને ખબર છે કે તમે એને જોઈ શકો છો.', g1_lose: 'એણે તમને પહેલાં શોધી કાઢ્યા.',
+      g2_title: 'દીવો સળગતો રાખો', g2_desc: 'એ આવી રહી છે. 20 સેકન્ડ સુધી જ્યોત સળગતી રાખવા દીવા પર ટેપ કરતા રહો.', g2_play: 'શરૂ કરો →', g2_hint: 'દીવા પર ટેપ કરો. જલદી.', g2_win: 'જ્યોત ઓલવાઈ નહીં. એ જતી રહી, આજની રાત માટે.', g2_lose: 'દીવો ઓલવાઈ ગયો.', g_again: 'ફરી રમો', g_close: 'બંધ કરો' }
   };
   Object.keys(GEN).forEach((k) => Object.assign(T[k], GEN[k]));
   const $ = (s) => document.querySelector(s);
@@ -730,6 +818,8 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     $('#share').href = 'https://wa.me/?text=' + encodeURIComponent(t('share_text') + location.href.split('#')[0]);
     paintSound(); renderWall();
+    const hr = new Date().getHours();
+    if (hr >= 23 || hr < 4) { const el = document.querySelector('[data-t="face_1"]'); if (el) el.textContent = t('face_late').replace('{t}', new Date().toLocaleTimeString(lang === 'en' ? 'en-IN' : lang + '-IN', { hour: 'numeric', minute: '2-digit' })); }
   }
   document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => { lang = b.dataset.lang; store.set('kc-lang', lang); applyLang(); }));
 
@@ -863,8 +953,18 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       tryNext(['theme.mp4', 'theme.mp3', 'theme.m4a']);
     },
     startTheme(buf) {
-      const s = this.ctx.createBufferSource(); s.buffer = buf; s.loop = true; const g = this.ctx.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(.8, this.now(), .5);
-      s.connect(g); g.connect(this.master); s.start(); this.themeGain = g;
+      // Skip the silence that encoders add at both ends, then crossfade each repeat into the next so the loop has no gap.
+      const d = buf.getChannelData(0), thr = .004; let a = 0, b = d.length - 1;
+      while (a < d.length && Math.abs(d[a]) < thr) a++; while (b > a && Math.abs(d[b]) < thr) b--;
+      const start = a / buf.sampleRate, len = (b - a) / buf.sampleRate, xf = Math.min(2.5, len / 6);
+      const master = this.ctx.createGain(); master.gain.value = 0; master.gain.setTargetAtTime(.8, this.now(), .5); master.connect(this.master); this.themeGain = master;
+      const play = (at) => {
+        const s = this.ctx.createBufferSource(), g = this.ctx.createGain(); s.buffer = buf; s.connect(g); g.connect(master);
+        g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(1, at + xf); g.gain.setValueAtTime(1, at + len - xf); g.gain.linearRampToValueAtTime(0, at + len);
+        s.start(at, start, len); const next = at + len - xf;
+        this.themeTimer = setTimeout(() => play(next), Math.max(0, (next - this.now() - 1) * 1000));
+      };
+      play(this.now() + .05);
     },
     themeLevel(v) { if (this.themeGain) this.themeGain.gain.setTargetAtTime(v, this.now(), 1.2); },
     setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .9, this.now(), .05); }
@@ -948,7 +1048,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     L.focus = () => { const r = ladyWrap.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height * .4 } : null; };
   }
   let dropped = false;
-  function dropHanger() { if (dropped) return; dropped = true; $('#hanger').classList.add('down'); $('#treeHint').classList.remove('on'); A.thump(.7, 70); setTimeout(() => A.whisper(.4, 1.3), 300); if (!reduced) { $('#s-tree .stage').classList.add('shake'); setTimeout(() => $('#s-tree .stage').classList.remove('shake'), 350); } }
+  function dropHanger() { if (dropped) return; dropped = true; $('#hanger').classList.add('down'); $('#treeHint').classList.remove('on'); A.thump(.7, 70); buzz(150); setTimeout(() => A.whisper(.4, 1.3), 300); if (!reduced) { $('#s-tree .stage').classList.add('shake'); setTimeout(() => $('#s-tree .stage').classList.remove('shake'), 350); } }
   $('#treeHit').addEventListener('click', () => { if (entered) dropHanger(); });
   function updTree(p) {
     setLines(S.tree, p);
@@ -972,6 +1072,19 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     L.focus = () => { const u = printEls[Math.max(0, n - 1)]; const r = u.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
   }
   function flash(ms) { if (safe || reduced) return; const s = $('#sub'); s.classList.add('on'); setTimeout(() => s.classList.remove('on'), ms); }
+  let voices = [];
+  const loadVoices = () => { try { voices = speechSynthesis.getVoices(); } catch (e) {} };
+  if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  function sayName(text, vol = .7, pitch = .3, rate = .55) {
+    if (!('speechSynthesis' in window) || A.muted) return;
+    try {
+      const want = lang === 'gu' ? ['gu-IN', 'hi-IN'] : lang === 'hi' ? ['hi-IN'] : ['en-IN', 'hi-IN', 'en-GB', 'en-US'];
+      const v = want.map((l) => voices.find((x) => x.lang === l && /female|woman|lekha|heera|swara|veena|google/i.test(x.name)) || voices.find((x) => x.lang === l)).find(Boolean);
+      const u = new SpeechSynthesisUtterance(text); if (v) { u.voice = v; u.lang = v.lang; }
+      u.volume = vol; u.pitch = pitch; u.rate = rate; speechSynthesis.cancel(); speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function buzz(pattern) { if (safe || !navigator.vibrate) return; try { navigator.vibrate(pattern); } catch (e) {} }
   let nick = '';
   const calls = [$('#call1'), $('#call2'), $('#call3')];
   function updName(p) {
@@ -980,7 +1093,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     calls[0].textContent = nm + '…'; calls[1].textContent = nm + '…'; calls[2].textContent = nm.toUpperCase() + '!';
     [[.3, 0, -.9, 'turnL'], [.5, 1, .9, 'turnR'], [.68, 2, 0, 'turnL']].forEach(([at, i, pan, cls]) => {
       const on = p >= at && p < .97; calls[i].classList.toggle('on', on);
-      if (p >= at) once('n' + i, () => { A.whisper(pan, 1.3 + i * .3); if (i === 2) { A.thump(.6, 70); A.dread(2); } if (!reduced) { const st = $('#nameStage'); st.classList.remove('turnL', 'turnR'); void st.offsetWidth; st.classList.add(cls); } });
+      if (p >= at) once('n' + i, () => { A.whisper(pan, 1.3 + i * .3); sayName(i === 2 ? nm + '!' : nm + '…', [.45, .75, 1][i], [.35, .25, .15][i], [.5, .55, .7][i]); buzz(i === 2 ? [120, 60, 200] : 40); if (i === 2) { A.thump(.6, 70); A.dread(2); } if (!reduced) { const st = $('#nameStage'); st.classList.remove('turnL', 'turnR'); void st.offsetWidth; st.classList.add(cls); } });
     });
     $('#doorFaceImg').style.opacity = p > .74 ? Math.min(1, (p - .74) / .08).toFixed(2) : 0;
     $('#bulbGlow').style.opacity = p > .66 && Math.random() < .25 ? .1 : 1;
@@ -995,8 +1108,9 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     mGhost.style.opacity = (q * .96).toFixed(2);
     if (p > .1) once('m0', () => A.hum(.2));
     if (p > .5) once('m1', () => A.breath());
+    if (p > .7) once('m3', () => sayName(nick || t('nick_default'), .6, .2, .5));
     const cracked = p > .8; $('#cracks').classList.toggle('on', cracked);
-    if (cracked) once('m2', () => { flash(90); A.crack(); A.dread(3); if (!reduced) { const st = $('#mirrorStage'); st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 400); } });
+    if (cracked) once('m2', () => { flash(90); buzz([80, 40, 140]); A.crack(); A.dread(3); if (!reduced) { const st = $('#mirrorStage'); st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 400); } });
     L.focus = () => { const r = $('.mglass').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * .45 }; };
   }
   function updHero(p) {
@@ -1021,7 +1135,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     gl.classList.add('on'); A.glitch();
     setTimeout(() => { gl.classList.remove('on'); A.cut(); }, 900);
     setTimeout(() => A.breath(), 1000);
-    setTimeout(() => { face.classList.add('on'); if (!reduced) face.classList.add('shaking'); A.scream(); }, 2600);
+    setTimeout(() => { face.classList.add('on'); if (!reduced) face.classList.add('shaking'); A.scream(); buzz([300, 80, 500]); }, 2600);
     setTimeout(() => { face.classList.remove('on', 'shaking'); }, 3500);
     setTimeout(() => { after.classList.add('on'); A.resume(); A.dread(0); unlock(); }, 4300);
   }
@@ -1063,7 +1177,11 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   }
 
   /* ================= landing effects ================= */
-  (() => { const d = $('#drips'); for (let i = 0; i < 11; i++) { const s = document.createElement('i'); s.className = 'drip'; s.style.left = (6 + Math.random() * 88).toFixed(1) + '%'; s.style.setProperty('--h', (14 + Math.random() * 42 | 0) + 'px'); s.style.setProperty('--d', (3 + Math.random() * 5).toFixed(1) + 's'); s.style.setProperty('--w', (1.2 + Math.random() * 3).toFixed(1) + 's'); s.style.width = (4 + Math.random() * 6 | 0) + 'px'; d.appendChild(s); } })();
+  (() => { const g = $('#dripG'), NS = 'http://www.w3.org/2000/svg'; for (let i = 0; i < 14; i++) { const x = 30 + Math.random() * 540, w = 3 + Math.random() * 7, L = 18 + Math.random() * 70, d = (4 + Math.random() * 7).toFixed(1) + 's', wt = (1 + Math.random() * 4).toFixed(1) + 's';
+    const blob = document.createElementNS(NS, 'ellipse'); blob.setAttribute('cx', x.toFixed(1)); blob.setAttribute('cy', 2); blob.setAttribute('rx', (w * 1.6).toFixed(1)); blob.setAttribute('ry', 4); g.appendChild(blob);
+    const r = document.createElementNS(NS, 'rect'); r.setAttribute('x', (x - w / 2).toFixed(1)); r.setAttribute('y', 3); r.setAttribute('width', w.toFixed(1)); r.setAttribute('height', L.toFixed(1)); r.setAttribute('rx', (w / 2).toFixed(1)); r.style.setProperty('--d', d); r.style.setProperty('--w', wt);
+    const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', (L + 3).toFixed(1)); c.setAttribute('r', (w * .85).toFixed(1)); c.style.setProperty('--d', d); c.style.setProperty('--w', wt); c.style.setProperty('--L', L.toFixed(1));
+    g.append(r, c); } })();
   let nextEyes = 0;
   function spawnEyes(field, now) {
     if (now < nextEyes || !field || safe) return; nextEyes = now + 900 + Math.random() * 1600;
@@ -1096,11 +1214,81 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     setLines(S.hands, p);
     const n = Math.min(HANDS.length, Math.floor(Math.max(0, p - .06) / .62 * HANDS.length));
     handEls.forEach((u, i) => { const on = i < n; if (on && u.style.display === 'none') { u.style.display = ''; u.classList.remove('slap'); void u.getBBox; u.classList.add('slap'); } if (!on) u.style.display = 'none'; });
-    if (n > handsShown) { A.thump(.5 + n * .04, 70 + Math.random() * 30); A.bells(Math.random() * 2 - 1, .02); if (!reduced) { const st = $('#handsStage'); st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 260); } }
+    if (n > handsShown) { buzz(50); A.thump(.5 + n * .04, 70 + Math.random() * 30); A.bells(Math.random() * 2 - 1, .02); if (!reduced) { const st = $('#handsStage'); st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 260); } }
     handsShown = n;
     const cr = p > .5; $('#glassCracks').setAttribute('opacity', cr ? .8 : 0); if (cr) once('hc', () => { A.crack(); flash(80); });
     if (p > .8) once('hstory', () => { A.dread(0); });
     L.focus = () => ({ x: innerWidth / 2, y: innerHeight / 2 });
+  }
+
+  /* ================= games ================= */
+  const G = { on: null, t0: 0, raf: 0, timers: [] };
+  const gEl = $('#game');
+  function gReset() { G.timers.forEach(clearTimeout); G.timers = []; cancelAnimationFrame(G.raf); $('#gend').hidden = true; $('#gscare').hidden = true; $('#gscare').className = ''; $('#gscare').style.opacity = ''; $('#gscare').style.transition = ''; $('#g1').hidden = true; $('#g2').hidden = true; $('#ghint').textContent = ''; $('#gtime').textContent = ''; }
+  function gOpen(which) {
+    A.init(); A.startBed(); A.themeLevel(.08);
+    gReset(); G.on = which; gEl.hidden = false; document.documentElement.classList.add('locked');
+    $('#gagain').textContent = t('g_again'); $('#gclose').textContent = t('g_close');
+    which === 1 ? g1Start() : g2Start();
+  }
+  function gClose() { gReset(); G.on = null; gEl.hidden = true; document.documentElement.classList.remove('locked'); A.dread(0); }
+  function gEnd(win, msg) {
+    cancelAnimationFrame(G.raf); G.timers.forEach(clearTimeout); G.timers = [];
+    const show = () => { $('#gscare').hidden = true; $('#gmsg').textContent = msg; $('#gend').hidden = false; };
+    if (win) { show(); return; }
+    const sc = $('#gscare'); sc.hidden = false;
+    if (safe) { sc.style.opacity = 0; sc.style.transition = 'opacity 2.5s'; requestAnimationFrame(() => { sc.style.opacity = 1; }); G.timers.push(setTimeout(show, 3000)); }
+    else { sc.style.opacity = 1; sc.style.transition = ''; if (!reduced) sc.classList.add('shake'); A.scream(); buzz([300, 80, 500]); G.timers.push(setTimeout(show, 1100)); }
+  }
+  $('#g1open').addEventListener('click', () => gOpen(1));
+  $('#g2open').addEventListener('click', () => gOpen(2));
+  $('#gagain').addEventListener('click', () => gOpen(G.on));
+  $('#gclose').addEventListener('click', gClose); $('#gx').addEventListener('click', gClose);
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && G.on) gClose(); });
+
+  /* Find her: she hides in the lane and moves; your diya is the only light */
+  const SPOTS = [[52, 74, 17], [26, 82, 24], [79, 88, 30], [50, 62, 9], [63, 96, 34], [38, 70, 14], [86, 70, 20]];
+  const g1g = $('#g1ghost'), g1d = $('#g1dark');
+  function g1Place() { const s = SPOTS[Math.random() * SPOTS.length | 0]; g1g.style.left = s[0] + '%'; g1g.style.top = s[1] + '%'; g1g.style.height = s[2] + '%'; A.whisper((s[0] - 50) / 40, .6); }
+  function g1Start() {
+    $('#g1').hidden = false; $('#ghint').textContent = t('g1_hint'); g1g.style.transition = 'none'; g1Place(); void g1g.offsetWidth; g1g.style.transition = '';
+    const pos = { x: innerWidth / 2, y: innerHeight * .6 }; g1d.style.setProperty('--gr', Math.max(110, Math.min(innerWidth, innerHeight) * .22) + 'px');
+    const mv = (e) => { pos.x = e.clientX; pos.y = e.clientY; }; $('#g1').onpointermove = mv; $('#g1').onpointerdown = mv;
+    const move = () => { g1Place(); G.timers.push(setTimeout(move, 2600 + Math.random() * 1600)); }; G.timers.push(setTimeout(move, 3000));
+    G.t0 = performance.now();
+    const tick = (now) => {
+      const left = Math.max(0, 15 - (now - G.t0) / 1000); $('#gtime').textContent = left.toFixed(1) + 's';
+      const fl = reduced ? 1 : .94 + .06 * Math.sin(now / 60);
+      g1d.style.setProperty('--gx', pos.x + 'px'); g1d.style.setProperty('--gy', pos.y + 'px'); g1d.style.setProperty('--gr', (Math.max(110, Math.min(innerWidth, innerHeight) * .22) * fl) + 'px');
+      if (left <= 0) return gEnd(false, t('g1_lose'));
+      if (Math.random() < .01) A.heartbeat(.3);
+      G.raf = requestAnimationFrame(tick);
+    };
+    G.raf = requestAnimationFrame(tick);
+  }
+  g1g.addEventListener('pointerdown', (e) => { if (G.on !== 1 || !$('#gend').hidden) return; e.stopPropagation(); A.thump(.6, 70); flash(120); buzz(80); gEnd(true, t('g1_win')); setTimeout(() => sayName(nick || t('nick_default'), .5, .2, .5), 900); });
+
+  /* Keep the diya alive: tap to feed the flame; if it dies she reaches you */
+  const g2f = $('#g2face'), g2d = $('#g2diya'), g2b = $('#g2bar');
+  function g2Start() {
+    $('#g2').hidden = false; $('#ghint').textContent = t('g2_hint'); g2f.style.transition = '';
+    let f = 1, d = 0, last = performance.now(), nextBeat = 0; G.t0 = last;
+    g2d.onpointerdown = (e) => { e.preventDefault(); f = Math.min(1, f + .17); A.bells(0, .015); };
+    const key = (e) => { if (G.on === 2 && (e.code === 'Space' || e.key === 'Enter')) { e.preventDefault(); f = Math.min(1, f + .17); } };
+    addEventListener('keydown', key); G.timers.push(setTimeout(() => {}, 0));
+    const tick = (now) => {
+      const dt = Math.min(.05, (now - last) / 1000); last = now; const el = (now - G.t0) / 1000, left = Math.max(0, 20 - el);
+      f = Math.max(0, f - dt * (.34 + el * .012));
+      d = Math.min(1, Math.max(0, d + dt * (f <= 0 ? .55 : f < .45 ? .09 : f > .7 ? -.035 : .03)));
+      g2d.style.setProperty('--f', Math.max(.08, f).toFixed(3));
+      g2f.style.transform = `translate(-50%, -50%) scale(${(.15 + d * 1.05).toFixed(3)})`; g2f.style.opacity = (.25 + d * .75).toFixed(3); g2f.style.filter = `blur(${(8 * (1 - d)).toFixed(1)}px) grayscale(.4)`;
+      g2b.style.transform = `scaleX(${(left / 20).toFixed(3)})`; $('#gtime').textContent = left.toFixed(1) + 's';
+      if (now > nextBeat) { A.heartbeat(.2 + d * .5); nextBeat = now + 1200 - d * 800; if (d > .5) A.whisper(Math.random() * 2 - 1, d); }
+      if (d >= 1) { removeEventListener('keydown', key); return gEnd(false, t('g2_lose')); }
+      if (left <= 0) { removeEventListener('keydown', key); g2f.style.transition = 'opacity 1.2s'; g2f.style.opacity = 0; return gEnd(true, t('g2_win')); }
+      G.raf = requestAnimationFrame(tick);
+    };
+    G.raf = requestAnimationFrame(tick);
   }
 
   /* ================= ambience, lightning, wavering ghosts ================= */
