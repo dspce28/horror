@@ -14,6 +14,8 @@
 <meta property="og:url" content="https://bhoot.logicubeit.com/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="image" href="assets/art/facade.webp">
+<link rel="preload" as="image" href="assets/art/gate.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Rasa:wght@500;700&family=Mukta:wght@400;600&family=Hind+Vadodara:wght@400;600&display=swap">
@@ -42,7 +44,7 @@ button { cursor: pointer; }
 
 /* ---------- fixed UI ---------- */
 .ui { position: fixed; z-index: 60; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; gap: 8px; }
-.pill { display: flex; border: 1px solid rgba(239,230,214,.18); background: rgba(7,5,11,.65); backdrop-filter: blur(6px); border-radius: 999px; overflow: hidden; }
+.pill { display: flex; border: 1px solid rgba(239,230,214,.18); background: rgba(7,5,11,.85); border-radius: 999px; overflow: hidden; }
 .pill button { background: none; border: 0; color: var(--smoke); padding: 5px 11px; font-size: 14px; font-weight: 600; }
 .pill button[aria-pressed="true"] { color: var(--bone); background: #7a0811; }
 #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
@@ -201,7 +203,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 #cracks { opacity: 0; transition: opacity .1s; }
 #cracks.on { opacity: .85; }
 .mglass { position: absolute; transform: translate(-50%, -50%); clip-path: ellipse(50% 50% at 50% 50%); overflow: hidden; }
-#mGhost { position: absolute; left: 50%; top: 50%; width: 78%; opacity: 0; transform: translate(-50%, -50%) scale(.5); mix-blend-mode: screen; filter: grayscale(.7) contrast(1.25) brightness(.95) url(#waver3); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, transparent 100%); }
+#mGhost { position: absolute; left: 50%; top: 50%; width: 78%; opacity: 0; transform: translate(-50%, -50%) scale(.5); mix-blend-mode: screen; filter: grayscale(.7) contrast(1.25) brightness(.95); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, transparent 100%); }
 #cracks { position: absolute; inset: 0; width: 100%; height: 100%; }
 #cracks.on path { stroke-dashoffset: 0; }
 #rules { padding-block: 90px 30px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: linear-gradient(#000, var(--night)); }
@@ -226,7 +228,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 #face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; display: block; }
 #face.shaking img { animation: shakeit .07s steps(2) infinite; transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { #face.shaking img { animation: none; } }
-.ghostimg { position: absolute; transform: translate(-50%, -100%); width: auto; mix-blend-mode: lighten; filter: url(#waver); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+.ghostimg { position: absolute; transform: translate(-50%, -100%); width: auto; mix-blend-mode: lighten; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
 .lampglow { position: absolute; width: 26%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,200,120,.5), rgba(255,160,60,0) 62%); mix-blend-mode: screen; }
 .diyaglow { position: absolute; width: 9%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,190,90,.75), rgba(255,120,30,0) 62%); mix-blend-mode: screen; animation: glowflick 1.7s infinite; }
 @keyframes glowflick { 0%,100% { opacity: 1; } 30% { opacity: .75; } 55% { opacity: .95; } 75% { opacity: .7; } }
@@ -254,7 +256,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 @keyframes eyeBlink { 0%, 86%, 100% { transform: scaleY(1); } 92% { transform: scaleY(.05); } }
 .flashghost { opacity: 0; transition: none; filter: brightness(1.6) contrast(1.15); }
 .facebg { background: #000; overflow: hidden; }
-.facebg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; opacity: 0; filter: url(#waver3) blur(18px); transform: scale(.8); }
+.facebg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; opacity: 0; filter: blur(18px); transform: scale(.8); }
 #hands use { transform-box: fill-box; transform-origin: center; }
 #hands use.slap { animation: slap .28s ease-out; }
 @keyframes slap { from { transform: scale(1.35); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -313,10 +315,11 @@ html.lenis, html.lenis body { height: auto; }
 .gatebox { position: absolute; left: 50%; top: 50%; width: max(100%, calc(100svh * 1376 / 768)); aspect-ratio: 1376 / 768; transform: translate(-50%, -50%); transform-origin: 50% 62%; opacity: 0; transform-style: preserve-3d; }
 .gatebox img.base { width: 100%; height: 100%; display: block; }
 .inside { position: absolute; left: 30.5%; top: 29.5%; width: 39%; height: 61%; background: radial-gradient(ellipse at 50% 85%, #4a2412 0%, #1a0b06 38%, #070302 70%); }
-.leaf { position: absolute; top: 30%; width: 19%; height: 60%; background-image: url(assets/art/gate.webp); background-size: 526.32% 166.67%; background-position-y: 75%; box-shadow: inset 0 0 50px rgba(0,0,0,.55); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.leaf { position: absolute; top: 30%; width: 19%; height: 60%; background-image: url(assets/art/gate-clean.webp); background-size: 526.32% 166.67%; background-position-y: 75%; box-shadow: inset 0 0 50px rgba(0,0,0,.55); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .leaf.l { left: 31%; background-position-x: 38.27%; transform-origin: 0 50%; }
 .leaf.r { left: 50%; background-position-x: 61.73%; transform-origin: 100% 50%; }
-.notice { position: absolute; left: 50%; top: 47%; transform: translate(-50%, -50%) rotate(-3deg); background: #d6c9a8; color: #3a1408; font-family: var(--f-display); padding: .35em .8em; font-size: clamp(13px, 1.5vw, 22px); box-shadow: 0 6px 18px rgba(0,0,0,.6); border: 1px solid #8a7a5a; white-space: nowrap; }
+.chainimg { position: absolute; transform-origin: 50% 10%; filter: drop-shadow(0 6px 6px rgba(0,0,0,.6)); }
+.notice { position: absolute; left: 50%; top: 80%; transform: translate(-50%, -50%) rotate(-3deg); background: #d6c9a8; color: #3a1408; font-family: var(--f-display); padding: .35em .8em; font-size: clamp(13px, 1.5vw, 22px); box-shadow: 0 6px 18px rgba(0,0,0,.6); border: 1px solid #8a7a5a; white-space: nowrap; }
 .blackout { position: absolute; inset: 0; z-index: 12; background: #000; opacity: 0; pointer-events: none; }
 .ov { position: absolute; inset: 0; width: 100%; height: 100%; }
 .dollname { position: absolute; transform: translate(-50%, -50%) rotate(24deg); font-family: var(--f-display); font-size: clamp(20px, 3vw, 46px); color: rgba(150,14,20,.92); text-shadow: 0 0 6px rgba(110,0,0,.7); opacity: 0; filter: blur(8px); transition: opacity 1.6s ease, filter 1.6s ease; white-space: nowrap; }
@@ -376,7 +379,6 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   </div>
 </div>
 <canvas id="fx" aria-hidden="true"></canvas>
-<div id="grain" aria-hidden="true"></div>
 <div id="bolt" aria-hidden="true"></div>
 <div id="sub" aria-hidden="true"></div>
 <div id="flame" aria-hidden="true"></div>
@@ -398,25 +400,19 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 
 <main>
   <!-- 0. THE GATE -->
-  <section class="scene" id="s-gate" style="--len:460vh">
+  <section class="scene" id="s-gate" style="--len:300vh">
     <div class="stage">
       <div class="layer"><div class="photo" id="facadePhoto" style="--ar:1376/768;transform-origin:50% 73%"><img class="base" src="assets/art/facade.webp" alt=""><div class="diyaglow" style="left:14.5%;top:68%"></div><div class="diyaglow" style="left:86%;top:68%"></div></div></div>
       <div class="gatepersp"><div class="gatebox" id="gateBox">
         <img class="base" src="assets/art/gate.webp" alt="">
         <div class="inside"></div>
         <div class="leaf l" id="leafL"></div><div class="leaf r" id="leafR"></div>
+        <img loading="lazy" decoding="async" class="chainimg" id="chain" src="assets/art/chain.webp" alt="" style="left:43.31%;top:42.45%;width:13.81%;height:27.86%">
         <div class="notice" id="notice" data-t="gate_notice"></div>
         <div class="diyaglow" style="left:23%;top:52%"></div><div class="diyaglow" style="left:77%;top:52%"></div>
       </div></div>
       <div class="layer dark" style="--dk:.6"></div>
-      <div class="eyesfield" id="eyesHero" aria-hidden="true"></div>
-      <div class="title" id="gateTitle">
-        <h1 id="heroTitle">आधी रात</h1>
-        <svg class="dripsvg" id="drips" viewBox="0 0 600 110" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="goo" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter><linearGradient id="bloodG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e0a14"/><stop offset="1" stop-color="#4a0309"/></linearGradient></defs><g filter="url(#goo)" fill="url(#bloodG)" id="dripG"></g></svg>
-        <div class="scripts">આધી રાત · AADHI RAAT</div>
-        <div class="sub" data-t="hero_sub"></div>
-      </div>
-      <div class="cue"><span data-t="scroll"></span><i></i></div>
+      <div class="cue" aria-hidden="true"><i></i></div>
       <div class="txt">
         <p class="line" data-t="gate_1" data-r="0.30,0.46"></p>
         <p class="line" data-t="gate_2" data-r="0.48,0.62"></p>
@@ -426,12 +422,12 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br1" style="--len:150vh"><div class="stage"><p class="bline" data-t="b1"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br1" style="--len:110vh"><div class="stage"><p class="bline" data-t="b1"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 1. THE THRESHOLD -->
-  <section class="scene" id="s-thresh" style="--len:300vh">
+  <section class="scene" id="s-thresh" style="--len:220vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="threshPhoto" style="--ar:1376/768;transform-origin:50% 60%"><img class="base" src="assets/art/thresh.webp" alt=""><svg class="ov" viewBox="0 0 1376 768" aria-hidden="true"><g id="tprints" fill="#6a0a0e" style="filter:blur(1px)"></g></svg><div class="diyaglow" style="left:49%;top:84%"></div></div></div>
+      <div class="layer"><div class="photo" id="threshPhoto" style="--ar:1376/768;transform-origin:50% 60%"><img loading="lazy" decoding="async" class="base" src="assets/art/thresh.webp" alt=""><svg class="ov" viewBox="0 0 1376 768" aria-hidden="true"><g id="tprints" fill="#6a0a0e" style="filter:blur(1px)"></g></svg><div class="diyaglow" style="left:49%;top:84%"></div></div></div>
       <div class="layer dark" style="--dk:.7"></div>
       <div class="txt">
         <p class="line" data-t="thresh_1" data-r="0.04,0.34"></p>
@@ -441,16 +437,15 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br2" style="--len:150vh"><div class="stage"><p class="bline" data-t="b2"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br2" style="--len:110vh"><div class="stage"><p class="bline" data-t="b2"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 2. THE ROOF -->
-  <section class="scene" id="s-hero" style="--len:300vh">
+  <section class="scene" id="s-hero" style="--len:220vh">
     <div class="stage">
       <div class="layer">
-        <div class="photo" id="roofPhoto" style="--ar:1376/768;transform-origin:80% 70%"><img class="base" src="assets/art/hero.webp" alt=""><div class="diyaglow" style="left:12.5%;top:83%"></div><div class="diyaglow" style="left:51%;top:81.5%"></div></div>
+        <div class="photo" id="roofPhoto" style="--ar:1376/768;transform-origin:80% 70%"><img loading="lazy" decoding="async" class="base" src="assets/art/hero.webp" alt=""><div class="diyaglow" style="left:12.5%;top:83%"></div><div class="diyaglow" style="left:51%;top:81.5%"></div></div>
       </div>
       <div class="layer dark" style="--dk:.72"></div>
-      <div class="eyesfield" id="eyesRoof" aria-hidden="true"></div>
       <div class="txt">
         <p class="line" data-t="roof_1" data-r="0.04,0.34"></p>
         <p class="line" data-t="roof_2" data-r="0.36,0.64"></p>
@@ -459,19 +454,19 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br3" style="--len:150vh"><div class="stage"><p class="bline" data-t="b3"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br3" style="--len:110vh"><div class="stage"><p class="bline" data-t="b3"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 2. CROSSROADS -->
-  <section class="scene" id="s-cross" style="--len:420vh">
+  <section class="scene" id="s-cross" style="--len:300vh">
     <div class="stage">
       <div class="layer">
         <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="waver" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.012 0.06" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
         <div class="photo" style="--ar:1376/768">
-          <img class="base" src="assets/art/cross.webp" alt="">
+          <img loading="lazy" decoding="async" class="base" src="assets/art/cross.webp" alt="">
           <div class="lampglow" id="lamp" style="left:30%;top:13%"></div>
           <div class="offcover" id="offering" style="left:50.5%;top:78.5%"></div>
           <div class="diyaglow" id="offerGlow" style="left:54%;top:76%"></div>
-          <img class="ghostimg" id="ladyWrap" src="assets/art/lady.webp" alt="" style="left:56%;top:59%;height:12%">
+          <img loading="lazy" decoding="async" class="ghostimg" id="ladyWrap" src="assets/art/lady.webp" alt="" style="left:56%;top:59%;height:12%">
         </div>
       </div>
       <div class="layer dark" style="--dk:.8"></div>
@@ -482,11 +477,6 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
             <radialGradient id="emberG"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset=".4" stop-color="#ff7a1a" stop-opacity=".35"/><stop offset="1" stop-color="#ff5a00" stop-opacity="0"/></radialGradient>
             <filter id="soft"><feGaussianBlur stdDeviation="2"/></filter>
           </defs>
-          <g id="cat" transform="translate(-80 448)"><g id="catBody"><ellipse cx="0" cy="-12" rx="22" ry="9" fill="#020102"/><circle cx="22" cy="-22" r="8" fill="#020102"/><path d="M17 -28 l3 -9 l4 8 Z M24 -28 l4 -8 l2 9 Z" fill="#020102"/><path d="M-20 -14 q-16 -4 -14 -24" stroke="#020102" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M-12 -6 l-2 8 M-4 -5 l1 8 M8 -5 l-1 8 M15 -6 l2 8" stroke="#020102" stroke-width="3"/><ellipse cx="25" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/><ellipse cx="20" cy="-23" rx="2" ry="1.3" fill="#c8ff5a"/></g></g>
-          <g id="toran" transform="translate(0 -6)">
-            <path d="M0 28 Q250 56 500 34 T1000 30" stroke="#6a5a40" stroke-width="2" fill="none"/>
-            <g id="toranItems"></g>
-          </g>
         </svg>
       </div>
       <div class="txt">
@@ -498,29 +488,21 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <div class="strip" aria-hidden="true"><div class="track"></div></div>
-
-  <section class="scene bridge" id="br4" style="--len:150vh"><div class="stage"><p class="bline" data-t="b4"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br4" style="--len:110vh"><div class="stage"><p class="bline" data-t="b4"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 3. PEEPAL -->
-  <section class="scene" id="s-tree" style="--len:330vh">
+  <section class="scene" id="s-tree" style="--len:240vh">
     <div class="stage">
       <div class="layer">
-        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/tree.webp" alt=""><div class="diyaglow" style="left:51%;top:77%"></div></div>
+        <div class="photo" style="--ar:1376/768"><img loading="lazy" decoding="async" class="base" src="assets/art/tree.webp" alt=""><div class="diyaglow" style="left:51%;top:77%"></div></div>
         <div class="treehit" id="treeHit"></div>
       </div>
       <div class="layer dark" style="--dk:.84"></div>
       <div class="layer glow">
         <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
           <defs><filter id="waver2" x="-30%" y="-10%" width="160%" height="120%"><feTurbulence id="turb2" type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter></defs>
-          <g id="owl"><path d="M700 196 q-12 -26 0 -46 q14 -6 28 0 q12 20 0 46 Z" fill="#0b0809"/><path d="M702 152 l-4 -10 l9 6 Z M726 152 l4 -10 l-9 6 Z" fill="#0b0809"/><g class="blinker"><circle cx="708" cy="166" r="6" fill="#ffc21a"/><circle cx="722" cy="166" r="6" fill="#ffc21a"/><circle cx="708" cy="166" r="2.4" fill="#000"/><circle cx="722" cy="166" r="2.4" fill="#000"/></g></g>
-          <g fill="#ff2a2a">
-            <g class="blinker"><ellipse cx="250" cy="180" rx="5" ry="2.6"/><ellipse cx="268" cy="180" rx="5" ry="2.6"/></g>
-            <g class="blinker"><ellipse cx="760" cy="150" rx="4.5" ry="2.4"/><ellipse cx="776" cy="150" rx="4.5" ry="2.4"/></g>
-            <g class="blinker"><ellipse cx="470" cy="80" rx="4" ry="2.2"/><ellipse cx="484" cy="80" rx="4" ry="2.2"/></g>
-          </g>
           <defs><radialGradient id="hangFadeG" cx=".5" cy=".42" r=".55"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient><mask id="hangMask" maskContentUnits="userSpaceOnUse"><rect x="464" y="-40" width="300" height="533" fill="url(#hangFadeG)"/></mask></defs>
-          <g id="hanger" filter="url(#waver2)"><g id="hangSwing"><image href="assets/art/hanging.webp" x="464" y="-40" width="300" height="533" mask="url(#hangMask)"/></g></g>
+          <g id="hanger"><g id="hangSwing"><image href="assets/art/hanging.webp" x="464" y="-40" width="300" height="533" mask="url(#hangMask)"/></g></g>
         </svg>
       </div>
       <div class="txt">
@@ -532,20 +514,20 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br5" style="--len:150vh"><div class="stage"><p class="bline" data-t="b5"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br5" style="--len:110vh"><div class="stage"><p class="bline" data-t="b5"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <section class="gstop" id="gs-find"><div class="wrap gsw"><div class="kicker" data-t="g1_title"></div><p class="gsdesc" data-t="g1_desc"></p><div class="btns"><button class="btn" type="button" data-play="1" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-1"></p></div></section>
 
-  <section class="scene bridge" id="br6" style="--len:150vh"><div class="stage"><p class="bline" data-t="b6"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br6" style="--len:110vh"><div class="stage"><p class="bline" data-t="b6"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 3b. YOUR NAME -->
-  <section class="scene" id="s-name" style="--len:320vh">
+  <section class="scene" id="s-name" style="--len:240vh">
     <div class="stage" id="nameStage">
       <div class="layer">
         <div class="photo" style="--ar:1408/768">
-          <img class="base" src="assets/art/lane2.webp" alt="">
+          <img loading="lazy" decoding="async" class="base" src="assets/art/lane2.webp" alt="">
           <div class="bulbglow" id="bulbGlow" style="left:44.7%;top:26.5%"></div>
-          <img class="doorface" id="doorFaceImg" src="assets/art/door-face.webp" alt="" style="left:51.5%;top:56%">
+          <img loading="lazy" decoding="async" class="doorface" id="doorFaceImg" src="assets/art/door-face.webp" alt="" style="left:51.5%;top:56%">
         </div>
       </div>
       <div class="layer dark" style="--dk:.86"></div>
@@ -563,20 +545,20 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br7" style="--len:150vh"><div class="stage"><p class="bline" data-t="b7"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br7" style="--len:110vh"><div class="stage"><p class="bline" data-t="b7"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 3c. MIRROR -->
-  <section class="scene" id="s-mirror" style="--len:320vh">
+  <section class="scene" id="s-mirror" style="--len:230vh">
     <div class="stage" id="mirrorStage">
       <div class="layer">
         <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="waver3" x="-30%" y="-30%" width="160%" height="160%"><feTurbulence id="turb3" type="fractalNoise" baseFrequency="0.03 0.08" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
-        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/mirror.webp" alt=""><div class="diyaglow" style="left:52.3%;top:76%"></div></div>
+        <div class="photo" style="--ar:1376/768"><img loading="lazy" decoding="async" class="base" src="assets/art/mirror.webp" alt=""><div class="diyaglow" style="left:52.3%;top:76%"></div></div>
       </div>
       <div class="layer dark" style="--dk:.8"></div>
       <div class="layer glow">
         <div class="photo" style="--ar:1376/768">
           <div class="mglass" style="left:57.5%;top:41%;width:25%;height:62%">
-            <img id="mGhost" src="assets/art/mirror-ghost.webp" alt="">
+            <img loading="lazy" decoding="async" id="mGhost" src="assets/art/mirror-ghost.webp" alt="">
             <svg id="cracks" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" stroke="#dfe6ea" stroke-width=".45" fill="none"><path pathLength="1" d="M60 38 L48 6"/><path pathLength="1" d="M60 38 L84 14"/><path pathLength="1" d="M60 38 L96 52"/><path pathLength="1" d="M60 38 L70 92"/><path pathLength="1" d="M60 38 L30 70"/><path pathLength="1" d="M60 38 L6 40"/><path pathLength="1" d="M52 26 L62 24 L70 32"/><path pathLength="1" d="M44 50 L58 56 L72 50"/><path pathLength="1" d="M60 38 L40 20"/></svg>
           </div>
         </div>
@@ -589,16 +571,16 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br8" style="--len:150vh"><div class="stage"><p class="bline" data-t="b8"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br8" style="--len:110vh"><div class="stage"><p class="bline" data-t="b8"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <section class="gstop" id="gs-hide"><div class="wrap gsw"><div class="kicker" data-t="g3_title"></div><p class="gsdesc" data-t="g3_desc"></p><div class="btns"><button class="btn" type="button" data-play="3" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-3"></p></div></section>
 
-  <section class="scene bridge" id="br9" style="--len:150vh"><div class="stage"><p class="bline" data-t="b9"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br9" style="--len:110vh"><div class="stage"><p class="bline" data-t="b9"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 7. UNDER THE BED -->
-  <section class="scene" id="s-doll" style="--len:320vh">
+  <section class="scene" id="s-doll" style="--len:220vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="dollPhoto" style="--ar:1376/768;transform-origin:52% 52%"><img class="base" src="assets/art/doll.webp" alt=""><div class="dollname" id="dollName" style="left:52%;top:55%"></div><div class="diyaglow" style="left:38%;top:30%"></div><div class="diyaglow" style="left:98%;top:44%"></div></div></div>
+      <div class="layer"><div class="photo" id="dollPhoto" style="--ar:1376/768;transform-origin:52% 52%"><img loading="lazy" decoding="async" class="base" src="assets/art/doll.webp" alt=""><div class="dollname" id="dollName" style="left:52%;top:55%"></div><div class="diyaglow" style="left:38%;top:30%"></div><div class="diyaglow" style="left:98%;top:44%"></div></div></div>
       <div class="layer dark" style="--dk:.72"></div>
       <div class="txt">
         <p class="line" data-t="doll_1" data-r="0.04,0.32"></p>
@@ -608,14 +590,12 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <div class="strip" aria-hidden="true"><div class="track"></div></div>
-
-  <section class="scene bridge" id="br10" style="--len:150vh"><div class="stage"><p class="bline" data-t="b10"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br10" style="--len:110vh"><div class="stage"><p class="bline" data-t="b10"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 8. NEXT DOOR -->
-  <section class="scene" id="s-build" style="--len:340vh">
+  <section class="scene" id="s-build" style="--len:230vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="buildPhoto" style="--ar:1376/768;transform-origin:61% 52%"><img class="base" src="assets/art/build.webp" alt=""><div class="lampglow" id="buildLamp" style="left:34%;top:22%;width:16%"></div></div></div>
+      <div class="layer"><div class="photo" id="buildPhoto" style="--ar:1376/768;transform-origin:61% 52%"><img loading="lazy" decoding="async" class="base" src="assets/art/build.webp" alt=""><div class="lampglow" id="buildLamp" style="left:34%;top:22%;width:16%"></div></div></div>
       <div class="layer dark" style="--dk:.78"></div>
       <div class="txt">
         <p class="line" data-t="build_1" data-r="0.04,0.32"></p>
@@ -625,12 +605,12 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br11" style="--len:150vh"><div class="stage"><p class="bline" data-t="b11"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br11" style="--len:110vh"><div class="stage"><p class="bline" data-t="b11"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 9. THE WELL -->
-  <section class="scene" id="s-well" style="--len:320vh">
+  <section class="scene" id="s-well" style="--len:220vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="wellPhoto" style="--ar:1376/768;transform-origin:60% 68%"><img class="base" src="assets/art/well.webp" alt=""><div class="lampglow" style="left:62%;top:24%;width:14%"></div></div></div>
+      <div class="layer"><div class="photo" id="wellPhoto" style="--ar:1376/768;transform-origin:60% 68%"><img loading="lazy" decoding="async" class="base" src="assets/art/well.webp" alt=""><div class="lampglow" style="left:62%;top:24%;width:14%"></div></div></div>
       <div class="layer dark" style="--dk:.78"></div>
       <div class="txt">
         <p class="line" data-t="well_1" data-r="0.04,0.32"></p>
@@ -640,13 +620,13 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br12" style="--len:150vh"><div class="stage"><p class="bline" data-t="b12"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br12" style="--len:110vh"><div class="stage"><p class="bline" data-t="b12"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 4. BACKWARD FEET -->
-  <section class="scene" id="s-feet" style="--len:340vh">
+  <section class="scene" id="s-feet" style="--len:240vh">
     <div class="stage" id="feetStage">
       <div class="layer">
-        <div class="photo" style="--ar:1408/768"><img class="base" src="assets/art/lane.webp" alt=""></div>
+        <div class="photo" style="--ar:1408/768"><img loading="lazy" decoding="async" class="base" src="assets/art/lane.webp" alt=""></div>
       </div>
       <div class="layer dark" style="--dk:.86"></div>
       <div class="layer glow">
@@ -666,14 +646,12 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <div class="strip" aria-hidden="true"><div class="track"></div></div>
-
-  <section class="scene bridge" id="br13" style="--len:150vh"><div class="stage"><p class="bline" data-t="b13"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br13" style="--len:110vh"><div class="stage"><p class="bline" data-t="b13"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 11. THE NEXT MORNING -->
-  <section class="scene" id="s-office" style="--len:300vh">
+  <section class="scene" id="s-office" style="--len:210vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="officePhoto" style="--ar:1376/768;transform-origin:42% 85%"><img class="base" src="assets/art/office.webp" alt=""><div class="tube" id="tube" style="left:47%;top:6%"></div></div></div>
+      <div class="layer"><div class="photo" id="officePhoto" style="--ar:1376/768;transform-origin:42% 85%"><img loading="lazy" decoding="async" class="base" src="assets/art/office.webp" alt=""><div class="tube" id="tube" style="left:47%;top:6%"></div></div></div>
       <div class="layer dark" style="--dk:.6"></div>
       <div class="txt">
         <p class="line" data-t="office_1" data-r="0.04,0.32"></p>
@@ -683,14 +661,13 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br14" style="--len:150vh"><div class="stage"><p class="bline" data-t="b14"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br14" style="--len:110vh"><div class="stage"><p class="bline" data-t="b14"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <!-- 1b. THE FACE -->
-  <section class="scene" id="s-face" style="--len:230vh">
+  <section class="scene" id="s-face" style="--len:170vh">
     <div class="stage">
-      <div class="layer facebg"><img id="emergeFace" src="assets/art/flash.webp" alt=""></div>
+      <div class="layer facebg"><img loading="lazy" decoding="async" id="emergeFace" src="assets/art/flash.webp" alt=""></div>
       <div class="layer dark" style="--dk:.82"></div>
-      <div class="eyesfield" id="eyesFace" aria-hidden="true"></div>
       <div class="txt">
         <p class="line red" data-t="face_1" data-r="0.12,0.55"></p>
         <p class="line" data-t="face_2" data-r="0.60,1.01"></p>
@@ -699,7 +676,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   </section>
 
   <!-- 1c. HANDS ON THE GLASS -->
-  <section class="scene" id="s-hands" style="--len:260vh">
+  <section class="scene" id="s-hands" style="--len:190vh">
     <div class="stage" id="handsStage">
       <div class="layer" style="background:radial-gradient(ellipse at 50% 60%, #140a0e, #040205 70%)"></div>
       <div class="layer glow">
@@ -728,7 +705,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 
-  <section class="scene bridge" id="br15" style="--len:150vh"><div class="stage"><p class="bline" data-t="b15"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+  <section class="scene bridge" id="br15" style="--len:110vh"><div class="stage"><p class="bline" data-t="b15"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
   <section class="gstop" id="gs-save"><div class="wrap gsw"><div class="kicker" data-t="g2_title"></div><p class="gsdesc" data-t="g2_desc"></p><div class="btns"><button class="btn" type="button" data-play="2" data-t="g_play"></button><button class="linkbtn" type="button" data-skip data-t="g_skip"></button></div><p class="gres" id="res-2"></p></div></section>
 
@@ -736,7 +713,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   <section class="scene" id="s-scare" style="--len:120vh">
     <div class="stage">
       <div id="glitch"><span data-t="dont_look"></span></div>
-      <div id="face"><img src="assets/art/scare.webp" alt=""></div>
+      <div id="face"><img loading="lazy" decoding="async" src="assets/art/scare.webp" alt=""></div>
       <div class="after" id="after">
         <h2 data-t="after_title"></h2>
         <p data-t="after_p"></p>
@@ -754,9 +731,9 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       <div class="kicker" data-t="games_kicker"></div>
       <h2 data-t="games_title"></h2>
       <div class="gcards">
-        <button class="gcard" type="button" id="g1open"><img src="assets/art/g1bg.webp" alt=""><span class="gt" data-t="g1_title"></span><span class="gd" data-t="g1_desc"></span><span class="gp" data-t="g1_play"></span></button>
+        <button class="gcard" type="button" id="g1open"><img loading="lazy" decoding="async" src="assets/art/g1bg.webp" alt=""><span class="gt" data-t="g1_title"></span><span class="gd" data-t="g1_desc"></span><span class="gp" data-t="g1_play"></span></button>
         <button class="gcard" type="button" id="g3open"><span class="cardslit" aria-hidden="true"></span><span class="gt" data-t="g3_title"></span><span class="gd" data-t="g3_desc"></span><span class="gp" data-t="g_play"></span></button>
-        <button class="gcard" type="button" id="g2open"><img src="assets/art/g2hang.webp" alt="" style="object-position:50% 70%"><span class="gt" data-t="g2_title"></span><span class="gd" data-t="g2_desc"></span><span class="gp" data-t="g2_play"></span></button>
+        <button class="gcard" type="button" id="g2open"><img loading="lazy" decoding="async" src="assets/art/g2hang.webp" alt="" style="object-position:50% 70%"><span class="gt" data-t="g2_title"></span><span class="gd" data-t="g2_desc"></span><span class="gp" data-t="g2_play"></span></button>
       </div>
     </div>
   </section>
@@ -807,16 +784,16 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     </div>
   </section>
 </main>
-<footer id="foot"><div class="bigmark" id="bigmark" aria-hidden="true">आधी रात</div><span data-t="fiction"></span> <button class="linkbtn" type="button" id="openCredits" data-t="credits"></button></footer>
+<footer id="foot"><span data-t="fiction"></span> <button class="linkbtn" type="button" id="openCredits" data-t="credits"></button></footer>
 
 <div id="game" hidden>
   <div class="gpane" id="g1" hidden>
-    <div class="photo" style="--ar:1408/768"><img class="base" src="assets/art/g1bg.webp" alt=""><img id="g1ghost" src="assets/art/g1face.webp" alt="Her" draggable="false"></div>
+    <div class="photo" style="--ar:1408/768"><img loading="lazy" decoding="async" class="base" src="assets/art/g1bg.webp" alt=""><img loading="lazy" decoding="async" id="g1ghost" src="assets/art/g1face.webp" alt="Her" draggable="false"></div>
     <div class="gdark" id="g1dark"></div>
     <div id="g1decoys"></div><div class="gpen" id="gpen"></div>
   </div>
   <div class="gpane" id="g2" hidden>
-    <img id="g2face" src="assets/art/g2hang.webp" alt="" draggable="false">
+    <img loading="lazy" decoding="async" id="g2face" src="assets/art/g2hang.webp" alt="" draggable="false">
     <div class="g2bar"><i id="g2bar"></i></div>
     <button type="button" id="g2diya" aria-label="Diya"><svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/></svg><span class="fl"></span></button>
   </div>
@@ -827,7 +804,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   </div>
   <div class="ghud"><span id="ghint"></span><span id="gtime"></span></div>
   <div class="gend" id="gend" hidden><div><p id="gmsg"></p><div class="btns"><button class="btn" type="button" id="gagain"></button><button class="btn ghost" type="button" id="gclose"></button></div></div></div>
-  <div id="gscare" hidden><img src="assets/art/scare.webp" alt=""></div>
+  <div id="gscare" hidden><img loading="lazy" decoding="async" src="assets/art/scare.webp" alt=""></div>
   <button type="button" class="gx" id="gx" aria-label="Close">×</button>
 </div>
 <div id="credits" hidden>
@@ -839,7 +816,6 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   </div>
 </div>
 
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 (() => {
   /* ================= text in three languages ================= */
@@ -1266,7 +1242,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   if ($('#stars')) for (let i = 0; i < 70; i++) mk('circle', { cx: rnd() * 1000, cy: rnd() * 330, r: (rnd() * 1.2 + .3).toFixed(2), opacity: (rnd() * .7 + .2).toFixed(2) }, $('#stars'));
   const diyaSvg = '<svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/><path d="M14 22 Q50 30 86 22" stroke="#d98a3a" stroke-width="2" fill="none" opacity=".6"/></svg><span class="f"></span>';
   if ($('#diyas')) for (let i = 0; i < 7; i++) { const d = document.createElement('div'); d.className = 'diya'; d.innerHTML = diyaSvg; $('#diyas').appendChild(d); }
-  for (let i = 0; i < 14; i++) {
+  if ($('#toranItems')) for (let i = 0; i < 14; i++) {
     const x = 40 + i * 70 + (i % 2 ? 8 : 0), y = 30 + Math.sin(i / 13 * Math.PI) * 14;
     const g = mk('g', { class: 'hang' }, $('#toranItems'));
     mk('line', { x1: x, y1: y, x2: x, y2: y + 26, stroke: '#6a5a40', 'stroke-width': 1.2 }, g);
@@ -1283,7 +1259,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 
   /* ================= hero title burn-in ================= */
   function burnTitle() {
-    const h = $('#heroTitle'), text = h.textContent;
+    const h = $('#heroTitle'); if (!h) return; const text = h.textContent;
     let parts = [...text];
     if (window.Intl && Intl.Segmenter) parts = [...new Intl.Segmenter('hi', { granularity: 'grapheme' }).segment(text)].map((s) => s.segment);
     h.innerHTML = ''; parts.forEach((ch) => { const s = document.createElement('span'); s.className = 'g'; s.textContent = ch === ' ' ? '\u00a0' : ch; h.appendChild(s); });
@@ -1298,9 +1274,8 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     safe = isSafe; entered = true; A.init(); A.startBed(); A.loadTheme();
     nick = ($('#nick').value || '').trim().slice(0, 20); store.set('kc-nick', nick);
     document.documentElement.classList.remove('locked'); document.body.classList.add('entered');
-    if (window.Lenis && !reduced && !lenis) { try { lenis = new Lenis({ lerp: .085, wheelMultiplier: .9 }); const lr = (tm) => { lenis.raf(tm); requestAnimationFrame(lr); }; requestAnimationFrame(lr); } catch (e) { lenis = null; } }
     $('#gate').classList.add('gone'); setTimeout(() => { $('#gate').hidden = true; }, 1300);
-    burnTitle(); setTimeout(() => A.howl(), 2400);
+    burnTitle(); measure(); setTimeout(() => A.howl(), 2400);
   }
   $('#nick').value = store.get('kc-nick') || '';
   $('#enter').addEventListener('click', () => enter(false));
@@ -1316,11 +1291,13 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   /* ================= scenes ================= */
   const sc = (id) => ({ el: $('#' + id), p: 0, lines: [...document.querySelectorAll('#' + id + ' .line')].map((l) => ({ el: l, r: l.dataset.r.split(',').map(Number) })) });
   const S = {}; const S0 = { gate: sc('s-gate'), thresh: sc('s-thresh'), hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), doll: sc('s-doll'), build: sc('s-build'), well: sc('s-well'), feet: sc('s-feet'), office: sc('s-office'), face: sc('s-face'), hands: sc('s-hands'), scare: sc('s-scare') };
-  { const order = [...document.querySelectorAll('.scene')].map((el) => el.id); order.forEach((id) => { if (id.startsWith('br')) S[id] = sc(id); else { const k = Object.keys(S0).find((x) => S0[x].el.id === id); if (k) S[k] = S0[k]; } }); }
-  const prog = (s) => { const r = s.el.getBoundingClientRect(); const span = r.height - innerHeight; return { p: Math.min(1, Math.max(0, -r.top / Math.max(1, span))), active: r.top < innerHeight * .5 && r.bottom > innerHeight * .5, top: r.top }; };
+  function measure() { Object.keys(S).forEach((k) => { const el = S[k].el; let y = 0, n = el; while (n) { y += n.offsetTop; n = n.offsetParent; } S[k].y0 = y; S[k].h = el.offsetHeight; }); }
+  addEventListener('resize', () => measure()); addEventListener('load', () => measure());
+  { const order = [...document.querySelectorAll('.scene')].map((el) => el.id); order.forEach((id) => { if (id.startsWith('br')) S[id] = sc(id); else { const k = Object.keys(S0).find((x) => S0[x].el.id === id); if (k) S[k] = S0[k]; } }); measure(); }
+  const prog = (s) => { const top = (s.y0 || 0) - window.scrollY, h = s.h || 1, span = h - innerHeight; return { p: Math.min(1, Math.max(0, -top / Math.max(1, span))), active: top < innerHeight * .5 && top + h > innerHeight * .5, top }; };
   const fired = {};
   const once = (k, fn) => { if (!fired[k]) { fired[k] = true; fn(); } };
-  const setLines = (s, p) => s.lines.forEach((l) => l.el.classList.toggle('on', p >= l.r[0] && p < l.r[1]));
+  const setLines = (s, p) => { let cur = -1; s.lines.forEach((l, i) => { if (p >= l.r[0]) cur = i; }); s.lines.forEach((l, i) => l.el.classList.toggle('on', i === cur)); };
   let active = 'hero';
 
   const ladyWrap = $('#ladyWrap'), offering = $('#offering'), offerGlow = $('#offerGlow'), lamp = $('#lamp');
@@ -1333,7 +1310,6 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     let lo = 1; if (p > .9) lo = p > .97 ? 0 : (Math.random() < .5 ? .15 : 1);
     ladyWrap.style.opacity = lo;
     lamp.style.opacity = p > .95 ? 0 : (Math.random() < .03 + p * .08 ? .1 : 1);
-    const cq = Math.min(1, Math.max(0, (p - .13) / .17)); $('#cat').setAttribute('transform', `translate(${(-80 + 1160 * cq).toFixed(1)} ${(448 + Math.sin(cq * 60) * 1.5).toFixed(1)})`);
     if (p > .3) once('c1', () => A.anklet(.3)); if (p > .5) once('c2', () => A.anklet(.1, .07)); if (p > .7) once('c3', () => A.anklet(-.1, .09));
     if (p > .88) once('c4', () => { A.whisper(-.6); A.dread(1); });
     L.focus = () => { const r = ladyWrap.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height * .4 } : null; };
@@ -1410,10 +1386,10 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   /* gate: facade -> gate -> doors open -> step inside */
   function updGate(p) {
     setLines(S.gate, p);
-    const ti = clamp((p - .1) / .14); const gt = $('#gateTitle'); gt.style.opacity = (1 - ti).toFixed(3); gt.style.transform = `translateY(${(-ti * 60).toFixed(1)}px)`;
     root.setProperty('--cueO', (1 - clamp(p * 6)).toFixed(2));
     const z = clamp((p - .08) / .3); push($('#facadePhoto'), 1 + 1.7 * z * z); $('#facadePhoto').style.opacity = (1 - clamp((p - .3) / .08)).toFixed(3);
     const gb = $('#gateBox'); gb.style.opacity = clamp((p - .3) / .08).toFixed(3);
+    const ch = clamp((p - .4) / .09), chEl = $('#chain'); chEl.style.transform = `translateY(${(ch * ch * 320).toFixed(1)}%) rotate(${(ch * 16).toFixed(1)}deg)`; chEl.style.opacity = (1 - clamp((ch - .55) / .45)).toFixed(3);
     const o = clamp((p - .5) / .26), e = o * o * (3 - 2 * o);
     $('#leafL').style.transform = `rotateY(${(-e * 100).toFixed(2)}deg)`; $('#leafR').style.transform = `rotateY(${(e * 100).toFixed(2)}deg)`;
     const lo = (1 - clamp((e - .8) / .2)).toFixed(3); $('#leafL').style.opacity = lo; $('#leafR').style.opacity = lo;
@@ -1421,7 +1397,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     const k = clamp((p - .62) / .32); gb.style.transform = `translate(-50%, -50%) scale(${(1 + 2.6 * k * k).toFixed(4)})`;
     $('#gateBlack').style.opacity = clamp((p - .9) / .08).toFixed(3);
     if (p > .2) once('g0', () => sayName(nick || t('nick_default'), .3, .25, .5));
-    if (p > .45) once('g1', () => A.chain());
+    if (p > .41) once('g1', () => A.chain());
     if (p > .5) once('g2', () => A.creak());
     if (p > .7) once('g3', () => { A.whisper(0, 1.2); A.dread(1); });
     L.focus = null;
@@ -1475,7 +1451,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     if (i >= 0 || (lastCh >= 0 && (active.startsWith('br') || active === 'none') && window.scrollY < S.scare.el.offsetTop)) { const n = i >= 0 ? Math.min(i, 11) : lastCh; $('#chapN').textContent = String(n + 1).padStart(2, '0'); $('#chapT').textContent = T[lang].chapters[n]; el.classList.add('on'); } else el.classList.remove('on');
     const y = window.scrollY;
     document.querySelectorAll('.strip .track').forEach((tr, i) => { const w = tr.scrollWidth / 2 || 1; tr.style.transform = `translateX(${(-((y * .35 + i * 300) % w)).toFixed(1)}px)`; });
-    const f = $('#foot'); if (f) { const r = f.getBoundingClientRect(); $('#bigmark').style.setProperty('--fill', (clamp((innerHeight - r.top) / r.height) * 100).toFixed(1) + '%'); }
+    const f = $('#foot'); if (f && $('#bigmark')) { const r = f.getBoundingClientRect(); $('#bigmark').style.setProperty('--fill', (clamp((innerHeight - r.top) / r.height) * 100).toFixed(1) + '%'); }
   }
 
 
@@ -1507,9 +1483,9 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 
   /* ================= particles: fog, bats, leaves, embers ================= */
   const fx = $('#fx'), g = fx.getContext('2d'); let W = 0, H = 0;
-  const resize = () => { const d = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; fx.width = W * d; fx.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); };
+  const resize = () => { const d = 1; W = innerWidth; H = innerHeight; fx.width = W * d; fx.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); };
   addEventListener('resize', resize); resize();
-  const fog = Array.from({ length: 6 }, () => ({ x: Math.random(), y: .45 + Math.random() * .5, r: .3 + Math.random() * .3, v: (Math.random() * .4 + .15) * (Math.random() < .5 ? -1 : 1) }));
+  const fog = Array.from({ length: 4 }, () => ({ x: Math.random(), y: .45 + Math.random() * .5, r: .3 + Math.random() * .3, v: (Math.random() * .4 + .15) * (Math.random() < .5 ? -1 : 1) }));
   let bats = [], leaves = [], embers = [], mist = [], nextFlock = 2500;
   function flock() { const dir = Math.random() < .5 ? 1 : -1, n = 3 + (Math.random() * 5 | 0), y0 = H * (.12 + Math.random() * .3); for (let i = 0; i < n; i++) bats.push({ x: dir > 0 ? -40 - i * 30 : W + 40 + i * 30, y: y0 + (Math.random() - .5) * 60, v: dir * (2.2 + Math.random() * 1.6), s: 10 + Math.random() * 10, ph: Math.random() * 6, wob: Math.random() * 6 }); A.whisper(dir > 0 ? -.8 : .8, .35); }
   function drawBat(b) {
@@ -1536,7 +1512,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   }
 
   /* ================= landing effects ================= */
-  (() => { const g = $('#dripG'), NS = 'http://www.w3.org/2000/svg'; for (let i = 0; i < 14; i++) { const x = 30 + Math.random() * 540, w = 3 + Math.random() * 7, L = 18 + Math.random() * 70, d = (4 + Math.random() * 7).toFixed(1) + 's', wt = (1 + Math.random() * 4).toFixed(1) + 's';
+  (() => { const g = $('#dripG'), NS = 'http://www.w3.org/2000/svg'; if (!g) return; for (let i = 0; i < 14; i++) { const x = 30 + Math.random() * 540, w = 3 + Math.random() * 7, L = 18 + Math.random() * 70, d = (4 + Math.random() * 7).toFixed(1) + 's', wt = (1 + Math.random() * 4).toFixed(1) + 's';
     const blob = document.createElementNS(NS, 'ellipse'); blob.setAttribute('cx', x.toFixed(1)); blob.setAttribute('cy', 2); blob.setAttribute('rx', (w * 1.6).toFixed(1)); blob.setAttribute('ry', 4); g.appendChild(blob);
     const r = document.createElementNS(NS, 'rect'); r.setAttribute('x', (x - w / 2).toFixed(1)); r.setAttribute('y', 3); r.setAttribute('width', w.toFixed(1)); r.setAttribute('height', L.toFixed(1)); r.setAttribute('rx', (w / 2).toFixed(1)); r.style.setProperty('--d', d); r.style.setProperty('--w', wt);
     const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', (L + 3).toFixed(1)); c.setAttribute('r', (w * .85).toFixed(1)); c.style.setProperty('--d', d); c.style.setProperty('--w', wt); c.style.setProperty('--L', L.toFixed(1));
@@ -1557,10 +1533,9 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     const q = Math.min(1, Math.max(0, (p - .05) / .7));
     face.style.opacity = (q * .9).toFixed(3);
     face.style.transform = `scale(${(.8 + .32 * q).toFixed(3)})`;
-    face.style.filter = reduced ? 'none' : `url(#waver3) blur(${(18 * (1 - q)).toFixed(1)}px)`;
+    face.style.filter = reduced ? 'none' : `blur(${(18 * (1 - q)).toFixed(1)}px)`;
     if (p > .1) once('fa0', () => { A.breath(); A.dread(1); });
     if (p > .55) once('fa1', () => { A.whisper(0, 1.4); flash(90); });
-    spawnEyes($('#eyesFace'), now);
     L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .42 });
   }
   const HANDS = [[300, 260, -12, .9], [690, 200, 14, 1], [520, 410, 4, 1.15], [180, 430, -22, .8], [820, 420, 20, .85], [420, 150, -4, .75], [610, 330, 9, 1.25], [100, 170, -30, .7], [900, 150, 28, .75], [500, 280, 0, 1.6]];
@@ -1728,8 +1703,6 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { const i = rulesEls.indexOf(e.target); setTimeout(() => e.target.classList.remove('pre'), i % 3 * 160); io.unobserve(e.target); } }), { threshold: .3 });
     rulesEls.forEach((r) => io.observe(r));
   }
-  /* film grain tile */
-  (() => { const c = document.createElement('canvas'); c.width = c.height = 160; const x = c.getContext('2d'), d = x.createImageData(160, 160); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); $('#grain').style.backgroundImage = `url(${c.toDataURL()})`; })();
 
   /* ================= main loop ================= */
   let last = performance.now(), nextCricket = 0;
@@ -1739,7 +1712,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     const dt = Math.min(64, now - last); last = now;
     let best = 'none';
     for (const k of Object.keys(S)) { const r = prog(S[k]); S[k].p = r.p; S[k].top = r.top; if (r.active) best = k;
-      if (k !== 'scare' && r.top < innerHeight && r.top > -S[k].el.offsetHeight) { const fo = k === 'gate' ? clamp((r.p - .94) / .06) : Math.max(clamp(1 - r.p / .07), clamp((r.p - .93) / .07)); S[k].el.firstElementChild.style.setProperty('--fo', fo.toFixed(3)); } }
+      if (k !== 'scare' && r.top < innerHeight && r.top > -S[k].h) { const fo = k === 'gate' ? clamp((r.p - .94) / .06) : Math.max(clamp(1 - r.p / .07), clamp((r.p - .93) / .07)); S[k].el.firstElementChild.style.setProperty('--fo', fo.toFixed(3)); } }
     active = best;
     if (entered) {
       if (active === 'cross') updCross(S.cross.p, now);
@@ -1754,14 +1727,13 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       updChrome();
       if (active === 'face') updFace(S.face.p, now);
       if (active === 'hands') updHands(S.hands.p);
-      if (active === 'gate') spawnEyes($('#eyesHero'), now); if (active === 'hero') spawnEyes($('#eyesRoof'), now);
       A.themeLevel(active === 'gate' ? .22 : ['face', 'hands'].includes(active) ? .16 : active === 'scare' ? 0 : .07);
       if (active === 'tree') updTree(S.tree.p);
       if (active === 'name') updName(S.name.p);
       if (active === 'mirror') updMirror(S.mirror.p);
       if (active === 'feet') updFeet(S.feet.p, now); else L.scale = active === 'scare' ? 0 : 1;
       if (!['thresh', 'face', 'hands', 'cross', 'tree', 'feet', 'name', 'mirror', 'doll', 'build', 'well', 'office'].includes(active)) L.focus = null;
-      ambience(now); lightning(now); waver(now);
+      ambience(now); lightning(now);
       if (S.scare.top <= 2 && S.scare.top > -innerHeight) scare();
       if ((active === 'hero' || active === 'cross') && now > nextCricket) { A.cricket(); nextCricket = now + 500 + Math.random() * 1400; }
     }
