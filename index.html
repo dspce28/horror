@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kali Chaudas Night</title>
+<title>Aadhi Raat</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="An animated horror night for Kali Chaudas. Headphones on, lights off. Then share your own Kali Chaudas story.">
-<meta property="og:title" content="काली चौदस · Kali Chaudas Night">
+<meta name="description" content="An animated Indian horror night. Headphones on, lights off. Then share your own ghost story.">
+<meta property="og:title" content="आधी रात · Aadhi Raat">
 <meta property="og:description" content="Headphones on. Lights off. Scroll slowly.">
 <meta property="og:image" content="assets/art/share.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,6 +223,26 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 .offcover { position: absolute; width: 24%; aspect-ratio: 2.4; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(ellipse, rgba(9,9,11,.97) 50%, rgba(9,9,11,0) 72%); opacity: 0; }
 .treehit { position: absolute; left: 25%; right: 25%; top: 12%; bottom: 8%; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .diyaglow { animation: none; } }
+
+/* ---------- round 4: landing ---------- */
+.drips { position: relative; height: 0; width: min(80%, 620px); margin: 0 auto; }
+.title .scripts { margin-top: 58px; }
+.drip { position: absolute; top: -.35em; width: 7px; height: 0; border-radius: 0 0 6px 6px; background: linear-gradient(#9b0c14, #5c050a); animation: drip var(--d, 5s) cubic-bezier(.45,.05,.55,.95) var(--w, 0s) forwards; }
+.drip::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 11px; height: 13px; transform: translateX(-50%); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #8a0a12; }
+@keyframes drip { to { height: var(--h, 60px); } }
+.title h1 { text-shadow: 0 0 22px rgba(179,18,27,.6); }
+.eyesfield { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.eyepair { position: absolute; display: flex; gap: var(--g, 18px); opacity: 0; animation: eyeLife 4.5s ease forwards; }
+.eyepair i { width: var(--s, 12px); height: calc(var(--s, 12px) * .5); border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 12px 3px rgba(255,30,30,.6); animation: eyeBlink 1.8s infinite; }
+@keyframes eyeLife { 10% { opacity: .95; } 80% { opacity: .95; } 100% { opacity: 0; } }
+@keyframes eyeBlink { 0%, 86%, 100% { transform: scaleY(1); } 92% { transform: scaleY(.05); } }
+.flashghost { opacity: 0; transition: none; filter: brightness(1.6) contrast(1.15); }
+.facebg { background: #000; overflow: hidden; }
+.facebg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; opacity: 0; filter: url(#waver3) blur(18px); transform: scale(.8); }
+#hands use { transform-box: fill-box; transform-origin: center; }
+#hands use.slap { animation: slap .28s ease-out; }
+@keyframes slap { from { transform: scale(1.35); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .drip { animation-duration: .01s; } .eyepair i { animation: none; } #hands use.slap { animation: none; } }
 </style>
 </head>
 <body>
@@ -260,17 +280,60 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   <section class="scene" id="s-hero" style="--len:170vh">
     <div class="stage">
       <div class="layer">
-        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/hero.webp" alt=""><div class="diyaglow" style="left:12.5%;top:83%"></div><div class="diyaglow" style="left:51%;top:81.5%"></div></div>
+        <div class="photo" style="--ar:1376/768"><img class="base" src="assets/art/hero.webp" alt=""><img class="ghostimg flashghost" id="heroGhost" src="assets/art/lady.webp" alt="" style="left:64%;top:84%;height:42%"><div class="diyaglow" style="left:12.5%;top:83%"></div><div class="diyaglow" style="left:51%;top:81.5%"></div></div>
       </div>
       <div class="layer dark" style="--dk:.72"></div>
-      <div class="moon" aria-hidden="true"></div>
+      <div class="eyesfield" id="eyesHero" aria-hidden="true"></div>
       <div class="title">
-        <h1 id="heroTitle">काली चौदस</h1>
-        <div class="scripts">કાળી ચૌદસ · KALI CHAUDAS</div>
+        <h1 id="heroTitle">आधी रात</h1>
+        <div class="drips" id="drips" aria-hidden="true"></div>
+        <div class="scripts">આધી રાત · AADHI RAAT</div>
         <div class="sub" data-t="hero_sub"></div>
       </div>
       <div class="cue"><span data-t="scroll"></span><i></i></div>
-      <div class="diyas" aria-hidden="true" id="diyas"></div>
+    </div>
+  </section>
+
+  <!-- 1b. THE FACE -->
+  <section class="scene" id="s-face" style="--len:230vh">
+    <div class="stage">
+      <div class="layer facebg"><img id="emergeFace" src="assets/art/flash.webp" alt=""></div>
+      <div class="layer dark" style="--dk:.82"></div>
+      <div class="eyesfield" id="eyesFace" aria-hidden="true"></div>
+      <div class="txt">
+        <p class="line red" data-t="face_1" data-r="0.12,0.55"></p>
+        <p class="line" data-t="face_2" data-r="0.60,1.01"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1c. HANDS ON THE GLASS -->
+  <section class="scene" id="s-hands" style="--len:260vh">
+    <div class="stage" id="handsStage">
+      <div class="layer" style="background:radial-gradient(ellipse at 50% 60%, #140a0e, #040205 70%)"></div>
+      <div class="layer glow">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <filter id="smear" x="-20%" y="-20%" width="140%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation=".6"/></filter>
+            <g id="hand">
+              <ellipse cx="0" cy="22" rx="34" ry="40"/>
+              <rect x="-50" y="-20" width="15" height="44" rx="7.5" transform="rotate(-38 -42 10)"/>
+              <rect x="-30" y="-62" width="15" height="58" rx="7.5" transform="rotate(-8 -22 -30)"/>
+              <rect x="-10" y="-72" width="15" height="66" rx="7.5"/>
+              <rect x="9" y="-64" width="15" height="60" rx="7.5" transform="rotate(7 16 -30)"/>
+              <rect x="25" y="-44" width="13" height="46" rx="6.5" transform="rotate(18 31 -20)"/>
+              <rect x="-4" y="55" width="5" height="40" rx="2.5"/><rect x="18" y="50" width="4" height="26" rx="2"/>
+            </g>
+          </defs>
+          <g id="hands" fill="#7d0a12" filter="url(#smear)"></g>
+          <g id="glassCracks" stroke="#cfd6dc" stroke-width="1.3" fill="none" opacity="0"><path d="M520 300 L380 120 M520 300 L700 90 M520 300 L860 340 M520 300 L640 560 M520 300 L300 470 M520 300 L150 300 M470 240 L560 220 L610 270 M440 340 L520 380 L600 350"/></g>
+        </svg>
+      </div>
+      <div class="txt">
+        <p class="line" data-t="hands_1" data-r="0.05,0.42"></p>
+        <p class="line red" data-t="hands_2" data-r="0.48,0.74"></p>
+        <p class="line" data-t="hands_3" data-r="0.80,1.01"></p>
+      </div>
     </div>
   </section>
 
@@ -639,6 +702,30 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     r3: 'દરવાજે લીંબુ અને સાત મરચાં લટકાવો.', r4: 'ચાર રસ્તે મૂકેલાં વડાં ક્યારેય ઓળંગશો નહીં.',
     r5: 'જો પાછળથી કોઈ નામ બોલાવે, તો ફરતાં પહેલાં હનુમાન ચાલીસા પૂરી કરો.', r6: 'સૂતાં પહેલાં વાળ બાંધી લો. ખુલ્લા વાળ એમને બોલાવે છે.'
   });
+  const GEN = {
+    en: { kicker: 'Some stories are true', hero_sub: 'The hour the spirits walk.',
+      cross_1: 'On the darkest nights, someone leaves vada, lemon and chilli at the crossroads.',
+      mirror_1: 'Cover every mirror after midnight.', rules_kicker: 'Nani’s rules for the night', rules_title: 'How to survive the night',
+      r1: 'Light a diya at the door before midnight, facing south.', after_p: 'Send it to a friend tonight and find out if they do.',
+      share_text: 'Watch this alone tonight, with headphones on: ', st_kicker: 'Ghost stories', fiction: 'A work of fiction.', credits: 'Credits',
+      face_1: 'She heard you come in.', face_2: 'Stay. She has stories to tell you.',
+      hands_1: 'Don’t let her in.', hands_2: 'Too late.', hands_3: 'Now listen. These are the stories nani never finished.' },
+    hi: { kicker: 'कुछ कहानियाँ सच होती हैं', hero_sub: 'वह घड़ी जब आत्माएँ घूमती हैं।',
+      cross_1: 'सबसे अँधेरी रातों में कोई चौराहे पर वड़े, नींबू और मिर्च रख जाता है।',
+      mirror_1: 'आधी रात के बाद हर आईना ढक दीजिए।', rules_kicker: 'रात के लिए नानी के नियम', rules_title: 'रात कैसे बचें',
+      r1: 'आधी रात से पहले दरवाज़े पर दक्षिण की ओर दीया जलाइए।', after_p: 'आज रात किसी दोस्त को भेजिए और देखिए उसकी निकलती है या नहीं।',
+      share_text: 'आज रात इसे अकेले, हेडफ़ोन लगाकर देखना: ', st_kicker: 'भूतों की कहानियाँ', fiction: 'एक काल्पनिक कहानी।', credits: 'क्रेडिट',
+      face_1: 'उसने आपके आने की आहट सुन ली है।', face_2: 'रुकिए। उसके पास आपको सुनाने के लिए कहानियाँ हैं।',
+      hands_1: 'उसे अंदर मत आने देना।', hands_2: 'बहुत देर हो चुकी है।', hands_3: 'अब सुनिए। ये वो कहानियाँ हैं जो नानी ने कभी पूरी नहीं कीं।' },
+    gu: { kicker: 'કેટલીક વાર્તાઓ સાચી હોય છે', hero_sub: 'એ ઘડી જ્યારે આત્માઓ ફરે છે.',
+      cross_1: 'સૌથી અંધારી રાતોમાં કોઈક ચાર રસ્તે વડાં, લીંબુ અને મરચાં મૂકી જાય છે.',
+      mirror_1: 'મધરાત પછી દરેક અરીસો ઢાંકી દો.', rules_kicker: 'રાત માટે નાનીના નિયમો', rules_title: 'રાત કેવી રીતે બચવી',
+      r1: 'મધરાત પહેલાં દરવાજે દક્ષિણ તરફ દીવો પ્રગટાવો.', after_p: 'આજે રાત્રે કોઈ મિત્રને મોકલો અને જુઓ કે એની નીકળે છે કે નહીં.',
+      share_text: 'આજે રાત્રે આ એકલા, હેડફોન પહેરીને જોજો: ', st_kicker: 'ભૂતની વાર્તાઓ', fiction: 'એક કાલ્પનિક વાર્તા.', credits: 'ક્રેડિટ',
+      face_1: 'એણે તમારા આવવાનો અવાજ સાંભળી લીધો છે.', face_2: 'રોકાઓ. એની પાસે તમને કહેવા માટે વાર્તાઓ છે.',
+      hands_1: 'એને અંદર આવવા દેતા નહીં.', hands_2: 'હવે બહુ મોડું થઈ ગયું.', hands_3: 'હવે સાંભળો. આ એ વાર્તાઓ છે જે નાનીએ ક્યારેય પૂરી ન કરી.' }
+  };
+  Object.keys(GEN).forEach((k) => Object.assign(T[k], GEN[k]));
   const $ = (s) => document.querySelector(s);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -779,6 +866,16 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
       const n = this.src(), nb = c.createBiquadFilter(), ng = c.createGain(); nb.type = 'bandpass'; nb.frequency.value = 2500; ng.gain.value = .6; n.connect(nb); nb.connect(ng); ng.connect(ws);
       voice.start(tt); vib.start(tt); n.start(tt); voice.stop(tt + 1.8); vib.stop(tt + 1.8); n.stop(tt + 1.8);
     },
+    loadTheme() {
+      if (!this.ok() || this.themeTried) return; this.themeTried = true;
+      const tryNext = (list) => { if (!list.length) return; fetch('assets/audio/' + list[0]).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject())).then((b) => this.ctx.decodeAudioData(b)).then((buf) => this.startTheme(buf)).catch(() => tryNext(list.slice(1))); };
+      tryNext(['theme.mp4', 'theme.mp3', 'theme.m4a']);
+    },
+    startTheme(buf) {
+      const s = this.ctx.createBufferSource(); s.buffer = buf; s.loop = true; const g = this.ctx.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(.8, this.now(), .5);
+      s.connect(g); g.connect(this.master); s.start(); this.themeGain = g;
+    },
+    themeLevel(v) { if (this.themeGain) this.themeGain.gain.setTargetAtTime(v, this.now(), 1.2); },
     setMuted(m) { this.muted = m; if (this.master) this.master.gain.setTargetAtTime(m ? 0 : .9, this.now(), .05); }
   };
   function paintSound() { const b = $('#soundBtn'); b.textContent = A.muted ? t('sound_off') : t('sound_on'); b.setAttribute('aria-pressed', String(!A.muted)); }
@@ -790,7 +887,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   if ($('#stars')) for (let i = 0; i < 70; i++) mk('circle', { cx: rnd() * 1000, cy: rnd() * 330, r: (rnd() * 1.2 + .3).toFixed(2), opacity: (rnd() * .7 + .2).toFixed(2) }, $('#stars'));
   const diyaSvg = '<svg viewBox="0 0 100 50" aria-hidden="true"><path d="M4 12 Q50 22 96 12 Q90 46 50 48 Q10 46 4 12 Z" fill="#7a3b17"/><path d="M4 12 Q50 22 96 12 Q50 4 4 12 Z" fill="#a8541f"/><path d="M14 22 Q50 30 86 22" stroke="#d98a3a" stroke-width="2" fill="none" opacity=".6"/></svg><span class="f"></span>';
-  for (let i = 0; i < 7; i++) { const d = document.createElement('div'); d.className = 'diya'; d.innerHTML = diyaSvg; $('#diyas').appendChild(d); }
+  if ($('#diyas')) for (let i = 0; i < 7; i++) { const d = document.createElement('div'); d.className = 'diya'; d.innerHTML = diyaSvg; $('#diyas').appendChild(d); }
   for (let i = 0; i < 14; i++) {
     const x = 40 + i * 70 + (i % 2 ? 8 : 0), y = 30 + Math.sin(i / 13 * Math.PI) * 14;
     const g = mk('g', { class: 'hang' }, $('#toranItems'));
@@ -818,7 +915,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   /* ================= enter ================= */
   let safe = false, entered = false;
   function enter(isSafe) {
-    safe = isSafe; entered = true; A.init(); A.startBed();
+    safe = isSafe; entered = true; A.init(); A.startBed(); A.loadTheme();
     nick = ($('#nick').value || '').trim().slice(0, 20); store.set('kc-nick', nick);
     document.documentElement.classList.remove('locked'); document.body.classList.add('entered');
     $('#gate').classList.add('gone'); setTimeout(() => { $('#gate').hidden = true; }, 1300);
@@ -837,7 +934,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
 
   /* ================= scenes ================= */
   const sc = (id) => ({ el: $('#' + id), p: 0, lines: [...document.querySelectorAll('#' + id + ' .line')].map((l) => ({ el: l, r: l.dataset.r.split(',').map(Number) })) });
-  const S = { hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), feet: sc('s-feet'), scare: sc('s-scare') };
+  const S = { hero: sc('s-hero'), face: sc('s-face'), hands: sc('s-hands'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), feet: sc('s-feet'), scare: sc('s-scare') };
   const prog = (s) => { const r = s.el.getBoundingClientRect(); const span = r.height - innerHeight; return { p: Math.min(1, Math.max(0, -r.top / Math.max(1, span))), active: r.top < innerHeight * .5 && r.bottom > innerHeight * .5, top: r.top }; };
   const fired = {};
   const once = (k, fn) => { if (!fired[k]) { fired[k] = true; fn(); } };
@@ -941,7 +1038,7 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
   function unlock() { document.documentElement.classList.remove('locked'); }
   $('#again').addEventListener('click', () => {
     scared = false; dropped = false; printsShown = 0; Object.keys(fired).forEach((k) => delete fired[k]);
-    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#doorFaceImg').style.opacity = 0; $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
+    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#doorFaceImg').style.opacity = 0; handsShown = 0; ghostStep = -1; $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
     A.dread(0); window.scrollTo({ top: 0, behavior: 'instant' });
   });
 
@@ -975,19 +1072,61 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     embers = embers.filter((e) => e.life > 0); embers.forEach((e) => { e.x += e.vx; e.y += e.vy; e.life -= .012; g.fillStyle = `rgba(255,${140 + (e.life * 80 | 0)},40,${e.life})`; g.beginPath(); g.arc(e.x, e.y, 1.6, 0, 7); g.fill(); });
   }
 
+  /* ================= landing effects ================= */
+  (() => { const d = $('#drips'); for (let i = 0; i < 11; i++) { const s = document.createElement('i'); s.className = 'drip'; s.style.left = (6 + Math.random() * 88).toFixed(1) + '%'; s.style.setProperty('--h', (14 + Math.random() * 42 | 0) + 'px'); s.style.setProperty('--d', (3 + Math.random() * 5).toFixed(1) + 's'); s.style.setProperty('--w', (1.2 + Math.random() * 3).toFixed(1) + 's'); s.style.width = (4 + Math.random() * 6 | 0) + 'px'; d.appendChild(s); } })();
+  let nextEyes = 0;
+  function spawnEyes(field, now) {
+    if (now < nextEyes || !field || safe) return; nextEyes = now + 900 + Math.random() * 1600;
+    if (field.children.length > 5) return;
+    const e = document.createElement('div'); e.className = 'eyepair'; const s = 6 + Math.random() * 10;
+    e.style.setProperty('--s', s.toFixed(1) + 'px'); e.style.setProperty('--g', (s * 1.6).toFixed(1) + 'px');
+    e.style.left = (5 + Math.random() * 85).toFixed(1) + '%'; e.style.top = (8 + Math.random() * 75).toFixed(1) + '%';
+    e.innerHTML = '<i></i><i></i>'; field.appendChild(e); setTimeout(() => e.remove(), 4600);
+    if (Math.random() < .3) A.whisper(Math.random() * 2 - 1, .5);
+  }
+  const ghostSteps = [[64, 84, 42], [44, 92, 62], [70, 98, 80], [50, 112, 120]];
+  let ghostStep = -1;
+  function heroBolt() { ghostStep = Math.min(ghostSteps.length - 1, ghostStep + 1); const [x, y, h] = ghostSteps[ghostStep]; const g = $('#heroGhost'); g.style.left = x + '%'; g.style.top = y + '%'; g.style.height = h + '%'; }
+  const face = $('#emergeFace');
+  function updFace(p, now) {
+    setLines(S.face, p);
+    const q = Math.min(1, Math.max(0, (p - .05) / .7));
+    face.style.opacity = (q * .9).toFixed(3);
+    face.style.transform = `scale(${(.8 + .32 * q).toFixed(3)})`;
+    face.style.filter = reduced ? 'none' : `url(#waver3) blur(${(18 * (1 - q)).toFixed(1)}px)`;
+    if (p > .1) once('fa0', () => { A.breath(); A.dread(1); });
+    if (p > .55) once('fa1', () => { A.whisper(0, 1.4); flash(90); });
+    spawnEyes($('#eyesFace'), now);
+    L.focus = () => ({ x: innerWidth / 2, y: innerHeight * .42 });
+  }
+  const HANDS = [[300, 260, -12, .9], [690, 200, 14, 1], [520, 410, 4, 1.15], [180, 430, -22, .8], [820, 420, 20, .85], [420, 150, -4, .75], [610, 330, 9, 1.25], [100, 170, -30, .7], [900, 150, 28, .75], [500, 280, 0, 1.6]];
+  const handEls = HANDS.map(([x, y, r, s]) => { const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#hand'); u.setAttribute('transform', `translate(${x} ${y}) rotate(${r}) scale(${s})`); u.style.display = 'none'; $('#hands').appendChild(u); return u; });
+  let handsShown = 0;
+  function updHands(p) {
+    setLines(S.hands, p);
+    const n = Math.min(HANDS.length, Math.floor(Math.max(0, p - .06) / .62 * HANDS.length));
+    handEls.forEach((u, i) => { const on = i < n; if (on && u.style.display === 'none') { u.style.display = ''; u.classList.remove('slap'); void u.getBBox; u.classList.add('slap'); } if (!on) u.style.display = 'none'; });
+    if (n > handsShown) { A.thump(.5 + n * .04, 70 + Math.random() * 30); A.bells(Math.random() * 2 - 1, .02); if (!reduced) { const st = $('#handsStage'); st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake'); setTimeout(() => st.classList.remove('shake'), 260); } }
+    handsShown = n;
+    const cr = p > .5; $('#glassCracks').setAttribute('opacity', cr ? .8 : 0); if (cr) once('hc', () => { A.crack(); flash(80); });
+    if (p > .8) once('hstory', () => { A.dread(0); });
+    L.focus = () => ({ x: innerWidth / 2, y: innerHeight / 2 });
+  }
+
   /* ================= ambience, lightning, wavering ghosts ================= */
-  let nextAmb = 9000, nextBolt = 6000, flashT = -1;
+  let nextAmb = 9000, nextBolt = 3000, flashT = -1;
   function ambience(now) {
     if (now < nextAmb || active === 'scare') return; nextAmb = now + 11000 + Math.random() * 12000;
     const pick = { hero: ['howl', 'owl'], cross: ['howl', 'bells', 'whisper'], tree: ['owl', 'whisper'], name: ['whisper', 'bells'], mirror: ['bells', 'whisper'], feet: ['bells'] }[active] || [];
     const k = pick[Math.random() * pick.length | 0]; if (k === 'bells') A.bells(Math.random() * 2 - 1, .03); else if (k === 'whisper') A.whisper(Math.random() < .5 ? -1 : 1, .7); else if (k) A[k]();
   }
   function lightning(now) {
-    if (safe || reduced || !(active === 'hero' || active === 'cross')) { root.setProperty('--flash', 0); $('#bolt').style.background = 'transparent'; return; }
-    if (now > nextBolt) { flashT = now; nextBolt = now + 13000 + Math.random() * 10000; setTimeout(() => A.thunder(), 600 + Math.random() * 500); }
+    if (safe || reduced || !(active === 'hero' || active === 'cross')) { root.setProperty('--flash', 0); $('#bolt').style.background = 'transparent'; $('#heroGhost').style.opacity = 0; return; }
+    if (now > nextBolt) { flashT = now; nextBolt = now + (active === 'hero' ? 4500 + Math.random() * 3500 : 13000 + Math.random() * 10000); if (active === 'hero') heroBolt(); setTimeout(() => A.thunder(), 500 + Math.random() * 500); }
     const e = now - flashT; let f = 0;
     if (flashT > 0 && e < 520) f = e < 70 ? 1 : e < 160 ? 0 : e < 230 ? .7 : Math.max(0, 1 - (e - 230) / 290) * .25;
     root.setProperty('--flash', f.toFixed(2)); $('#bolt').style.background = `rgba(190,200,255,${(f * .22).toFixed(3)})`;
+    $('#heroGhost').style.opacity = active === 'hero' && f > .05 ? 1 : 0;
   }
   const turbs = [$('#turb'), $('#turb2'), $('#turb3')];
   let wv = 0;
@@ -1020,11 +1159,15 @@ footer { text-align: center; color: var(--smoke); font-size: 13px; padding: 30px
     if (entered) {
       updHero(S.hero.p);
       if (active === 'cross') updCross(S.cross.p, now);
+      if (active === 'face') updFace(S.face.p, now);
+      if (active === 'hands') updHands(S.hands.p);
+      if (active === 'hero') spawnEyes($('#eyesHero'), now);
+      A.themeLevel(['hero', 'face', 'hands'].includes(active) ? .8 : active === 'scare' ? 0 : .14);
       if (active === 'tree') updTree(S.tree.p);
       if (active === 'name') updName(S.name.p);
       if (active === 'mirror') updMirror(S.mirror.p);
       if (active === 'feet') updFeet(S.feet.p, now); else L.scale = active === 'scare' ? 0 : 1;
-      if (!['hero', 'cross', 'tree', 'feet', 'name', 'mirror'].includes(active)) L.focus = null;
+      if (!['hero', 'face', 'hands', 'cross', 'tree', 'feet', 'name', 'mirror'].includes(active)) L.focus = null;
       ambience(now); lightning(now); waver(now);
       if (S.scare.top <= 2 && S.scare.top > -innerHeight) scare();
       if ((active === 'hero' || active === 'cross') && now > nextCricket) { A.cricket(); nextCricket = now + 500 + Math.random() * 1400; }

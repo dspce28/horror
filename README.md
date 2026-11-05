@@ -1,6 +1,6 @@
-# Kali Chaudas CCTV
+# Aadhi Raat
 
-An animated horror night for Kali Chaudas, in English, Hindi and Gujarati. You scroll through the scenes (blood moon and diyas, the crossroads offering, the peepal tree, your name being called, the mirror, backward footprints, a jump scare, Nani's rules) while your cursor or finger is a diya lighting the dark. It ends with a form where visitors can send in their own Kali Chaudas stories (pranks, real experiences, stories they heard).
+Aadhi Raat: an animated Indian horror night, in English, Hindi and Gujarati. You scroll through the scenes (blood moon and diyas, the crossroads offering, the peepal tree, your name being called, the mirror, backward footprints, a jump scare, Nani's rules) while your cursor or finger is a diya lighting the dark. It ends with a form where visitors can send in their own Kali Chaudas stories (pranks, real experiences, stories they heard).
 
 - `index.html` is the whole site (no build step).
 - Ghost images in `assets/art/` were made with an AI image generator. The footer credits say so; keep that disclosure. Everything else is drawn in code.
@@ -12,3 +12,7 @@ Run locally:
 ```bash
 python3 -m http.server 8000
 ```
+
+## Theme music
+
+The site plays `assets/audio/theme.mp4` (or `theme.mp3` / `theme.m4a`) on the opening screens if the file exists, and lowers it once the stories start. No theme file is committed here; add your own.
