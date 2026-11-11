@@ -366,6 +366,23 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 .holdbtn { position: absolute; left: 50%; bottom: calc(5svh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: 132px; height: 132px; border-radius: 50%; border: 1px solid rgba(200,20,30,.8); background: rgba(120,6,14,.25); color: var(--bone); font-family: var(--f-display); font-size: 15px; padding: 14px; touch-action: none; -webkit-user-select: none; user-select: none; }
 .holdbtn.on { background: rgba(200,20,30,.55); box-shadow: 0 0 40px rgba(220,30,40,.6); }
 @media (prefers-reduced-motion: reduce) { .bcandle { animation: none; } }
+
+/* ---------- round 8: home ending ---------- */
+.homeroom { background: radial-gradient(ellipse at 30% 40%, #0d1220 0%, #05060a 55%, #020203 100%); }
+.moonwin { position: absolute; left: 12%; top: 18%; width: 18%; height: 46%; background: linear-gradient(160deg, rgba(150,175,220,.22), rgba(60,80,120,.05)); box-shadow: 0 0 120px rgba(120,150,210,.18); filter: blur(10px); }
+.kitchendoor { position: absolute; right: 14%; top: 22%; width: 13%; height: 62%; background: #000; filter: blur(6px); }
+.answer { position: absolute; z-index: 12; left: 50%; top: 58%; transform: translate(-50%, 10px); opacity: 0; pointer-events: none; transition: opacity .6s, transform .6s; border-radius: 2px; background: rgba(120,6,14,.3); color: var(--bone); box-shadow: inset 0 0 0 1px rgba(200,20,30,.8), 0 0 24px rgba(179,18,27,.35); font-family: var(--f-display); font-size: clamp(18px, 2.4vw, 26px); padding: 12px 26px; border: 0; }
+.answer.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.callcard { position: absolute; z-index: 12; left: 50%; bottom: calc(6svh + env(safe-area-inset-bottom, 0px)); width: min(300px, 80vw); transform: translate(-50%, 140%); transition: transform .7s cubic-bezier(.2,.8,.2,1); background: linear-gradient(#1c1f26, #0c0e12); border-radius: 26px; padding: 22px 18px 18px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.08); font-family: var(--f-body); }
+.callcard.on { transform: translate(-50%, 0); animation: ringshake .5s ease-in-out infinite; }
+@keyframes ringshake { 0%, 100% { margin-left: 0; } 25% { margin-left: -3px; } 75% { margin-left: 3px; } }
+.cav { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; display: grid; place-items: center; background: #3a4150; color: #fff; font-size: 28px; }
+.cname { font-size: 26px; color: #fff; font-weight: 600; }
+.csub { font-size: 14px; color: #9aa3b5; margin-top: 2px; }
+.cbtns { display: flex; justify-content: space-around; margin-top: 18px; }
+.cbtns span { width: 54px; height: 54px; border-radius: 50%; }
+.cdecline { background: #e5484b; } .caccept { background: #2fbf5b; }
+@media (prefers-reduced-motion: reduce) { .callcard.on { animation: none; } }
 </style>
 </head>
 <body>
@@ -648,20 +665,34 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 
   <section class="scene bridge" id="br13" style="--len:90vh"><div class="stage"><p class="bline" data-t="b13"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
 
-  <!-- 11. THE NEXT MORNING -->
-  <section class="scene" id="s-office" style="--len:210vh">
+  <!-- 11. HOME -->
+  <section class="scene" id="s-home" style="--len:280vh">
     <div class="stage">
-      <div class="layer"><div class="photo" id="officePhoto" style="--ar:1376/768;transform-origin:42% 85%"><img loading="lazy" decoding="async" class="base" src="assets/art/office.webp" alt=""><div class="tube" id="tube" style="left:47%;top:6%"></div></div></div>
-      <div class="layer dark" style="--dk:.45"></div>
+      <div class="layer homeroom"><div class="moonwin"></div><div class="kitchendoor"></div></div>
       <div class="txt">
-        <p class="line" data-t="office_1" data-r="0.04,0.32"></p>
-        <p class="line" data-t="office_2" data-r="0.34,0.62"></p>
-        <p class="line red" data-t="office_3" data-r="0.66,1.01"></p>
+        <p class="line" data-t="home_1" data-r="0.03,0.28"></p>
+        <p class="line" data-t="home_2" data-r="0.28,0.62"></p>
+        <p class="line red" data-t="home_3" data-r="0.66,1.01"></p>
       </div>
+      <button type="button" class="answer" id="answerBtn" data-t="home_answer"></button>
+      <div class="callcard" id="callCard" aria-live="polite"><div class="cav">M</div><div class="cname" data-t="call_name"></div><div class="csub" data-t="call_sub"></div><div class="cbtns"><span class="cdecline"></span><span class="caccept"></span></div></div>
     </div>
   </section>
 
   <section class="scene bridge" id="br14" style="--len:90vh"><div class="stage"><p class="bline" data-t="b14"></p><div class="bcandle" aria-hidden="true"><span class="fl"></span></div></div></section>
+
+  <!-- 11b. THE KITCHEN -->
+  <section class="scene" id="s-kitchen" style="--len:220vh">
+    <div class="stage">
+      <div class="layer"><div class="photo" id="kitchenPhoto" style="--ar:1376/768;transform-origin:52% 52%"><img loading="lazy" decoding="async" class="base" src="assets/art/doll.webp" alt=""><div class="dollname on" id="dollName2" style="left:52%;top:55%"></div></div></div>
+      <div class="layer dark" style="--dk:.7"></div>
+      <div class="txt">
+        <p class="line" data-t="kitchen_1" data-r="0.04,0.32"></p>
+        <p class="line" data-t="kitchen_2" data-r="0.34,0.62"></p>
+        <p class="line red" data-t="kitchen_3" data-r="0.66,1.01"></p>
+      </div>
+    </div>
+  </section>
 
   <!-- 1b. THE FACE -->
   <section class="scene" id="s-face" style="--len:170vh">
@@ -992,30 +1023,30 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       roof_1: 'From the roof you can see the whole town asleep.', roof_2: 'Watch the peepal when the lightning comes.', roof_3: 'She has been standing there since 1994.',
       doll_1: 'Under nani’s bed, wrapped in red cloth, was this.', doll_2: 'Seven needles. Black thread. A lemon that never rots.', doll_3: 'And a name on its chest.',
       build_1: 'Next door, the old haveli land was sold in 2019.', build_2: 'The workers left after one week. None came back for their wages.', build_3: 'Every night she is one floor closer.',
-      well_1: 'Kamla was last seen here. Amavasya, 1994.', well_2: 'They searched the well for three days. They found only her anklet.', well_3: 'Tonight, something is holding the edge.',
+      well_1: 'Chanda was last seen here. Amavasya, 1994.', well_2: 'They searched the well for three days. They found only her anklet.', well_3: 'Tonight, something is holding the edge.',
       office_1: 'The next morning, you went to work.', office_2: 'It was already waiting at the door.', office_3: 'She doesn’t stay in the haveli. She follows whoever opens the gate.',
       face_1: 'She followed you home.', face_2: 'And she isn’t going back.', hands_3: 'She is in the room with you.',
-      marquee: 'Churail · Peepal · Crossroads · Black magic · Mirror · Well · Amavasya · Kamla',
+      marquee: 'Churail · Peepal · Crossroads · Black magic · Mirror · Well · Amavasya · Chanda',
       chapters: ['The threshold', 'The roof', 'The crossroads', 'The peepal', 'The back lane', 'Nani’s room', 'Under the bed', 'Next door', 'The well', 'The way back', 'The next morning', 'She is here'] },
     hi: { gate_notice: 'बंद · 1994 से', gate_1: 'हवेली रानी कुंज। तीस साल से किसी ने यह दरवाज़ा नहीं खोला।', gate_2: 'आज रात इस पर ताला नहीं है।', gate_3: 'अंदर कोई आपका नाम जानता है।',
       thresh_1: 'किसी ने आज रात दरवाज़े पर यह बनाया है। रंग अभी भी गीला है।', thresh_2: 'इसे कभी मत लांघना।', thresh_3: 'ये पैरों के निशान आपके नहीं हैं।',
       roof_1: 'छत से पूरा शहर सोता हुआ दिखता है।', roof_2: 'बिजली चमके तो पीपल की तरफ़ देखना।', roof_3: 'वह 1994 से वहीं खड़ी है।',
       doll_1: 'नानी के पलंग के नीचे, लाल कपड़े में लिपटा, यह मिला।', doll_2: 'सात सुइयाँ। काला धागा। एक नींबू जो कभी सड़ता नहीं।', doll_3: 'और उसकी छाती पर एक नाम।',
       build_1: 'बगल वाली पुरानी हवेली की ज़मीन 2019 में बिक गई।', build_2: 'मज़दूर एक हफ़्ते में चले गए। कोई अपनी मज़दूरी लेने भी नहीं लौटा।', build_3: 'हर रात वह एक मंज़िल और करीब होती है।',
-      well_1: 'कमला को आखिरी बार यहीं देखा गया था। अमावस, 1994।', well_2: 'तीन दिन तक कुआँ खंगाला गया। सिर्फ़ उसकी पायल मिली।', well_3: 'आज रात, कुछ किनारे को पकड़े हुए है।',
+      well_1: 'चंदा को आखिरी बार यहीं देखा गया था। अमावस, 1994।', well_2: 'तीन दिन तक कुआँ खंगाला गया। सिर्फ़ उसकी पायल मिली।', well_3: 'आज रात, कुछ किनारे को पकड़े हुए है।',
       office_1: 'अगली सुबह आप काम पर गए।', office_2: 'वह पहले से दरवाज़े पर इंतज़ार कर रहा था।', office_3: 'वह हवेली में नहीं रहती। जो दरवाज़ा खोलता है, वह उसके पीछे चली आती है।',
       face_1: 'वह आपके पीछे-पीछे घर आ गई है।', face_2: 'और वह वापस नहीं जाएगी।', hands_3: 'वह आपके कमरे में है।',
-      marquee: 'चुड़ैल · पीपल · चौराहा · काला जादू · आईना · कुआँ · अमावस · कमला',
+      marquee: 'चुड़ैल · पीपल · चौराहा · काला जादू · आईना · कुआँ · अमावस · चंदा',
       chapters: ['दहलीज़', 'छत', 'चौराहा', 'पीपल', 'पिछली गली', 'नानी का कमरा', 'पलंग के नीचे', 'बगल की इमारत', 'कुआँ', 'वापसी', 'अगली सुबह', 'वह यहाँ है'] },
     gu: { gate_notice: 'બંધ · 1994 થી', gate_1: 'હવેલી રાની કુંજ. ત્રીસ વર્ષથી કોઈએ આ દરવાજો ખોલ્યો નથી.', gate_2: 'આજે રાત્રે એને તાળું નથી.', gate_3: 'અંદર કોઈ તમારું નામ જાણે છે.',
       thresh_1: 'કોઈએ આજે રાત્રે દરવાજે આ દોર્યું છે. રંગ હજી ભીનો છે.', thresh_2: 'એને ક્યારેય ઓળંગતા નહીં.', thresh_3: 'આ પગલાં તમારાં નથી.',
       roof_1: 'અગાશી પરથી આખું શહેર સૂતેલું દેખાય છે.', roof_2: 'વીજળી ચમકે ત્યારે પીપળા તરફ જોજો.', roof_3: 'એ 1994થી ત્યાં જ ઊભી છે.',
       doll_1: 'નાનીના પલંગ નીચે, લાલ કપડામાં વીંટાળેલું, આ મળ્યું.', doll_2: 'સાત સોય. કાળો દોરો. એક લીંબુ જે ક્યારેય સડતું નથી.', doll_3: 'અને એની છાતી પર એક નામ.',
       build_1: 'બાજુની જૂની હવેલીની જમીન 2019માં વેચાઈ ગઈ.', build_2: 'મજૂરો એક અઠવાડિયામાં જતા રહ્યા. કોઈ પોતાની મજૂરી લેવા પણ પાછું ન આવ્યું.', build_3: 'દર રાત્રે એ એક માળ વધુ નજીક હોય છે.',
-      well_1: 'કમલાને છેલ્લે અહીં જોવામાં આવી હતી. અમાસ, 1994.', well_2: 'ત્રણ દિવસ સુધી કૂવો ફંફોસ્યો. ફક્ત એનું ઝાંઝર મળ્યું.', well_3: 'આજે રાત્રે, કંઈક કિનારો પકડીને બેઠું છે.',
+      well_1: 'ચંદાને છેલ્લે અહીં જોવામાં આવી હતી. અમાસ, 1994.', well_2: 'ત્રણ દિવસ સુધી કૂવો ફંફોસ્યો. ફક્ત એનું ઝાંઝર મળ્યું.', well_3: 'આજે રાત્રે, કંઈક કિનારો પકડીને બેઠું છે.',
       office_1: 'બીજી સવારે તમે કામ પર ગયા.', office_2: 'એ પહેલેથી દરવાજે રાહ જોતું હતું.', office_3: 'એ હવેલીમાં નથી રહેતી. જે દરવાજો ખોલે, એની પાછળ આવે છે.',
       face_1: 'એ તમારી પાછળ પાછળ ઘરે આવી ગઈ છે.', face_2: 'અને એ પાછી નહીં જાય.', hands_3: 'એ તમારા ઓરડામાં છે.',
-      marquee: 'ચુડેલ · પીપળો · ચાર રસ્તા · કાળો જાદુ · અરીસો · કૂવો · અમાસ · કમલા',
+      marquee: 'ચુડેલ · પીપળો · ચાર રસ્તા · કાળો જાદુ · અરીસો · કૂવો · અમાસ · ચંદા',
       chapters: ['ઉંબરો', 'અગાશી', 'ચાર રસ્તા', 'પીપળો', 'પાછલી ગલી', 'નાનીનો ઓરડો', 'પલંગ નીચે', 'બાજુનું મકાન', 'કૂવો', 'પાછા ફરતાં', 'બીજી સવારે', 'એ અહીં છે'] }
   };
   Object.keys(STORY).forEach((k) => Object.assign(T[k], STORY[k]));
@@ -1037,6 +1068,18 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       games_kicker: 'રમતો', games_title: 'ફરી રમો' }
   };
   Object.keys(BR).forEach((k) => Object.assign(T[k], BR[k]));
+  const HOME = {
+    en: { home_1: 'You lock the door behind you. You are home. You are safe.', home_2: 'From the dark kitchen, Maa’s voice: “{NAME}, beta, are you home?”', home_answer: '“Yes Maa, I’m home.”', home_3: 'Your phone rings. It’s Maa. Calling from Ahmedabad.', call_name: 'Maa', call_sub: 'Ahmedabad · calling…', maa_q: '{NAME}, beta, are you home?',
+      b14: 'Then who is in the kitchen?', kitchen_1: 'On the kitchen counter sits the doll from nani’s room.', kitchen_2: 'The name on its chest has changed.', kitchen_3: 'She calls three times. She only needs you to answer once.', chanda: 'CHANDA',
+      chapters: ['The threshold', 'The roof', 'The crossroads', 'The peepal', 'The back lane', 'Nani’s room', 'Under the bed', 'Next door', 'The well', 'The way back', 'Home', 'The kitchen', 'She is here'] },
+    hi: { home_1: 'आप पीछे से दरवाज़ा बंद कर लेते हैं। आप घर पर हैं। सुरक्षित।', home_2: 'अँधेरी रसोई से माँ की आवाज़: “{NAME}, बेटा, आ गए?”', home_answer: '“हाँ माँ, घर आ गए।”', home_3: 'आपका फ़ोन बजता है। माँ का कॉल है। अहमदाबाद से।', call_name: 'माँ', call_sub: 'अहमदाबाद · कॉल आ रहा है…', maa_q: '{NAME}, बेटा, आ गए?',
+      b14: 'तो फिर रसोई में कौन है?', kitchen_1: 'रसोई के काउंटर पर नानी के कमरे वाली गुड़िया रखी है।', kitchen_2: 'उसकी छाती पर लिखा नाम बदल गया है।', kitchen_3: 'वह तीन बार पुकारती है। उसे बस एक बार जवाब चाहिए।', chanda: 'चंदा',
+      chapters: ['दहलीज़', 'छत', 'चौराहा', 'पीपल', 'पिछली गली', 'नानी का कमरा', 'पलंग के नीचे', 'बगल की इमारत', 'कुआँ', 'वापसी', 'घर', 'रसोई', 'वह यहाँ है'] },
+    gu: { home_1: 'તમે પાછળથી દરવાજો બંધ કરી દો છો. તમે ઘરે છો. સુરક્ષિત.', home_2: 'અંધારા રસોડામાંથી માનો અવાજ: “{NAME}, બેટા, આવી ગયા?”', home_answer: '“હા મા, ઘરે આવી ગયા.”', home_3: 'તમારો ફોન વાગે છે. માનો ફોન છે. અમદાવાદથી.', call_name: 'મા', call_sub: 'અમદાવાદ · કૉલ આવે છે…', maa_q: '{NAME}, બેટા, આવી ગયા?',
+      b14: 'તો પછી રસોડામાં કોણ છે?', kitchen_1: 'રસોડાના કાઉન્ટર પર નાનીના ઓરડાવાળી ઢીંગલી પડી છે.', kitchen_2: 'એની છાતી પરનું નામ બદલાઈ ગયું છે.', kitchen_3: 'એ ત્રણ વાર બોલાવે છે. એને બસ એક વાર જવાબ જોઈએ.', chanda: 'ચંદા',
+      chapters: ['ઉંબરો', 'અગાશી', 'ચાર રસ્તા', 'પીપળો', 'પાછલી ગલી', 'નાનીનો ઓરડો', 'પલંગ નીચે', 'બાજુનું મકાન', 'કૂવો', 'પાછા ફરતાં', 'ઘર', 'રસોડું', 'એ અહીં છે'] }
+  };
+  Object.keys(HOME).forEach((k) => Object.assign(T[k], HOME[k]));
   const $ = (s) => document.querySelector(s);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1046,7 +1089,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   const t = (k) => (T[lang][k] !== undefined ? T[lang][k] : T.en[k]);
   function applyLang() {
     document.documentElement.lang = lang;
-    document.querySelectorAll('[data-t]').forEach((el) => { const v = t(el.dataset.t); if (typeof v === 'string') el.textContent = v; });
+    document.querySelectorAll('[data-t]').forEach((el) => { const v = t(el.dataset.t); if (typeof v === 'string') el.textContent = v.replace('{NAME}', (typeof nick === 'string' && nick) || t('nick_default')); });
     document.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     $('#share').href = 'https://wa.me/?text=' + encodeURIComponent(t('share_text') + location.href.split('#')[0]);
     paintSound(); renderWall();
@@ -1226,6 +1269,10 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       bp.type = 'bandpass'; bp.Q.value = .7; bp.frequency.setValueAtTime(300, tt); bp.frequency.linearRampToValueAtTime(1400, tt + .5); bp.frequency.linearRampToValueAtTime(400, tt + 1.2);
       this.env(g, tt, [[.25, .45], [1.2, 0]]); n.connect(bp); bp.connect(g); this.out(g, Math.random() - .5, .3); n.start(tt, Math.random()); n.stop(tt + 1.3);
     },
+    ring() {
+      if (!this.ok()) return; const c = this.ctx; let tt = this.now();
+      for (let r = 0; r < 2; r++) { [[0, 880], [.12, 1175], [.24, 880], [.36, 1175]].forEach(([d, f]) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = f; this.env(g, tt + d, [[.01, .12], [.1, 0]]); o.connect(g); this.out(g, .2, .1); o.start(tt + d); o.stop(tt + d + .12); }); tt += .7; }
+    },
     drip() {
       if (!this.ok()) return; const c = this.ctx, tt = this.now(), o = c.createOscillator(), g = c.createGain();
       o.frequency.setValueAtTime(1400, tt); o.frequency.exponentialRampToValueAtTime(420, tt + .09); this.env(g, tt, [[.004, .08], [.12, 0]]); o.connect(g); this.out(g, Math.random() - .5, 1); o.start(tt); o.stop(tt + .15);
@@ -1272,7 +1319,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   const lockScroll = (on) => { document.documentElement.classList.toggle('locked', on); if (lenis) on ? lenis.stop() : lenis.start(); };
   function enter(isSafe) {
     safe = isSafe; entered = true; A.init(); A.startBed(); A.loadTheme();
-    nick = ($('#nick').value || '').trim().slice(0, 20); store.set('kc-nick', nick);
+    nick = ($('#nick').value || '').trim().slice(0, 20); store.set('kc-nick', nick); applyLang();
     document.documentElement.classList.remove('locked'); document.body.classList.add('entered');
     $('#gate').classList.add('gone'); setTimeout(() => { $('#gate').hidden = true; }, 1300);
     burnTitle(); measure(); setTimeout(() => A.howl(), 2400);
@@ -1290,7 +1337,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
 
   /* ================= scenes ================= */
   const sc = (id) => ({ el: $('#' + id), p: 0, lines: [...document.querySelectorAll('#' + id + ' .line')].map((l) => ({ el: l, r: l.dataset.r.split(',').map(Number) })) });
-  const S = {}; const S0 = { gate: sc('s-gate'), thresh: sc('s-thresh'), hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), doll: sc('s-doll'), build: sc('s-build'), well: sc('s-well'), feet: sc('s-feet'), office: sc('s-office'), face: sc('s-face'), hands: sc('s-hands'), scare: sc('s-scare') };
+  const S = {}; const S0 = { gate: sc('s-gate'), thresh: sc('s-thresh'), hero: sc('s-hero'), cross: sc('s-cross'), tree: sc('s-tree'), name: sc('s-name'), mirror: sc('s-mirror'), doll: sc('s-doll'), build: sc('s-build'), well: sc('s-well'), feet: sc('s-feet'), home: sc('s-home'), kitchen: sc('s-kitchen'), face: sc('s-face'), hands: sc('s-hands'), scare: sc('s-scare') };
   function measure() { Object.keys(S).forEach((k) => { const el = S[k].el; let y = 0, n = el; while (n) { y += n.offsetTop; n = n.offsetParent; } S[k].y0 = y; S[k].h = el.offsetHeight; }); }
   addEventListener('resize', () => measure()); addEventListener('load', () => measure());
   { const order = [...document.querySelectorAll('.scene')].map((el) => el.id); order.forEach((id) => { if (id.startsWith('br')) S[id] = sc(id); else { const k = Object.keys(S0).find((x) => S0[x].el.id === id); if (k) S[k] = S0[k]; } }); measure(); }
@@ -1415,8 +1462,8 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   }
   function updDoll(p) {
     setLines(S.doll, p); push($('#dollPhoto'), 1 + .3 * p);
-    const dn = $('#dollName'); dn.textContent = nick || t('nick_default'); dn.classList.toggle('on', p > .6);
-    if (p > .62) once('d0', () => { sayName((nick || t('nick_default')), .45, .2, .45); buzz([60, 40, 60]); A.heartbeat(.5); });
+    const dn = $('#dollName'); dn.textContent = t('chanda'); dn.classList.toggle('on', p > .6);
+    if (p > .62) once('d0', () => { A.whisper(0, 1); buzz([60, 40, 60]); A.heartbeat(.5); });
     if (p > .2) once('d1', () => A.whisper(.5, .8));
     L.focus = () => { const r = dn.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
   }
@@ -1435,20 +1482,34 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
     if (p > .7) once('w1', () => { A.thump(.5, 60); buzz(80); });
     L.focus = () => ({ x: innerWidth * .6, y: innerHeight * .68 });
   }
-  function updOffice(p) {
-    setLines(S.office, p); push($('#officePhoto'), 1 + .25 * p);
-    $('#tube').style.opacity = (Math.random() < .12 ? .1 : 1) * (p > .7 ? (Math.random() < .5 ? 0 : .4) : 1);
-    if (p > .1) once('o0', () => A.whisper(.8, .6));
-    L.focus = () => ({ x: innerWidth * .42, y: innerHeight * .85 });
+  let answered = false, nextRing = 0;
+  $('#answerBtn').addEventListener('click', () => { answered = true; $('#answerBtn').classList.remove('on'); A.whisper(0, .5); });
+  function updHome(p, now) {
+    setLines(S.home, p);
+    if (p > .3) once('h0', () => { const q = t('maa_q').replace('{NAME}', nick || t('nick_default')); sayName(q, .7, 1, .85); });
+    if (p > .05) once('h1', () => { A.thump(.5, 60); A.dread(0); });
+    $('#answerBtn').classList.toggle('on', !answered && p > .42 && p < .66);
+    const ringing = answered || p > .66;
+    $('#callCard').classList.toggle('on', ringing && p < .99);
+    if (ringing && now > nextRing && p < .99) { A.ring(); buzz([200, 100, 200]); nextRing = now + 2200; }
+    L.focus = () => ({ x: innerWidth * .8, y: innerHeight * .5 });
   }
+  function updKitchen(p) {
+    setLines(S.kitchen, p); push($('#kitchenPhoto'), 1 + .3 * p);
+    $('#dollName2').textContent = nick || t('nick_default');
+    if (p > .2) once('k0', () => { A.anklet(-.4, .05); });
+    if (p > .55) once('k1', () => { sayName(nick || t('nick_default'), .45, .2, .45); buzz([60, 40, 60]); A.heartbeat(.5); });
+    L.focus = () => { const r = $('#dollName2').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  }
+
   /* chapter label, word strips, blood-filled wordmark */
   let lastCh = -1;
   function updBridge(s, k) { const ws = s.el.querySelectorAll('.bline .w'); const n = Math.ceil(clamp((s.p + .05) / .35) * ws.length); ws.forEach((w, i) => w.classList.toggle('on', i < n)); if (s.p > .1) once('st' + k, () => A.steps(5, .3)); }
-  const CH = ['thresh', 'hero', 'cross', 'tree', 'name', 'mirror', 'doll', 'build', 'well', 'feet', 'office', 'face', 'hands'];
+  const CH = ['thresh', 'hero', 'cross', 'tree', 'name', 'mirror', 'doll', 'build', 'well', 'feet', 'home', 'kitchen', 'face', 'hands'];
   function updChrome() {
     const i = CH.indexOf(active), el = $('#chap');
-    lastCh = -1; CH.forEach((k, ci) => { if (S[k] && S[k].top <= innerHeight * .5) lastCh = Math.min(ci, 11); });
-    if (i >= 0 || (lastCh >= 0 && (active.startsWith('br') || active === 'none') && window.scrollY < S.scare.el.offsetTop)) { const n = i >= 0 ? Math.min(i, 11) : lastCh; $('#chapN').textContent = String(n + 1).padStart(2, '0'); $('#chapT').textContent = T[lang].chapters[n]; el.classList.add('on'); } else el.classList.remove('on');
+    lastCh = -1; CH.forEach((k, ci) => { if (S[k] && S[k].top <= innerHeight * .5) lastCh = Math.min(ci, 12); });
+    if (i >= 0 || (lastCh >= 0 && (active.startsWith('br') || active === 'none') && window.scrollY < S.scare.el.offsetTop)) { const n = i >= 0 ? Math.min(i, 12) : lastCh; $('#chapN').textContent = String(n + 1).padStart(2, '0'); $('#chapT').textContent = T[lang].chapters[n]; el.classList.add('on'); } else el.classList.remove('on');
     const y = window.scrollY;
     document.querySelectorAll('.strip .track').forEach((tr, i) => { const w = tr.scrollWidth / 2 || 1; tr.style.transform = `translateX(${(-((y * .35 + i * 300) % w)).toFixed(1)}px)`; });
     const f = $('#foot'); if (f && $('#bigmark')) { const r = f.getBoundingClientRect(); $('#bigmark').style.setProperty('--fill', (clamp((innerHeight - r.top) / r.height) * 100).toFixed(1) + '%'); }
@@ -1477,7 +1538,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   function unlock() { lockScroll(false); }
   $('#again').addEventListener('click', () => {
     scared = false; dropped = false; printsShown = 0; Object.keys(fired).forEach((k) => delete fired[k]);
-    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#doorFaceImg').style.opacity = 0; handsShown = 0; buildBolts = 0; tShown = 0; $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
+    $('#hanger').classList.remove('down'); $('#cracks').classList.remove('on'); calls.forEach((c) => c.classList.remove('on')); $('#doorFaceImg').style.opacity = 0; handsShown = 0; buildBolts = 0; tShown = 0; answered = false; $('#callCard').classList.remove('on'); $('#after').classList.remove('on'); const f = $('#face'); f.removeAttribute('style'); f.className = '';
     A.dread(0); jump(0);
   });
 
@@ -1677,7 +1738,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
   let nextAmb = 9000, nextBolt = 3000, flashT = -1;
   function ambience(now) {
     if (now < nextAmb || active === 'scare') return; nextAmb = now + 11000 + Math.random() * 12000;
-    const pick = { gate: ['howl', 'owl'], thresh: ['bells', 'whisper'], doll: ['whisper'], build: ['howl'], well: ['owl'], office: ['whisper'], hero: ['howl', 'owl'], cross: ['howl', 'bells', 'whisper'], tree: ['owl', 'whisper'], name: ['whisper', 'bells'], mirror: ['bells', 'whisper'], feet: ['bells'] }[active] || [];
+    const pick = { gate: ['howl', 'owl'], thresh: ['bells', 'whisper'], doll: ['whisper'], build: ['howl'], well: ['owl'], home: [], kitchen: ['bells'], hero: ['howl', 'owl'], cross: ['howl', 'bells', 'whisper'], tree: ['owl', 'whisper'], name: ['whisper', 'bells'], mirror: ['bells', 'whisper'], feet: ['bells'] }[active] || [];
     const k = pick[Math.random() * pick.length | 0]; if (k === 'bells') A.bells(Math.random() * 2 - 1, .03); else if (k === 'whisper') A.whisper(Math.random() < .5 ? -1 : 1, .7); else if (k) A[k]();
   }
   function lightning(now) {
@@ -1722,7 +1783,8 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       if (active === 'doll') updDoll(S.doll.p);
       if (active === 'build') updBuild(S.build.p);
       if (active === 'well') updWell(S.well.p, now);
-      if (active === 'office') updOffice(S.office.p);
+      if (active === 'home') updHome(S.home.p, now);
+      if (active === 'kitchen') updKitchen(S.kitchen.p);
       if (active.startsWith('br')) updBridge(S[active], active);
       updChrome();
       if (active === 'face') updFace(S.face.p, now);
@@ -1732,7 +1794,7 @@ html[lang="gu"] .bline { font-family: "Rasa", var(--f-display); font-weight: 700
       if (active === 'name') updName(S.name.p);
       if (active === 'mirror') updMirror(S.mirror.p);
       if (active === 'feet') updFeet(S.feet.p, now); else L.scale = active === 'scare' ? 0 : 1;
-      if (!['thresh', 'face', 'hands', 'cross', 'tree', 'feet', 'name', 'mirror', 'doll', 'build', 'well', 'office'].includes(active)) L.focus = null;
+      if (!['thresh', 'face', 'hands', 'cross', 'tree', 'feet', 'name', 'mirror', 'doll', 'build', 'well', 'home', 'kitchen'].includes(active)) L.focus = null;
       ambience(now); lightning(now);
       if (S.scare.top <= 2 && S.scare.top > -innerHeight) scare();
       if ((active === 'hero' || active === 'cross') && now > nextCricket) { A.cricket(); nextCricket = now + 500 + Math.random() * 1400; }
