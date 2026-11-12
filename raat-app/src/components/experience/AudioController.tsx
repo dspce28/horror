@@ -4,6 +4,7 @@ import { audio } from '@/lib/audio/engine';
 import { events, live, store } from '@/lib/store';
 import { SCENES } from '@/data/stories/last-passenger';
 import { soundAt } from '@/lib/animation/director';
+import { film } from '@/lib/film/clock';
 
 function buzzPhone(pattern: number[]) {
   if (store.get().safe || !navigator.vibrate) return;
@@ -19,7 +20,8 @@ export default function AudioController() {
         case 'whisper-far': audio.whisper(-.7, .5); break;
         case 'ping': audio.ping(); buzzPhone([60, 80, 60]); break;
         case 'bark': audio.bark(); break;
-        case 'brake': audio.brake(); live.shake = .9; break;
+        case 'brake': audio.brake(); live.shake = .9; film.shake = 1.2; break;
+        case 'stop': live.shake = .7; film.shake = .7; audio.thump(.4, 70); break;
         case 'door': audio.door(); break;
         case 'step-in': audio.steps(3); break;
         case 'engine-start': audio.thump(.35, 60); break;

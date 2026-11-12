@@ -79,3 +79,34 @@ void main() {
   if (uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) c = vec3(0.);
   gl_FragColor = vec4(c, 1.);
 }`;
+
+/** A photograph rebuilt as the 3D space it shows: each pixel pushed out along its camera ray by its depth. */
+export const RELIEF_VERT = /* glsl */ `
+uniform sampler2D uDepth;
+uniform vec2 uTan;
+uniform float uNear, uFar;
+varying vec2 vUv;
+varying float vDist;
+void main() {
+  vUv = uv;
+  float d = texture2D(uDepth, uv).r;
+  float dist = 1. / (d * (1. / uNear - 1. / uFar) + 1. / uFar);
+  vDist = dist;
+  vec3 p = vec3((uv.x - .5) * 2. * uTan.x * dist, (uv.y - .5) * 2. * uTan.y * dist, -dist);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
+}`;
+
+export const RELIEF_FRAG = /* glsl */ `
+uniform sampler2D uMap;
+uniform float uLight, uHas, uEdge;
+varying vec2 vUv;
+varying float vDist;
+void main() {
+  if (uHas < .5) discard;
+  vec3 c = texture2D(uMap, vUv).rgb * uLight;
+  // stretched 'rubber' between near and far objects: darken it so it reads as shadow
+  float stretch = fwidth(vDist) / max(.05, fwidth(vUv.x) * 40.);
+  c *= 1. - smoothstep(.6, 2.5, stretch) * uEdge;
+  c = mix(c, vec3(.02, .022, .028), smoothstep(7., 16., vDist) * .55);
+  gl_FragColor = vec4(c, 1.);
+}`;

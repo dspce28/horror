@@ -5,7 +5,7 @@ import { live, store, useStore } from '@/lib/store';
 import { guessGender } from '@/lib/gender';
 import type { Lang } from '@/data/translations';
 import Entry from './Entry';
-import PhotoStage from './PhotoStage';
+import WorldStage from './WorldStage';
 import ScrollController from './ScrollController';
 import AudioController from './AudioController';
 import FourthWall from './FourthWall';
@@ -57,7 +57,7 @@ export default function Experience() {
 
   return (
     <main className={`lang-${lang} relative min-h-screen bg-ink text-bone`}>
-      {entered && scene < 7 && <PhotoStage />}
+      {entered && scene < 7 && <WorldStage />}
       {entered && scene === 0 && <div className="fixed inset-0"><AtmosphereCanvas red density={1} /></div>}
       {entered && scene >= 7 && <div className="fixed inset-0 bg-ink"><AtmosphereCanvas red={scene === 8} density={.7} /></div>}
       <ScrollController />

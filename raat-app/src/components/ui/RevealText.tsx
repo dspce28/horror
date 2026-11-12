@@ -22,7 +22,7 @@ export default function RevealText({ text, ms = 900, className }: { text: string
     <span className={className} aria-label={text}>
       {parts.map((p, i) => (
         <span key={i} aria-hidden className={`reveal-ch ${ready ? 'on' : ''}`} style={{ transitionDelay: `${Math.round(i * step)}ms` }}>
-          {p === ' ' ? ' ' : p}
+          {p}
         </span>
       ))}
     </span>

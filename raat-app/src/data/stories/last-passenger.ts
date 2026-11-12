@@ -37,12 +37,12 @@ export const SCENES: SceneDef[] = [
   {
     id: 'highway', vh: 300, label: 'sc_highway',
     cues: [
-      { at: .05, who: 'big', k: 'h1' }, { at: .17, who: 'big', k: 'h2' }, { at: .26, who: 'big', k: 'h3' },
-      { at: .36, who: 'phone', k: 'fw_time', direct: true },
-      { at: .44, who: 'nar', k: 'h4' }, { at: .52, who: 'you', k: 'h5' }, { at: .59, who: 'nar', k: 'h6' },
-      { at: .67, who: 'nar', k: 'h7' }, { at: .78, who: 'nar', k: 'h8' }, { at: .9, who: 'big', k: 'h9' },
+      // timed to the camera: the road first, the visitor from about two-thirds in, headlights at the end
+      { at: .06, who: 'big', k: 'h2' }, { at: .17, who: 'phone', k: 'fw_time', direct: true }, { at: .28, who: 'nar', k: 'h7' },
+      { at: .42, who: 'nar', k: 'h4' }, { at: .64, who: 'big', k: 'h1' }, { at: .73, who: 'phone', k: 'h3' },
+      { at: .78, who: 'you', k: 'h5' }, { at: .83, who: 'nar', k: 'h6' }, { at: .88, who: 'nar', k: 'h8' }, { at: .94, who: 'big', k: 'h9' },
     ],
-    events: [{ at: .36, id: 'ping' }, { at: .67, id: 'bark' }, { at: .78, id: 'engine-far' }],
+    events: [{ at: .17, id: 'ping' }, { at: .28, id: 'bark' }, { at: .73, id: 'ping' }, { at: .88, id: 'engine-far' }],
   },
   {
     id: 'bus', vh: 300, label: 'sc_bus',
@@ -51,7 +51,7 @@ export const SCENES: SceneDef[] = [
       { at: .53, who: 'you', k: 'b4' }, { at: .61, who: 'driver', k: 'b5' }, { at: .69, who: 'you', k: 'b6' },
       { at: .77, who: 'driver', k: 'b7' }, { at: .88, who: 'nar', k: 'b8' },
     ],
-    events: [{ at: .36, id: 'brake' }, { at: .42, id: 'door' }, { at: .9, id: 'step-in' }],
+    events: [{ at: .32, id: 'brake' }, { at: .43, id: 'stop' }, { at: .62, id: 'door' }, { at: .9, id: 'step-in' }],
   },
   {
     id: 'inside', vh: 360, label: 'sc_inside',
