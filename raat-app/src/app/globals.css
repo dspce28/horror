@@ -136,3 +136,9 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .hunt-torch { background: radial-gradient(circle at var(--tx, 50%) var(--ty, 55%), rgba(0,0,0,0) 0, rgba(0,0,0,.2) 8%, rgba(0,0,0,.94) 21%); }
 .memory-photo-2 { position: absolute; inset: 0; opacity: 0; animation: mem2 4.2s ease forwards; }
 @keyframes mem2 { 0%, 40% { opacity: 0 } 60%, 100% { opacity: 1 } }
+.loader { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; color: #B6A99A; }
+.loader-word { font-size: .72rem; letter-spacing: .45em; text-transform: uppercase; animation: blink 1.1s steps(2) infinite; }
+.loader-bar { width: min(56vw, 220px); height: 2px; background: rgba(182,169,154,.15); overflow: hidden; }
+.loader-bar span { display: block; height: 100%; background: #72191F; transform-origin: left; transition: transform .4s ease; box-shadow: 0 0 10px #72191F; }
+.loader-num { font-size: .7rem; letter-spacing: .3em; color: rgba(182,169,154,.6); }
+@keyframes blink { 50% { opacity: .35 } }

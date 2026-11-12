@@ -17,18 +17,30 @@ export default function Entry() {
   const name = useStore((s) => s.name);
   const gender = useStore((s) => s.gender);
   const [step, setStep] = useState(0);
+  const [loaded, setLoaded] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
   const chosen = useRef(false);
   const started = useRef(false);
 
+  // load the first scenes before anything starts
   useEffect(() => {
-    if (entered) return;
+    const small = window.innerWidth < 900;
+    const list = ['hero-m', 'hero-f', 'stop', 'road', 'bus-far', 'bus-front', 'inside-her', 'her-hair', 'cabin', 'her-face'].map((n) => `/raat/scenes/${n}${small ? '-m' : ''}.webp`);
+    let n = 0, done = false;
+    const finish = () => { if (!done) { done = true; setLoaded(1); } };
+    list.forEach((u) => { const im = new Image(); im.onload = im.onerror = () => { n++; setLoaded((l) => Math.max(l, n / list.length)); if (n === list.length) finish(); }; im.src = u; });
+    const id = window.setTimeout(finish, 9000);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    if (entered || loaded < 1) return;
     const reduced = store.get().reduced;
     const times = reduced ? [0, 0, 0, 0] : [700, 2600, 4600, 6000];
     const ids = times.map((ms, i) => window.setTimeout(() => setStep(i + 1), ms));
     return () => ids.forEach(window.clearTimeout);
-  }, [entered]);
+  }, [entered, loaded]);
 
   const onName = (v: string) => {
     const clean = v.replace(/[<>{}[\]]/g, '').slice(0, 24);
@@ -58,6 +70,13 @@ export default function Entry() {
     >
       <AtmosphereCanvas />
       <div className={`red-flash ${leaving ? 'on' : ''}`} aria-hidden />
+      {loaded < 1 && (
+        <div className="loader" role="progressbar" aria-label={t('loading')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(loaded * 100)}>
+          <span className="loader-word">{t('loading')}</span>
+          <span className="loader-bar"><span style={{ transform: `scaleX(${Math.max(.04, loaded)})` }} /></span>
+          <span className="loader-num">{String(Math.round(loaded * 100)).padStart(3, '0')}</span>
+        </div>
+      )}
       <div className="relative z-10 flex max-w-xl flex-col items-center gap-5">
         <h1 id="warn-title" className="sr-only">RAAT — The Last Passenger</h1>
         <p className={`title-line ${step >= 1 ? 'in' : ''}`}>{t('w1')}</p>
