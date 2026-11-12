@@ -1,0 +1,81 @@
+// GLSL for the photo surfaces and the lens pass.
+
+export const NOISE = /* glsl */ `
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+  return mix(mix(hash(i), hash(i + vec2(1, 0)), f.x), mix(hash(i + vec2(0, 1)), hash(i + 1.), f.x), f.y); }
+float fbm(vec2 p) { float a = .5, s = 0.; for (int i = 0; i < 4; i++) { s += a * noise(p); p *= 2.03; a *= .5; } return s; }
+`;
+
+/** A photograph pushed into depth by its depth map. */
+export const PHOTO_VERT = /* glsl */ `
+uniform sampler2D uDepth;
+uniform float uDepthScale, uHasDepth;
+varying vec2 vUv;
+varying float vD;
+void main() {
+  vUv = uv;
+  float d = uHasDepth > .5 ? texture2D(uDepth, uv).r : .3;
+  vD = d;
+  vec3 p = position;
+  p.z += d * uDepthScale;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
+}`;
+
+export const PHOTO_FRAG = /* glsl */ `
+uniform sampler2D uMap, uDepth;
+uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof;
+uniform vec2 uFocus;
+uniform vec3 uFogColor;
+varying vec2 vUv;
+varying float vD;
+${NOISE}
+void main() {
+  if (uHasMap < .5) discard;
+  // depth of field: blur by distance from the depth at the focus point
+  float fd = texture2D(uDepth, uFocus).r;
+  float blur = smoothstep(.2, .6, abs(vD - fd)) * uDof;
+  vec3 c = texture2D(uMap, vUv, blur).rgb;
+  // drifting fog that lives in the far parts of the picture
+  float far = pow(1. - vD, 1.4);
+  float f = fbm(vUv * vec2(3., 5.) + vec2(uTime * .025, uTime * .006));
+  c = mix(c, uFogColor, clamp(far * uFog * (.15 + f * .55), 0., .5));
+  c *= uLight;
+  c = mix(c, c * vec3(1.08, .97, .82), uWarm);
+  float a = 1.;
+  if (uDissolve > .5) {
+    float n = noise(vUv * 9. + uTime * .3);
+    a = smoothstep(n - .12, n + .12, uMix * 1.24 - .12);
+    float edge = (1. - abs(a * 2. - 1.)) * step(.02, uMix) * step(uMix, .98);
+    c += vec3(.9, .25, .15) * edge * .3;
+  }
+  gl_FragColor = vec4(c, a);
+}`;
+
+/** Full-screen lens: barrel bend and RGB split with scroll speed, glitch bands, scanlines, grain, vignette. */
+export const LENS_VERT = /* glsl */ `
+varying vec2 vUv;
+void main() { vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`;
+
+export const LENS_FRAG = /* glsl */ `
+uniform sampler2D tScene;
+uniform vec2 uRes;
+uniform float uTime, uSpeed, uGlitch, uReduced;
+varying vec2 vUv;
+${NOISE}
+void main() {
+  vec2 uv = vUv, d = uv - .5;
+  float k = .05 + uSpeed * .15 + uGlitch * .12;
+  uv = .5 + d * (1. - k * .5 + k * dot(d, d) * 2.);
+  float band = floor(uv.y * 42. + floor(uTime * 24.));
+  float g = step(1. - uGlitch * .55, hash(vec2(band, floor(uTime * 30.))));
+  uv.x += g * (hash(vec2(band, 7.)) - .5) * .12 * uGlitch;
+  uv.x += (noise(vec2(uv.y * 8., uTime * 2.)) - .5) * .002 * (1. - uReduced);
+  vec2 split = (uv - .5) * 2. * (uSpeed * 11. + uGlitch * 18. + 1.2) / uRes;
+  vec3 c = vec3(texture2D(tScene, uv + split).r, texture2D(tScene, uv).g, texture2D(tScene, uv - split).b);
+  c *= 1. - .05 * (.5 + .5 * sin(vUv.y * uRes.y * 1.6)) * (1. - uReduced * .7);
+  c += (hash(vUv * uRes + fract(uTime) * 91.) - .5) * .07;
+  c *= smoothstep(1.05, .35, length(d * vec2(1.1, 1.25)));
+  if (uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) c = vec3(0.);
+  gl_FragColor = vec4(c, 1.);
+}`;

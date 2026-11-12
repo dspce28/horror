@@ -28,6 +28,10 @@ export interface Shot {
   /** a headlight glow that grows over the shot, at this point of the image */
   glow?: [number, number];
   warm?: boolean;
+  /** fog in the far parts of the photo, 0–1 */
+  fog?: number;
+  /** depth-of-field strength (0 = sharp everywhere) */
+  dof?: number;
   /** cut to whoever is talking (the twist) */
   bySpeaker?: boolean;
 }
@@ -82,7 +86,7 @@ const SPEAKER_FOCUS: Partial<Record<Speaker, { focus: [number, number]; zoom: nu
 export interface Frame {
   img: ImgId; prev: ImgId | null; mix: number;
   x: number; y: number; zoom: number;
-  light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean;
+  light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean; fog: number; dof: number;
 }
 
 /** Where the camera is for a scene and its local progress. */
@@ -100,6 +104,7 @@ export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Fra
     x: focus[0], y: focus[1], zoom,
     light: s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
     glow: s.glow ?? null, glowAmt: s.glow ? k : 0, warm: !!s.warm,
+    fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.bySpeaker ? 1.2 : .75),
   };
 }
 

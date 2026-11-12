@@ -27,10 +27,11 @@ export default function Overlays() {
     // film grain: a small noise tile drawn once, then shifted with CSS
     const n = document.createElement('canvas'); n.width = n.height = 128; const ng = n.getContext('2d');
     if (ng) { const img = ng.createImageData(128, 128); for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; } ng.putImageData(img, 0, 0); document.documentElement.style.setProperty('--grain', `url(${n.toDataURL()})`); }
-    let raf = 0;
-    const loop = () => {
+    let raf = 0, last = performance.now();
+    const loop = (now: number) => {
+      const dt = Math.min(.1, (now - last) / 1000); last = now;
       if (flash.current) {
-        live.flash = Math.max(0, live.flash - .04);
+        live.flash = Math.max(0, live.flash - dt * 2.4); // gone in about 0.4 s, whatever the frame rate
         flash.current.style.opacity = String(reduced ? Math.min(.3, live.flash) : live.flash);
       }
       raf = requestAnimationFrame(loop);
