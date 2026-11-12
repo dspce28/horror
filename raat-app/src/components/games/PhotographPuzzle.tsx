@@ -5,7 +5,7 @@ import { useT } from '@/hooks/useT';
 import { audio } from '@/lib/audio/engine';
 import { finishGame } from '@/lib/games/finish';
 import { Card, GameShell } from '@/components/ui/GameOverlay';
-import { oldPhoto } from '@/components/fx/Overlays';
+import { oldPhoto, weddingPhoto } from '@/components/fx/Overlays';
 import type { Key } from '@/data/translations';
 
 type ClueId = 'wed' | 'bus' | 'note';
@@ -64,8 +64,8 @@ export default function PhotographPuzzle() {
           <div className="photo-card" style={{ transform: `scale(${zoom}) rotateX(${tilt.x}deg) rotateY(${tilt.y + (flip ? 180 : 0)}deg)` }}>
             <div className="photo-face front">
               <img src={oldPhoto()} alt="" draggable={false} />
-              <button type="button" className={`photo-spot ${found.includes('bus') ? 'done' : ''}`} style={{ left: '67%', top: '69%', width: '20%', height: '9%' }} onClick={() => discover('bus')} aria-label={t('g2_spot_plate')} />
-              <button type="button" className={`photo-spot ${found.includes('wed') ? 'done' : ''}`} style={{ left: '41%', top: '70%', width: '8%', height: '7%' }} onClick={() => discover('wed')} aria-label={t('g2_spot_bangle')} />
+              <button type="button" className={`photo-spot ${found.includes('bus') ? 'done' : ''}`} style={{ left: '75%', top: '68%', width: '21%', height: '12%' }} onClick={() => discover('bus')} aria-label={t('g2_spot_plate')} />
+              <button type="button" className={`photo-spot ${found.includes('wed') ? 'done' : ''}`} style={{ left: '33%', top: '83%', width: '17%', height: '16%' }} onClick={() => discover('wed')} aria-label={t('g2_spot_bangle')} />
             </div>
             <div className="photo-face back">
               <p className="note-hand">{t('note_text')}</p>
@@ -105,7 +105,7 @@ export default function PhotographPuzzle() {
 
       {phase === 'memory' && (
         <div className="memory absolute inset-0 z-[4] flex flex-col items-center justify-center gap-4 px-6 text-center">
-          <img src={oldPhoto()} alt="" className="memory-photo" />
+          <div className="relative"><img src={weddingPhoto()} alt="" className="memory-photo" /><img src={oldPhoto()} alt="" className="memory-photo memory-photo-2" /></div>
           <p className="font-display text-2xl text-[#f3dfb8] sm:text-4xl">{t('g2_solved')}</p>
           <p className="max-w-md text-sm text-[#e7d3ae]">{t('g2_memory')}</p>
         </div>

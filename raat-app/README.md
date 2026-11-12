@@ -1,6 +1,6 @@
 # RAAT — Episode 01: The Last Passenger
 
-Scroll-driven interactive horror story (Next.js App Router, React Three Fiber, GSAP ScrollTrigger, Lenis, Web Audio).
+Scroll-driven interactive horror story (Next.js App Router, GSAP ScrollTrigger, Lenis, Web Audio). Real photographs are moved by the scroll like a camera, with parallax, rain, flicker and shake.
 English, Hindi and Gujarati. The visitor is the hero: their name and chosen gender (Beta / Beti) drive every line.
 
 ```
@@ -12,12 +12,12 @@ npm run build
 ## Where things live
 - `src/data/stories/last-passenger.ts` — scenes, scroll lengths, dialogue cues, story events, game stops
 - `src/data/translations/{en,hi,gu}.ts` — every visible string; `[male|female]` and `{N}` tokens
-- `src/lib/animation/director.ts` — camera shots and world state per scene (pure functions, tune timing here)
-- `src/components/scenes/*` — highway, bus (outside and inside), characters, atmosphere, ticket
+- `src/lib/animation/director.ts` — the shot list: which photo, focus point, zoom, light, rain, shake per scene (tune timing here)
+- `src/components/experience/PhotoStage.tsx` — draws the shots
+- `public/raat/scenes/` — the photographs (`*.webp` desktop, `*-m.webp` phones)
+- `src/components/scenes/TicketScene.tsx` — the burning ticket
 - `src/components/games/*` — "Where is she?" and the 1999 photograph puzzle
 - `src/lib/audio/engine.ts` — all sound, synthesised in the browser
-- `src/lib/assets.ts` — asset manifest. Put real character art in `public/raat/...` and set `ready: true`
 
-## Replacing the stand-in characters
-The ghost, her head (hair over face / looking), the driver (back / face) and the 1999 photo are procedural
-stand-ins. Transparent PNG cut-outs with the same framing replace them with no code changes.
+## Changing a picture
+Replace the file in `public/raat/scenes/` with the same name (16:9, about 1600 px wide, plus a 900 px `-m` version).

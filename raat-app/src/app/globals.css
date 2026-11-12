@@ -81,7 +81,7 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 
 /* games */
 .game-card { padding: 2rem 1.5rem; background: rgba(23,22,25,.92); border: 1px solid rgba(182,169,154,.15); box-shadow: 0 30px 80px rgba(0,0,0,.7); }
-.hunt-dark { background: radial-gradient(circle at var(--tx, 50%) var(--ty, 55%), rgba(0,0,0,0) 0, rgba(0,0,0,.25) 9%, rgba(0,0,0,.93) 22%); cursor: none; }
+.hunt-dark { background: #000; cursor: none; }
 .hunt-spot { position: absolute; left: 0; top: 0; width: 64px; height: 64px; border-radius: 999px; background: radial-gradient(circle, rgba(212,200,181,.0) 0, rgba(212,200,181,0) 60%); transition: background .3s, box-shadow .3s; }
 .hunt-spot[data-lit="true"], .hunt-spot:focus-visible { background: radial-gradient(circle, rgba(212,200,181,.55) 0, rgba(212,200,181,.08) 30%, rgba(212,200,181,0) 62%); box-shadow: 0 0 0 1px rgba(212,200,181,.25); }
 @media (pointer: coarse) { .hunt-spot { background: radial-gradient(circle, rgba(212,200,181,.3) 0, rgba(212,200,181,0) 40%); } .hunt-dark { cursor: auto; } }
@@ -91,7 +91,7 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .decoy-line { position: absolute; left: 50%; top: 30%; z-index: 6; transform: translateX(-50%); font-family: var(--font-display), serif; font-style: italic; font-size: 1.6rem; color: #d9d2c5; text-shadow: 0 0 20px #000; animation: lineIn .4s ease both; }
 .text-ink { color: #09090B; }
 
-.photo-card { position: relative; width: min(88vw, 640px); aspect-ratio: 900 / 640; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.photo-card { position: relative; width: min(88vw, 640px); aspect-ratio: 1448 / 1086; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
 .photo-face { position: absolute; inset: 0; backface-visibility: hidden; box-shadow: 0 30px 70px rgba(0,0,0,.8); }
 .photo-face img { width: 100%; height: 100%; object-fit: cover; user-select: none; }
 .photo-face.front { border: 10px solid #e6dcc6; }
@@ -125,3 +125,14 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* photo stage */
+.stage-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .35s linear; }
+.stage-glow { position: absolute; z-index: 3; transform: translate(-50%, -50%); border-radius: 999px; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(circle, rgba(255,240,210,.9) 0, rgba(255,220,170,.35) 18%, rgba(255,200,140,.08) 45%, rgba(255,200,140,0) 70%); }
+.stage-fog { position: absolute; inset: -20%; pointer-events: none; background: radial-gradient(ellipse at 30% 60%, rgba(180,175,165,.07), transparent 60%), radial-gradient(ellipse at 75% 40%, rgba(180,175,165,.05), transparent 55%); animation: fogdrift 26s ease-in-out infinite alternate; }
+@keyframes fogdrift { from { transform: translateX(-4%) } to { transform: translateX(4%) } }
+.hunt-view { width: max(100vw, calc(100vh * 1.7769)); height: max(100vh, calc(100vw / 1.7769)); animation: whip .35s ease-out; }
+@keyframes whip { from { opacity: 0; transform: translateX(5%) } to { opacity: 1; transform: none } }
+.hunt-torch { background: radial-gradient(circle at var(--tx, 50%) var(--ty, 55%), rgba(0,0,0,0) 0, rgba(0,0,0,.2) 8%, rgba(0,0,0,.94) 21%); }
+.memory-photo-2 { position: absolute; inset: 0; opacity: 0; animation: mem2 4.2s ease forwards; }
+@keyframes mem2 { 0%, 40% { opacity: 0 } 60%, 100% { opacity: 1 } }

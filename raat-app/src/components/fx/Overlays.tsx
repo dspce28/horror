@@ -1,20 +1,11 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { events, live, store, useStore } from '@/lib/store';
-import { assetUrl } from '@/lib/assets';
-import { ghostFaceDataUrl, photoFront } from '@/lib/three/textures';
 
-let faceUrl: string | null = null;
-export function ghostFace(): string {
-  if (!faceUrl) faceUrl = assetUrl('ghostFace') ?? ghostFaceDataUrl();
-  return faceUrl;
-}
-
-let photoUrl: string | null = null;
-export function oldPhoto(): string {
-  if (!photoUrl) photoUrl = assetUrl('photoFront') ?? photoFront();
-  return photoUrl;
-}
+/** The real photographs used outside the main stage. */
+export const ghostFace = (): string => '/raat/scenes/her-face.webp';
+export const oldPhoto = (): string => '/raat/scenes/photo-1999.webp';
+export const weddingPhoto = (): string => '/raat/scenes/wedding-1974.webp';
 
 /** Film grain, vignette, flashes, blackouts, cracked glass and the one real jump scare. */
 export default function Overlays() {
@@ -25,7 +16,7 @@ export default function Overlays() {
   const [black, setBlack] = useState(false);
   const [scare, setScare] = useState(false);
   const [crack, setCrack] = useState(false);
-  const face = useMemo(() => (typeof window === 'undefined' ? '' : ghostFace()), []);
+  const face = ghostFace();
 
   useEffect(() => {
     const off = events.on((id) => {

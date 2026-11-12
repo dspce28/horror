@@ -1,6 +1,6 @@
-// Pure functions that turn story progress into what the 3D world should look like.
-// No Three.js here, so the timing can be read and tuned in one place.
+// Pure functions that turn story progress into what is on screen. Tune timing here.
 import type { SceneId, Speaker } from '@/data/stories/last-passenger';
+import type { Gender } from '@/data/translations';
 
 export const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -8,143 +8,118 @@ export const range = (v: number, a: number, b: number) => clamp((v - a) / (b - a
 export const smooth = (t: number) => t * t * (3 - 2 * t);
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-/* ---------- layout (metres). The road runs along -z; the bus faces +z when it stops. ---------- */
-export const BUS = { x: 1.6, w: 2.5, l: 11, h: 3.1, floor: .75, front: -12, aisle: 1.7 };
-export const DOOR_Z = -13.0;
-export const DRIVER = { x: .95, z: -12.9, head: 2.0 };
-export const HERO_SEAT = { x: 2.25, z: -14.3, eye: 1.95 };
-export const LAST_SEAT = { x: 2.35, z: -22.2 };
-export const BEHIND_SEAT = { x: 1.0, z: -15.9 };
+export type ImgId =
+  | 'hero' | 'road' | 'stop' | 'bus-far' | 'bus-front' | 'inside-her' | 'inside-empty' | 'her-hair' | 'cabin' | 'cabin-crack'
+  | 'her-behind' | 'her-look' | 'driver-back' | 'driver-turn' | 'her-lunge' | 'her-face' | 'twist' | 'black';
 
-export type V3 = [number, number, number];
-type Key = [number, V3, V3, number];
+export interface Shot {
+  /** scene-local progress where this shot starts */
+  at: number;
+  img: ImgId;
+  /** point the camera drifts towards (0–1 of the image) */
+  focus: [number, number];
+  /** zoom at the start and end of the shot */
+  zoom: [number, number];
+  /** brightness 0–1 */
+  light?: number;
+  flicker?: 0 | 1 | 2;
+  shake?: number;
+  rain?: number;
+  /** a headlight glow that grows over the shot, at this point of the image */
+  glow?: [number, number];
+  warm?: boolean;
+  /** cut to whoever is talking (the twist) */
+  bySpeaker?: boolean;
+}
 
-const SHOTS: Partial<Record<SceneId, Key[]>> = {
-  open: [[0, [3, 1.65, 14], [2.8, 1.5, -40], 55], [1, [3, 1.65, 10], [2.8, 1.5, -40], 55]],
+const SHOTS: Partial<Record<SceneId, Shot[]>> = {
+  open: [{ at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] }],
   highway: [
-    [0, [3, 1.65, 10], [2.8, 1.5, -40], 55], [.45, [3.6, 1.6, 0], [4.6, .6, -8], 52], [.62, [3.9, 1.6, -4.5], [4.8, .6, -8.5], 50],
-    [.76, [3.9, 1.62, -5], [2.0, 1.5, -60], 50], [1, [3.9, 1.62, -5], [1.8, 1.6, -80], 48],
+    { at: 0, img: 'hero', focus: [.3, .52], zoom: [1.02, 1.22], rain: .5 },
+    { at: .62, img: 'stop', focus: [.2, .45], zoom: [1.05, 1.18], rain: .5, light: .9 },
+    { at: .74, img: 'road', focus: [.46, .52], zoom: [1, 1.35], rain: .6, glow: [.46, .53] },
   ],
   bus: [
-    [0, [3.9, 1.62, -5], [1.6, 1.6, -80], 48], [.38, [3.9, 1.62, -5], [2.0, 1.8, -14], 50], [.5, [4.0, 1.65, -10.2], [2.85, 1.9, -13], 50],
-    [.85, [3.7, 1.65, -12.4], [2.6, 2.0, -13], 50], [.95, [2.6, 2.3, -13], [1.7, 2.2, -14], 55], [1, [1.75, 2.35, -13.2], [1.7, 2.0, -23], 55],
+    { at: 0, img: 'bus-far', focus: [.48, .5], zoom: [1, 1.7], rain: .7, glow: [.47, .57] },
+    { at: .34, img: 'bus-front', focus: [.5, .58], zoom: [1.08, 1.3], rain: .7, shake: .7 },
   ],
   inside: [
-    [0, [1.75, 2.35, -13.3], [1.9, 1.8, -23], 55], [.2, [1.75, 2.35, -13.5], [2.3, 1.7, -22.2], 45], [.27, [2.25, 1.95, -14.3], [1.6, 1.9, -4], 55],
-    [.58, [2.25, 1.95, -14.3], [1.6, 1.9, -4], 55], [.66, [2.2, 1.95, -14.3], [1.0, 1.75, -15.9], 48], [.7, [2.25, 1.95, -14.3], [1.2, 1.9, -10], 55],
-    [.745, [2.25, 1.95, -14.3], [1.2, 1.9, -10], 55], [.79, [2.2, 1.95, -14.3], [1.0, 1.85, -15.9], 40], [.89, [2.2, 1.95, -14.3], [1.0, 1.8, -15.9], 44],
-    [.94, [2.2, 1.95, -14.3], [3.0, 1.9, -14.8], 55], [1, [2.2, 1.95, -14.3], [3.0, 1.9, -14.8], 55],
+    { at: 0, img: 'inside-her', focus: [.56, .56], zoom: [1, 1.45], flicker: 1 },
+    { at: .11, img: 'her-hair', focus: [.5, .45], zoom: [1.02, 1.25], flicker: 1 },
+    { at: .22, img: 'cabin', focus: [.5, .45], zoom: [1, 1.12], flicker: 1, rain: .4 },
+    { at: .6, img: 'her-behind', focus: [.5, .5], zoom: [1.05, 1.22], flicker: 1 },
+    { at: .69, img: 'cabin', focus: [.55, .5], zoom: [1.12, 1.16], flicker: 1, rain: .4 },
+    { at: .76, img: 'her-look', focus: [.53, .28], zoom: [1.15, 1.45], flicker: 1 },
+    { at: .84, img: 'inside-empty', focus: [.5, .5], zoom: [1.05, 1.1], flicker: 2 },
+    { at: .92, img: 'black', focus: [.5, .5], zoom: [1, 1] },
   ],
   driver: [
-    [0, [2.0, 2.35, -13.9], [.95, 2.0, -12.9], 50], [.2, [1.6, 2.35, -13.6], [.95, 2.0, -12.9], 46], [.3, [1.5, 2.3, -13.4], [.95, 2.0, -12.9], 42],
-    [.6, [1.5, 2.3, -13.4], [.95, 2.0, -12.9], 42], [.75, [1.25, 2.12, -13.25], [.95, 2.0, -12.9], 34], [.82, [1.25, 2.12, -13.25], [.95, 2.0, -12.9], 34],
-    [.9, [1.6, 2.3, -13.4], [1.7, 1.9, -17.5], 48], [1, [1.6, 2.3, -13.4], [1.7, 1.9, -17.5], 48],
+    { at: 0, img: 'driver-back', focus: [.75, .4], zoom: [1, 1.18], flicker: 1, rain: .3 },
+    { at: .22, img: 'driver-turn', focus: [.6, .28], zoom: [1, 1.4], flicker: 1 },
+    { at: .59, img: 'driver-turn', focus: [.58, .28], zoom: [1.4, 1.6], light: .3 },
+    { at: .76, img: 'driver-turn', focus: [.55, .27], zoom: [2.2, 2.4], light: .45 },
+    { at: .84, img: 'her-look', focus: [.52, .4], zoom: [1, 1.2], flicker: 1 },
   ],
   encounter: [
-    [0, [1.7, 2.3, -13.4], [1.7, 2.0, -17.5], 50], [.6, [1.7, 2.25, -12.6], [1.7, 2.1, -14.4], 56], [1, [1.7, 2.3, -12.8], [1.7, 2.1, -14.6], 52],
+    { at: 0, img: 'cabin-crack', focus: [.5, .4], zoom: [1.05, 1.2], flicker: 2, shake: .6, rain: .6 },
+    { at: .14, img: 'her-look', focus: [.52, .28], zoom: [1.2, 1.7], flicker: 2, shake: .4 },
+    { at: .28, img: 'her-lunge', focus: [.5, .4], zoom: [1, 1.3], flicker: 2, shake: .5 },
+    { at: .93, img: 'her-lunge', focus: [.5, .4], zoom: [1.3, 1.32], light: .35 },
+  ],
+  twist: [
+    { at: 0, img: 'twist', focus: [.5, .5], zoom: [1.05, 1.05], warm: true, bySpeaker: true },
+    { at: .77, img: 'black', focus: [.5, .5], zoom: [1, 1] },
+    { at: .83, img: 'twist', focus: [.5, .5], zoom: [1.05, 1.05], warm: true, bySpeaker: true },
   ],
 };
 
-const TWIST_LOOK: Record<string, V3> = {
-  kokila: [1.7, 2.15, -14.8], her: [1.7, 2.15, -14.8], driver: [.95, 2.0, -12.9], you: [1.3, 2.1, -14.2], nar: [1.3, 2.1, -14.2], big: [1.3, 2.1, -14.2], phone: [1.3, 2.1, -14.2],
+const SPEAKER_FOCUS: Partial<Record<Speaker, { focus: [number, number]; zoom: number }>> = {
+  kokila: { focus: [.27, .38], zoom: 1.55 },
+  her: { focus: [.27, .38], zoom: 1.55 },
+  driver: { focus: [.72, .4], zoom: 1.55 },
 };
 
-function sample(keys: Key[], t: number): { pos: V3; tgt: V3; fov: number } {
-  if (t <= keys[0][0]) return { pos: keys[0][1], tgt: keys[0][2], fov: keys[0][3] };
-  for (let i = 0; i < keys.length - 1; i++) {
-    const a = keys[i], b = keys[i + 1];
-    if (t <= b[0]) {
-      const k = smooth(range(t, a[0], b[0]));
-      return {
-        pos: [lerp(a[1][0], b[1][0], k), lerp(a[1][1], b[1][1], k), lerp(a[1][2], b[1][2], k)],
-        tgt: [lerp(a[2][0], b[2][0], k), lerp(a[2][1], b[2][1], k), lerp(a[2][2], b[2][2], k)],
-        fov: lerp(a[3], b[3], k),
-      };
-    }
-  }
-  const z = keys[keys.length - 1];
-  return { pos: z[1], tgt: z[2], fov: z[3] };
+export interface Frame {
+  img: ImgId; prev: ImgId | null; mix: number;
+  x: number; y: number; zoom: number;
+  light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean;
 }
 
-export function cameraShot(scene: SceneId, t: number, speaker: Speaker | null) {
-  if (scene === 'twist') {
-    const door = t > .77 && t < .84;
-    return { pos: [1.75, 2.3, -13.3] as V3, tgt: door ? ([2.9, 1.8, -13.0] as V3) : TWIST_LOOK[speaker ?? 'nar'], fov: 48, snap: true };
-  }
-  const keys = SHOTS[scene] ?? SHOTS.encounter!;
-  return { ...sample(keys, t), snap: false };
-}
-
-export interface WorldState {
-  busFront: number;
-  busSpeed: number;
-  door: number;
-  roadSpeed: number;
-  interior: number;
-  outsideVisible: boolean;
-  fog: number;
-  engine: number;
-  rpm: number;
-  ghost: { visible: boolean; x: number; y: number; z: number; seated: boolean; look: boolean; headRot: number; sway: number };
-  driverTurn: number;
-  dread: number;
-  shake: number;
-  warm: number;
-}
-
-export function world(scene: SceneId, t: number, lookBacks: number): WorldState {
-  const s: WorldState = {
-    busFront: -400, busSpeed: 0, door: 0, roadSpeed: 0, interior: 1, outsideVisible: true, fog: .05, engine: 0, rpm: .2,
-    ghost: { visible: false, x: LAST_SEAT.x, y: 0, z: LAST_SEAT.z, seated: true, look: false, headRot: 0, sway: .2 },
-    driverTurn: 0, dread: .2, shake: 0, warm: 0,
+/** Where the camera is for a scene and its local progress. */
+export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Frame {
+  const list = SHOTS[scene] ?? [{ at: 0, img: 'black' as ImgId, focus: [.5, .5] as [number, number], zoom: [1, 1] as [number, number] }];
+  let i = 0; for (let k = 0; k < list.length; k++) if (t >= list[k].at) i = k;
+  const s = list[i], end = list[i + 1]?.at ?? 1;
+  const k = smooth(range(t, s.at, end));
+  let focus = s.focus, zoom = lerp(s.zoom[0], s.zoom[1], k);
+  if (s.bySpeaker && speaker && SPEAKER_FOCUS[speaker]) { focus = SPEAKER_FOCUS[speaker]!.focus; zoom = SPEAKER_FOCUS[speaker]!.zoom; }
+  const fade = .025;
+  const mix = i > 0 ? range(t, s.at, s.at + fade) : 1;
+  return {
+    img: s.img, prev: i > 0 ? list[i - 1].img : null, mix,
+    x: focus[0], y: focus[1], zoom,
+    light: s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
+    glow: s.glow ?? null, glowAmt: s.glow ? k : 0, warm: !!s.warm,
   };
+}
+
+export function imageFor(id: ImgId, gender: Gender): string | null {
+  if (id === 'black') return null;
+  return id === 'hero' ? (gender === 'f' ? 'hero-f' : 'hero-m') : id;
+}
+
+/** Layer levels for the sound engine. */
+export function soundAt(scene: SceneId, t: number) {
+  const s = { engine: 0, rpm: .3, dread: .2, lights: true };
   switch (scene) {
-    case 'open': s.fog = .06; s.dread = .25; break;
-    case 'highway': {
-      if (t > .78) { s.busFront = lerp(-330, -230, range(t, .78, 1)); s.engine = range(t, .78, 1) * .4; s.rpm = .5; s.busSpeed = 14; }
-      s.dread = .2 + t * .2; break;
-    }
-    case 'bus': {
-      const k = range(t, 0, .38); s.busFront = lerp(-230, BUS.front, easeOut(k)); s.busSpeed = (1 - k) * 18;
-      s.engine = .45 + (1 - k) * .4; s.rpm = .25 + (1 - k) * .45; s.door = range(t, .42, .5); s.ghost.visible = true; s.dread = .35;
-      if (t > .38) s.shake = Math.max(0, 1 - range(t, .38, .44)) * .6;
-      break;
-    }
-    case 'inside': {
-      s.busFront = BUS.front; s.door = 1 - range(t, .28, .33); const go = range(t, .31, .45); s.roadSpeed = go * 14; s.engine = .35 + go * .2; s.rpm = .25 + go * .3;
-      s.ghost.visible = t < .85; s.dread = .4 + t * .35;
-      if (t >= .6) {
-        const closer = Math.min(lookBacks, 1) * .8;
-        s.ghost.x = BEHIND_SEAT.x; s.ghost.z = BEHIND_SEAT.z + closer;
-      }
-      s.ghost.look = t >= .77;
-      break;
-    }
-    case 'driver': {
-      s.busFront = BUS.front; s.roadSpeed = 14; s.engine = .5; s.rpm = .5; s.driverTurn = smooth(range(t, .23, .3));
-      s.interior = t > .59 && t < .85 ? .08 : 1; s.dread = .6 + t * .2;
-      if (t > .86) { s.ghost = { visible: true, x: BUS.aisle, y: .3, z: -17.5, seated: false, look: false, headRot: 0, sway: .5 }; }
-      break;
-    }
-    case 'encounter': {
-      s.busFront = BUS.front; s.roadSpeed = 14; s.engine = .55; s.rpm = .55; s.driverTurn = 1; s.dread = 1;
-      const steps = [-17.5, -16.6, -15.7, -15.0, -14.4];
-      const idx = t < .15 ? 0 : t < .3 ? 1 : t < .47 ? 2 : t < .6 ? 3 : 4;
-      s.ghost = { visible: true, x: BUS.aisle, y: .3, z: steps[idx], seated: false, look: t > .62, headRot: t < .62 ? smooth(range(t, .15, .58)) * 2.7 : 0, sway: 1.2 };
-      s.shake = t < .66 ? .25 + range(t, 0, .6) * .35 : t < .93 ? .12 : 0;
-      if (t > .93) s.engine = .3;
-      break;
-    }
-    case 'twist': {
-      s.busFront = BUS.front; s.driverTurn = 1; s.dread = 0; s.warm = 1;
-      const stop = range(t, .7, .77); s.roadSpeed = (1 - stop) * 10; s.engine = .3 - stop * .2; s.rpm = .3 - stop * .2;
-      s.door = range(t, .77, .8); s.outsideVisible = t < .77; s.fog = t < .77 ? .03 : .3;
-      s.ghost = { visible: true, x: BUS.aisle, y: .12, z: -14.8, seated: false, look: true, headRot: 0, sway: .25 };
-      break;
-    }
-    default: {
-      s.busFront = BUS.front; s.outsideVisible = false; s.fog = .3; s.interior = 0; s.dread = 0; break;
-    }
+    case 'open': s.dread = .25; break;
+    case 'highway': if (t > .78) { s.engine = range(t, .78, 1) * .4; s.rpm = .5; } s.dread = .2 + t * .2; break;
+    case 'bus': { const k = range(t, 0, .38); s.engine = .45 + (1 - k) * .4; s.rpm = .25 + (1 - k) * .45; s.dread = .35; break; }
+    case 'inside': { const go = range(t, .31, .45); s.engine = .35 + go * .2; s.rpm = .25 + go * .3; s.dread = .4 + t * .35; break; }
+    case 'driver': s.engine = .5; s.rpm = .5; s.dread = .6 + t * .2; s.lights = !(t > .59 && t < .84); break;
+    case 'encounter': s.engine = t > .93 ? .3 : .55; s.rpm = .55; s.dread = 1; break;
+    case 'twist': { const stop = range(t, .7, .77); s.engine = .3 - stop * .2; s.rpm = .3 - stop * .2; s.dread = 0; break; }
+    default: s.dread = 0; break;
   }
   return s;
 }

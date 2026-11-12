@@ -5,7 +5,6 @@ import { useT } from '@/hooks/useT';
 import { store, useStore } from '@/lib/store';
 import { guessGender } from '@/lib/gender';
 import { audio } from '@/lib/audio/engine';
-import { assetUrl } from '@/lib/assets';
 import { batteryLevel } from '@/lib/visitor';
 import { LANGS } from '@/data/translations';
 import AtmosphereCanvas from '@/components/fx/AtmosphereCanvas';
@@ -42,7 +41,7 @@ export default function Entry() {
     audio.safe = safe;
     audio.init();
     audio.startBed();
-    const theme = assetUrl('theme'); if (theme) audio.loadTheme(theme);
+    audio.loadTheme('/raat/audio/theme.mp4');
     audio.breath();
     try { localStorage.setItem('raat-name', store.get().name); localStorage.setItem('raat-gender', store.get().gender); } catch { /* private mode */ }
     void batteryLevel().then((b) => store.set({ batt: b }));

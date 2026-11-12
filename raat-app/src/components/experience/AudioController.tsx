@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { audio } from '@/lib/audio/engine';
 import { events, live, store } from '@/lib/store';
 import { SCENES } from '@/data/stories/last-passenger';
-import { world } from '@/lib/animation/director';
+import { soundAt } from '@/lib/animation/director';
 
 function buzzPhone(pattern: number[]) {
   if (store.get().safe || !navigator.vibrate) return;
@@ -47,12 +47,12 @@ export default function AudioController() {
     const tick = window.setInterval(() => {
       if (!audio.ok || !store.get().entered) return;
       const i = live.sceneIndex, t = live.local, id = SCENES[i].id;
-      const w = world(id, t, live.lookBacks);
+      const w = soundAt(id, t);
       const s = store.get();
       audio.setEngine(s.game ? w.engine * .4 : w.engine, w.rpm);
       audio.dread(w.dread);
       const inBus = i >= 3 && i <= 6;
-      audio.setBuzz(inBus && w.interior > .5 ? .5 * Math.min(1, live.flicker) : 0);
+      audio.setBuzz(inBus && w.lights ? .5 * Math.min(1, live.flicker) : 0);
       const heart = (id === 'driver' && t > .9) || (id === 'encounter' && t < .93) ? 95 : id === 'inside' && t > .6 ? 72 : 0;
       audio.setHeart(s.game ? 0 : heart);
       const theme = i <= 1 ? .16 : i === 2 ? .1 : i <= 4 ? .07 : id === 'encounter' && t < .62 ? .1 : 0;

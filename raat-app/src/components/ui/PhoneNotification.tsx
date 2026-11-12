@@ -19,7 +19,7 @@ export default function PhoneNotification() {
     return c && c.who === 'phone' ? c : null;
   }, [cueKey]);
 
-  useEffect(() => { if (cue) { const h = new Date().getHours(); const k: Key = cue.k === 'fw_time' && h >= 6 && h < 18 ? 'fw_time_day' : cue.k; setShown({ id: cueKey, k, from: t('sp_unknown') }); } }, [cue, cueKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (cue) { const h = new Date().getHours(); const k: Key = cue.k === 'fw_time' && h >= 5 && h < 21 ? 'fw_time_day' : cue.k; setShown({ id: cueKey, k, from: t('sp_unknown') }); } }, [cue, cueKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (notice) setShown({ id: `n${notice.id}`, k: notice.k as Key, from: notice.from === 'kokila' ? t('call_name') : t('sp_unknown') }); }, [notice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!shown) return;

@@ -22,6 +22,8 @@ export default function TicketScene() {
     const paper = document.createElement('canvas'); paper.width = W; paper.height = H; const pg = paper.getContext('2d')!;
     const small = document.createElement('canvas'); small.width = W / S; small.height = H / S; const sg = small.getContext('2d', { willReadFrequently: true })!;
     c.width = W; c.height = H;
+    let last = -1;
+    const tex = new Image(); tex.onload = () => { last = -1; }; tex.src = '/raat/scenes/ticket.webp';
     // value noise for the burn front
     const nw = W / S, nh = H / S, field = new Float32Array(nw * nh);
     const grid = 9, gw = Math.ceil(nw / grid) + 2, gh = Math.ceil(nh / grid) + 2, rnd = Array.from({ length: gw * gh }, () => Math.random());
@@ -37,27 +39,30 @@ export default function TicketScene() {
 
     const drawPaper = (reveal: number, next: number) => {
       pg.clearRect(0, 0, W, H);
-      const bg = pg.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#d9ccb0'); bg.addColorStop(1, '#bfae8c'); pg.fillStyle = bg; pg.fillRect(0, 0, W, H);
-      for (let i = 0; i < 2200; i++) { pg.fillStyle = `rgba(90,70,40,${Math.random() * .06})`; pg.fillRect((i * 97) % W, (i * 57) % H, 2, 2); }
-      pg.fillStyle = 'rgba(80,55,30,.12)'; pg.beginPath(); pg.ellipse(W * .8, H * .3, 90, 60, .3, 0, Math.PI * 2); pg.fill();
-      pg.fillStyle = '#09090B'; for (let y = 10; y < H; y += 18) { pg.beginPath(); pg.arc(W - 64, y, 3.5, 0, Math.PI * 2); pg.fill(); }
-      pg.strokeStyle = '#3d2f1e'; pg.setLineDash([6, 6]); pg.beginPath(); pg.moveTo(W - 64, 0); pg.lineTo(W - 64, H); pg.stroke(); pg.setLineDash([]);
-      pg.fillStyle = '#2a1f14'; pg.font = '600 20px Inter'; pg.fillText(t('tk_head'), 36, 52);
-      pg.fillStyle = '#5b4630'; pg.font = '14px Inter'; pg.fillText('12:47 AM · SEAT: LAST · No. 001313', 36, 76);
+      if (tex.complete && tex.naturalWidth) {
+        // the real aged ticket, cropped to its paper (it has a dark border in the photo)
+        const sw = tex.naturalWidth, sh = tex.naturalHeight;
+        pg.drawImage(tex, sw * .03, sh * .06, sw * .94, sh * .88, 0, 0, W, H);
+        pg.fillStyle = 'rgba(235,215,175,.35)'; pg.fillRect(W * .25, H * .14, W * .55, H * .72);
+      } else {
+        const bg = pg.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#d9ccb0'); bg.addColorStop(1, '#bfae8c'); pg.fillStyle = bg; pg.fillRect(0, 0, W, H);
+      }
+      pg.fillStyle = '#2a1f14'; pg.font = '600 20px Inter'; pg.fillText(t('tk_head'), 250, 66);
+      pg.fillStyle = '#5b4630'; pg.font = '14px Inter'; pg.fillText('12:47 AM · SEAT: LAST · No. 001313', 250, 90);
       const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_dest'), t('tk_dest_v')], [t('tk_status'), t('tk_status_v')], [t('tk_return'), t('tk_return_v')], [t('tk_fare'), t('tk_fare_v')]];
       rows.forEach(([k, v], i) => {
         const a = Math.max(0, Math.min(1, reveal * rows.length - i));
-        pg.globalAlpha = a; pg.fillStyle = '#5b4630'; pg.font = `14px ${font}`; pg.fillText(k.toUpperCase(), 36, 122 + i * 40);
-        pg.fillStyle = '#1b140c'; pg.font = `700 22px ${font}`; pg.fillText(v, 230, 122 + i * 40); pg.globalAlpha = 1;
+        pg.globalAlpha = a; pg.fillStyle = '#5b4630'; pg.font = `14px ${font}`; pg.fillText(k.toUpperCase(), 250, 130 + i * 38);
+        pg.fillStyle = '#1b140c'; pg.font = `700 22px ${font}`; pg.fillText(v, 420, 130 + i * 38); pg.globalAlpha = 1;
       });
       if (next > 0) {
-        pg.save(); pg.translate(W * .55, H * .83); pg.rotate(-.05); pg.globalAlpha = next;
+        pg.save(); pg.translate(W * .58, H * .86); pg.rotate(-.05); pg.globalAlpha = next;
         pg.strokeStyle = '#72191F'; pg.lineWidth = 3; const txt = t('tk_next'); pg.font = `800 26px ${font}`; const tw = pg.measureText(txt).width;
         pg.strokeRect(-tw / 2 - 14, -26, tw + 28, 40); pg.fillStyle = '#72191F'; pg.textAlign = 'center'; pg.fillText(txt, 0, 4); pg.restore();
       }
     };
 
-    let raf = 0, last = -1;
+    let raf = 0;
     const loop = () => {
       const p = live.local;
       if (Math.abs(p - last) > .0005) {
