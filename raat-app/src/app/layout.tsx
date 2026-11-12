@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Inter, Noto_Sans_Devanagari, Noto_Sans_Gujarati } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Noto_Sans_Devanagari, Noto_Sans_Gujarati, Noto_Serif_Devanagari, Noto_Serif_Gujarati } from 'next/font/google';
 import './globals.css';
 
 const display = Cormorant_Garamond({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-display', display: 'swap' });
 const body = Inter({ subsets: ['latin'], variable: '--font-body', display: 'swap' });
 const deva = Noto_Sans_Devanagari({ subsets: ['devanagari'], weight: ['400', '600', '700'], variable: '--font-deva', display: 'swap' });
 const guj = Noto_Sans_Gujarati({ subsets: ['gujarati'], weight: ['400', '600', '700'], variable: '--font-guj', display: 'swap' });
+const devaSerif = Noto_Serif_Devanagari({ subsets: ['devanagari'], weight: ['400', '600'], variable: '--font-deva-serif', display: 'swap' });
+const gujSerif = Noto_Serif_Gujarati({ subsets: ['gujarati'], weight: ['400', '600'], variable: '--font-guj-serif', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'RAAT — The Last Passenger',
@@ -17,7 +19,7 @@ export const viewport: Viewport = { themeColor: '#09090B', width: 'device-width'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${deva.variable} ${guj.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${deva.variable} ${guj.variable} ${devaSerif.variable} ${gujSerif.variable}`}>
       <body>{children}</body>
     </html>
   );

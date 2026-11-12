@@ -5,7 +5,7 @@ import { useStore } from '@/lib/store';
 import { useT } from '@/hooks/useT';
 import { ghostFace } from '@/components/fx/Overlays';
 import type { Key } from '@/data/translations';
-import ScrambleText from './ScrambleText';
+import RevealText from './RevealText';
 
 /** Narration as large cinematic type; dialogue as subtitles with the speaker's name. */
 export default function StoryText() {
@@ -15,7 +15,6 @@ export default function StoryText() {
   const batt = useStore((s) => s.batt);
   const name = useStore((s) => s.name);
   const callOpen = useStore((s) => s.callOpen);
-  const lang = useStore((s) => s.lang);
   const finished = useStore((s) => s.finished);
   const cue = useMemo(() => {
     const [sid, k] = cueKey.split(':');
@@ -35,7 +34,7 @@ export default function StoryText() {
       {cue.behind && <img src={ghostFace()} alt="" className="behind-face" key={`b-${cueKey}`} />}
       <p key={cueKey} className={`story-line ${isBig ? 'big' : isNar ? 'nar' : 'dialogue'} ${cue.direct ? 'direct' : ''}`}>
         {speaker && <span className={`speaker sp-${cue.who}`}>{speaker}</span>}
-        <span className="words">{isBig || cue.direct || cue.who === 'driver' || cue.who === 'her' ? <ScrambleText key={text} text={text} latin={lang === 'en'} ms={isBig ? 1100 : 650} /> : text}</span>
+        <span className="words">{isBig || cue.direct || cue.who === 'driver' || cue.who === 'her' ? <RevealText key={text} text={text} ms={isBig ? 1300 : 650} /> : text}</span>
       </p>
     </div>
   );

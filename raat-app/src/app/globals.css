@@ -21,8 +21,8 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 /* language fonts */
 .lang-hi { font-family: var(--font-deva), var(--font-body), sans-serif; }
 .lang-gu { font-family: var(--font-guj), var(--font-body), sans-serif; }
-.lang-hi .font-display, .lang-hi .story-line.big, .lang-hi .title-line { font-family: var(--font-deva), serif; letter-spacing: 0; }
-.lang-gu .font-display, .lang-gu .story-line.big, .lang-gu .title-line { font-family: var(--font-guj), serif; letter-spacing: 0; }
+.lang-hi .font-display, .lang-hi .story-line.big, .lang-hi .title-line, .lang-hi .film-title, .lang-hi .film-intro, .lang-hi .film-nar { font-family: var(--font-deva-serif), var(--font-deva), serif; letter-spacing: 0; font-style: normal; }
+.lang-gu .font-display, .lang-gu .story-line.big, .lang-gu .title-line, .lang-gu .film-title, .lang-gu .film-intro, .lang-gu .film-nar { font-family: var(--font-guj-serif), var(--font-guj), serif; letter-spacing: 0; font-style: normal; }
 .font-guj { font-family: var(--font-guj), sans-serif; }
 
 /* entry */
@@ -142,3 +142,17 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .loader-bar span { display: block; height: 100%; background: #72191F; transform-origin: left; transition: transform .4s ease; box-shadow: 0 0 10px #72191F; }
 .loader-num { font-size: .7rem; letter-spacing: .3em; color: rgba(182,169,154,.6); }
 @keyframes blink { 50% { opacity: .35 } }
+
+/* letter-by-letter reveal of the real text */
+.reveal-ch { display: inline; opacity: 0; filter: blur(6px); transition: opacity .7s ease, filter .9s ease; }
+.reveal-ch.on { opacity: 1; filter: blur(0); }
+
+/* film typography (milestone 1) */
+.film-line { position: fixed; left: 0; right: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; padding: 0 1.25rem; text-align: center; pointer-events: none; text-shadow: 0 2px 22px rgba(0,0,0,.95); }
+.film-title { top: 50%; transform: translateY(-50%); font-family: var(--font-display), serif; font-size: clamp(1.6rem, 4.4vw, 3.2rem); line-height: 1.2; color: #D4C8B5; letter-spacing: .01em; }
+.film-intro { bottom: 18%; font-family: var(--font-display), serif; font-size: clamp(1.4rem, 3.6vw, 2.6rem); line-height: 1.25; color: #e4d9c6; max-width: 46rem; margin: 0 auto; }
+.film-time { top: 13%; font-family: var(--font-body), sans-serif; font-size: .72rem; letter-spacing: .5em; text-transform: uppercase; color: rgba(212,200,181,.8); }
+.film-nar { bottom: 15%; font-family: var(--font-display), serif; font-style: italic; font-size: clamp(1.1rem, 2.4vw, 1.6rem); color: #cfc3b0; }
+.film-you, .film-driver { bottom: 9%; font-size: clamp(1rem, 2vw, 1.35rem); color: #ece3d4; }
+.film-who { display: block; font-size: .62rem; letter-spacing: .32em; text-transform: uppercase; color: #9fb0a8; margin-bottom: .3rem; }
+.film-driver .film-who { color: #c8a675; }
