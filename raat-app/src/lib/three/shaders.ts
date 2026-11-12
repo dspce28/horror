@@ -24,7 +24,7 @@ void main() {
 
 export const PHOTO_FRAG = /* glsl */ `
 uniform sampler2D uMap, uDepth;
-uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof;
+uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof, uFade;
 uniform vec2 uFocus;
 uniform vec3 uFogColor;
 varying vec2 vUv;
@@ -49,7 +49,7 @@ void main() {
     float edge = (1. - abs(a * 2. - 1.)) * step(.02, uMix) * step(uMix, .98);
     c += vec3(.9, .25, .15) * edge * .3;
   }
-  gl_FragColor = vec4(c, a);
+  gl_FragColor = vec4(c, a * uFade);
 }`;
 
 /** Full-screen lens: barrel bend and RGB split with scroll speed, glitch bands, scanlines, grain, vignette. */

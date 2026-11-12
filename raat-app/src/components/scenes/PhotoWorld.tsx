@@ -16,7 +16,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     uniforms: {
       uMap: { value: null }, uDepth: { value: null }, uHasMap: { value: 0 }, uHasDepth: { value: 0 }, uDepthScale: { value: DEPTH_SCALE },
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .3 }, uTime: { value: 0 }, uDissolve: { value: role === 'cur' ? 1 : 0 },
-      uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
+      uFade: { value: 1 }, uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
     },
   }), [role]);
   useEffect(() => () => mat.dispose(), [mat]);
@@ -29,6 +29,8 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     const depth = name ? texture(sceneUrl(name, false, 'depth'), false) : null;
     u.uMap.value = map; u.uHasMap.value = map ? 1 : 0;
     u.uDepth.value = depth; u.uHasDepth.value = depth ? 1 : 0;
+    // cutting to black: the old picture fades out instead of lingering
+    u.uFade.value = role === 'prev' && !o.cur ? 1 - o.mix : 1;
     u.uMix.value = o.mix; u.uLight.value = o.light; u.uWarm.value = o.frame.warm ? 1 : 0;
     u.uFog.value = o.frame.fog; u.uDof.value = o.frame.dof; u.uTime.value = state.clock.elapsedTime;
     u.uFocus.value.set(o.frame.x, 1 - o.frame.y);

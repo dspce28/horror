@@ -228,6 +228,13 @@ export const en = {
   fw_tab: '{N}… don’t look behind you',
   fw_back: 'You came back.',
 
+  p_title: 'Prototype · the first 30 seconds',
+  p_play: 'Play the prototype',
+  p_replay: 'Play again',
+  p_full: 'Enter the full story',
+  p_scrub: 'Prototype timeline',
+  p_pause: 'Pause',
+  p_resume: 'Play',
   // devices
   dev_iphone: 'iPhone',
   dev_android: 'phone',

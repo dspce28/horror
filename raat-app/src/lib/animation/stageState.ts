@@ -23,15 +23,16 @@ let wired = false;
 
 export const stage: { out: StageOut | null; small: boolean } = { out: null, small: false };
 
-export function tick(now: number, dt: number): StageOut {
+export function tick(realNow: number, dt: number): StageOut {
+  const now = live.override?.clock ?? realNow; // the prototype can drive its own clock (frame-exact capture)
   if (!wired) { wired = true; events.on((id) => { if (GLITCHY.has(id)) glitch = 1; }); }
   const s = store.get();
   const sc = SCENES[live.sceneIndex];
   const cue = cueAt(sc, live.local);
-  const f = frameAt(sc.id, live.local, cue ? cue.who : null);
+  const f = live.override ? frameAt(live.override.scene, live.override.t, null) : frameAt(sc.id, live.local, cue ? cue.who : null);
   const name = imageFor(f.img, s.gender);
   if (name !== cur) { prev = cur; cur = name; cutAt = now; glitch = Math.max(glitch, f.flicker ? .9 : .45); }
-  const mix = Math.min(1, (now - cutAt) / 520);
+  const mix = Math.min(1, Math.max(0, (now - cutAt) / 520));
 
   let fl = 1;
   if (f.flicker) {

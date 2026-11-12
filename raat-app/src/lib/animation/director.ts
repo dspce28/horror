@@ -10,7 +10,7 @@ export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export type ImgId =
   | 'hero' | 'road' | 'stop' | 'bus-far' | 'bus-front' | 'inside-her' | 'inside-empty' | 'her-hair' | 'cabin' | 'cabin-crack'
-  | 'her-behind' | 'her-look' | 'driver-back' | 'driver-turn' | 'her-lunge' | 'her-face' | 'twist' | 'black';
+  | 'her-behind' | 'her-look' | 'driver-back' | 'driver-turn' | 'her-lunge' | 'her-face' | 'twist' | 'bus-side' | 'black';
 
 export interface Shot {
   /** scene-local progress where this shot starts */
@@ -37,6 +37,16 @@ export interface Shot {
 }
 
 const SHOTS: Partial<Record<SceneId, Shot[]>> = {
+  // the 30-second prototype: t = seconds / 30
+  proto: [
+    { at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] },
+    { at: 4 / 30, img: 'road', focus: [.46, .56], zoom: [1, 1.55], rain: .5, fog: 1 },
+    { at: 9 / 30, img: 'hero', focus: [.3, .5], zoom: [1.04, 1.32], rain: .55 },
+    { at: 15 / 30, img: 'road', focus: [.46, .54], zoom: [1.55, 2.1], rain: .6, fog: 1, glow: [.46, .53] },
+    { at: 20 / 30, img: 'bus-far', focus: [.48, .52], zoom: [1, 1.75], rain: .7, glow: [.47, .57] },
+    { at: 23 / 30, img: 'bus-front', focus: [.5, .58], zoom: [1, 1.38], rain: .7 },
+    { at: 26.5 / 30, img: 'bus-side', focus: [.84, .55], zoom: [1.15, 2.7], rain: .55, dof: 1.4 },
+  ],
   open: [{ at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] }],
   highway: [
     { at: 0, img: 'hero', focus: [.3, .52], zoom: [1.02, 1.22], rain: .5 },

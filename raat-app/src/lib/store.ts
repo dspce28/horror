@@ -72,6 +72,8 @@ export const live = {
   lookBacks: 0,
   blackout: 0,
   time: 0,
+  /** when set, the stage plays this scene instead of following the scroll (the prototype) */
+  override: null as null | { scene: import('@/data/stories/last-passenger').SceneId; t: number; clock?: number },
 };
 
 type Listener = (id: string) => void;

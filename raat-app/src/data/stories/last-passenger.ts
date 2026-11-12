@@ -1,6 +1,6 @@
 import type { Key } from '@/data/translations';
 
-export type SceneId = 'open' | 'highway' | 'bus' | 'inside' | 'driver' | 'encounter' | 'twist' | 'ticket' | 'end';
+export type SceneId = 'open' | 'highway' | 'bus' | 'inside' | 'driver' | 'encounter' | 'twist' | 'ticket' | 'end' | 'proto';
 export type Speaker = 'nar' | 'big' | 'you' | 'driver' | 'her' | 'kokila' | 'phone';
 export type GameId = 'hunt' | 'photo';
 

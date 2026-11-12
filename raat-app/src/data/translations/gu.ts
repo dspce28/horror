@@ -214,6 +214,13 @@ export const gu: Dict = {
   fw_tab: '{N}… પાછળ ના જોતા',
   fw_back: '[પાછો આવી ગયો.|પાછી આવી ગઈ.]',
 
+  p_title: 'પ્રોટોટાઇપ · પહેલી 30 સેકન્ડ',
+  p_play: 'પ્રોટોટાઇપ ચલાવો',
+  p_replay: 'ફરી ચલાવો',
+  p_full: 'આખી વાર્તામાં ચાલો',
+  p_scrub: 'પ્રોટોટાઇપ ટાઇમલાઇન',
+  p_pause: 'થોભો',
+  p_resume: 'ચલાવો',
   dev_iphone: 'iPhone',
   dev_android: 'ફોન',
   dev_mac: 'Mac',

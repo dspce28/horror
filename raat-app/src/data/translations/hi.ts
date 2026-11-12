@@ -214,6 +214,13 @@ export const hi: Dict = {
   fw_tab: '{N}… पीछे मत देखना',
   fw_back: 'वापस [आ गए|आ गई]।',
 
+  p_title: 'प्रोटोटाइप · पहले 30 सेकंड',
+  p_play: 'प्रोटोटाइप चलाओ',
+  p_replay: 'फिर से चलाओ',
+  p_full: 'पूरी कहानी में चलो',
+  p_scrub: 'प्रोटोटाइप टाइमलाइन',
+  p_pause: 'रोको',
+  p_resume: 'चलाओ',
   dev_iphone: 'iPhone',
   dev_android: 'फ़ोन',
   dev_mac: 'Mac',
