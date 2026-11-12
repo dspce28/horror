@@ -1,6 +1,6 @@
 *.php
 api/*.php
-.htaccess
-data
-assets/incoming
-README.md
+/.htaccess
+/data
+/assets/incoming
+/README.md
