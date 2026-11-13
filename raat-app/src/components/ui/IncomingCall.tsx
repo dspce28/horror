@@ -52,7 +52,7 @@ export default function IncomingCall() {
       return () => window.clearTimeout(id);
     }
     if (call === 'DECLINED_3') { const id = window.setTimeout(() => go('KOKILA_JUMPSCARE'), 120); return () => window.clearTimeout(id); }
-    if (call === 'KOKILA_JUMPSCARE') { const id = window.setTimeout(() => go('FORCED_CALL'), safe ? 3800 : 2900); return () => window.clearTimeout(id); }
+    if (call === 'KOKILA_JUMPSCARE') { const id = window.setTimeout(() => go('FORCED_CALL'), safe ? 3800 : 3900); return () => window.clearTimeout(id); }
     if (call === 'ANSWERED') { audio.whisper(0, .7); const id = window.setTimeout(() => go('FINAL_CONVERSATION'), 1300); return () => window.clearTimeout(id); }
     if (call === 'FINAL_CONVERSATION') {
       setSecs(0);
@@ -91,7 +91,7 @@ export default function IncomingCall() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-4 backdrop-blur" role="dialog" aria-modal="true" aria-label={t('call_in')}>
       <div className={`phone-call ${ringing ? 'ringing' : ''} ${forced ? 'forced' : ''}`}>
-        <p className="text-xs text-ash/60">{storyTime(null, lang)}</p>
+        <p className="text-xs text-ash/60">{storyTime('now', lang)}</p>
         <p className="mt-2 text-xs uppercase tracking-[.25em] text-ash/70" aria-live="polite">
           {ringing ? t('call_in') : call === 'ANSWERED' ? t('call_connecting') : `0:${String(secs).padStart(2, '0')}`}
         </p>

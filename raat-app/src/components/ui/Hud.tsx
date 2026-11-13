@@ -7,7 +7,7 @@ import { live, store, useStore } from '@/lib/store';
 import { useT } from '@/hooks/useT';
 import { audio } from '@/lib/audio/engine';
 import { scroll } from '@/lib/scroll';
-import { clearSession } from '@/lib/session';
+import { beginSession, clearSession } from '@/lib/session';
 
 /** Minimal chrome: logo, language, sound, volume, restart, and a quiet progress rail. */
 export default function Hud() {
@@ -21,8 +21,8 @@ export default function Hud() {
 
   const toggle = () => { audio.init(); const m = !muted; audio.setMuted(m); store.set({ muted: m }); };
   const restart = () => {
-    store.set({ results: {}, callAccepted: null, callOpen: false, finished: false, game: null, call: 'IDLE', declines: 0 });
-    clearSession(); live.lookBacks = 0;
+    store.set({ results: {}, callAccepted: null, callOpen: false, finished: false, game: null, call: 'IDLE', declines: 0, sessionStart: null });
+    clearSession(); beginSession(); live.lookBacks = 0; // a new journey starts a new story clock
     scroll.lock(false); scroll.toProgress(0);
   };
 

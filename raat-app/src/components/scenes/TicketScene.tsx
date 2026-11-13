@@ -6,7 +6,10 @@ import { useT } from '@/hooks/useT';
 import { range } from '@/lib/animation/director';
 import { SCENES } from '@/data/stories/last-passenger';
 
-const W = 760, H = 400, S = 2; // ticket drawn at W×H, burn mask computed at 1/S resolution
+const W = 760, H = 400, S = 2; // ticket paper drawn at W×H, burn mask computed at 1/S resolution
+// scroll progress at which each line of the ticket writes itself on: header, time line, five rows, the stamp
+const LINE_AT = [.05, .1, .15, .2, .25, .3, .35, .46];
+const smoothK = (k: number) => k * k * (3 - 2 * k);
 
 /** The ticket floats in the dark; scrolling reveals the last line and then burns it from the edges. */
 export default function TicketScene() {
@@ -15,6 +18,7 @@ export default function TicketScene() {
   const name = useStore((s) => s.name);
   const lang = useStore((s) => s.lang);
   const ref = useRef<HTMLCanvasElement>(null);
+  const lines = useRef<(HTMLElement | null)[]>([]);
   const wrap = useRef<HTMLDivElement>(null);
   const active = SCENES[scene]?.id === 'ticket';
 
@@ -36,10 +40,8 @@ export default function TicketScene() {
       const edge = Math.min(x / nw, 1 - x / nw, y / nh * .55, (1 - y / nh) * .55) * 2;
       field[y * nw + x] = n * .55 + edge * .9;
     }
-    const passenger = (name.trim() || t('default_name')).toUpperCase();
-    const font = lang === 'hi' ? '"Noto Sans Devanagari"' : lang === 'gu' ? '"Noto Sans Gujarati"' : 'Inter';
 
-    const drawPaper = (reveal: number, next: number) => {
+    const drawPaper = () => {
       pg.clearRect(0, 0, W, H);
       if (tex.complete && tex.naturalWidth) {
         // the real aged ticket, cropped to its paper (it has a dark border in the photo)
@@ -49,19 +51,6 @@ export default function TicketScene() {
       } else {
         const bg = pg.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#d9ccb0'); bg.addColorStop(1, '#bfae8c'); pg.fillStyle = bg; pg.fillRect(0, 0, W, H);
       }
-      pg.fillStyle = '#2a1f14'; pg.font = '600 20px Inter'; pg.fillText(t('tk_head'), 250, 66);
-      pg.fillStyle = '#5b4630'; pg.font = '14px Inter'; pg.fillText(`${storyTime(store.get().sessionStart, lang)} · SEAT: LAST · No. 001313`, 250, 90);
-      const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_dest'), t('tk_dest_v')], [t('tk_status'), t('tk_status_v')], [t('tk_return'), t('tk_return_v')], [t('tk_fare'), t('tk_fare_v')]];
-      rows.forEach(([k, v], i) => {
-        const a = Math.max(0, Math.min(1, reveal * rows.length - i));
-        pg.globalAlpha = a; pg.fillStyle = '#5b4630'; pg.font = `14px ${font}`; pg.fillText(k.toUpperCase(), 250, 130 + i * 38);
-        pg.fillStyle = '#1b140c'; pg.font = `700 22px ${font}`; pg.fillText(v, 420, 130 + i * 38); pg.globalAlpha = 1;
-      });
-      if (next > 0) {
-        pg.save(); pg.translate(W * .58, H * .86); pg.rotate(-.05); pg.globalAlpha = next;
-        pg.strokeStyle = '#72191F'; pg.lineWidth = 3; const txt = t('tk_next'); pg.font = `800 26px ${font}`; const tw = pg.measureText(txt).width;
-        pg.strokeRect(-tw / 2 - 14, -26, tw + 28, 40); pg.fillStyle = '#72191F'; pg.textAlign = 'center'; pg.fillText(txt, 0, 4); pg.restore();
-      }
     };
 
     let raf = 0;
@@ -69,7 +58,15 @@ export default function TicketScene() {
       const p = live.local;
       if (Math.abs(p - last) > .0005) {
         last = p;
-        drawPaper(range(p, .08, .45), range(p, .5, .56));
+        drawPaper();
+        // the text is real HTML on the paper: each line writes itself on, left to right, as you scroll
+        lines.current.forEach((el, i) => {
+          if (!el) return;
+          const at = LINE_AT[i] ?? .5, k = range(p, at, at + .06);
+          el.style.opacity = String(Math.min(1, k * 1.6) * (1 - range(p, .72, .86)));
+          el.style.clipPath = `inset(-20% ${((1 - k) * 100).toFixed(1)}% -20% 0)`;
+          el.style.transform = i === LINE_AT.length - 1 ? `translate(-50%, -50%) rotate(-3deg) scale(${(1.25 - .25 * smoothK(k)).toFixed(3)})` : '';
+        });
         const burn = range(p, .7, .97);
         sg.clearRect(0, 0, nw, nh); sg.drawImage(paper, 0, 0, nw, nh);
         if (burn > 0) {
@@ -96,13 +93,26 @@ export default function TicketScene() {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [active, name, lang, t]);
+  }, [active]);
 
   if (!active) return null;
+  const passenger = (name.trim() || t('default_name')).toUpperCase();
+  const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_dest'), t('tk_dest_v')], [t('tk_status'), t('tk_status_v')], [t('tk_return'), t('tk_return_v')], [t('tk_fare'), t('tk_fare_v')]];
+  const set = (i: number) => (el: HTMLElement | null) => { lines.current[i] = el; };
   return (
     <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-4" style={{ perspective: '1000px' }} aria-label={t('sc_ticket')} role="img">
-      <div ref={wrap} className="ticket-wrap w-full max-w-[760px]">
+      <div ref={wrap} className="ticket-wrap relative w-full max-w-[760px]">
         <canvas ref={ref} className="h-auto w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.8)]" />
+        <div className="ticket-text" lang={lang}>
+          <p ref={set(0)} className="tk-head" style={{ left: '32.9%', top: '17%' }}>{t('tk_head')}</p>
+          <p ref={set(1)} className="tk-sub" style={{ left: '32.9%', top: '24%' }}>{storyTime('start', lang)} · {t('tk_seat')} · No. 001313</p>
+          {rows.map(([k, v], i) => (
+            <p key={k} ref={set(2 + i)} className="tk-row" style={{ left: '32.9%', top: `${32 + i * 8.6}%` }}>
+              <span className="tk-k">{k}</span><span className="tk-v">{v}</span>
+            </p>
+          ))}
+          <p ref={set(7)} className="tk-stamp" style={{ left: '57%', top: '79%' }}>{t('tk_next')}</p>
+        </div>
       </div>
     </div>
   );

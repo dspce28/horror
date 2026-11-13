@@ -202,9 +202,9 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 
 /* Kokila, too close */
 .kokila-scare { position: fixed; inset: 0; z-index: 70; background: #000; overflow: hidden; pointer-events: none; animation: ksIn .25s steps(1) forwards; }
-.kokila-scare .ks-face { position: absolute; inset: -12%; background: url(/raat/scenes/her-face.webp) 49% 30% / cover no-repeat; filter: contrast(1.35) brightness(.95) saturate(.8); animation: ksFace .9s cubic-bezier(.1,.9,.2,1) .26s both, ksShake .5s .26s 2; opacity: 0; }
-.kokila-scare .ks-hair { position: absolute; inset: 0; background: radial-gradient(ellipse 45% 70% at 50% 40%, transparent 60%, rgba(0,0,0,.9)); animation: ksHair 3s ease-in-out .26s infinite alternate; }
-.kokila-scare .ks-line { position: absolute; left: 0; right: 0; bottom: 12%; padding: 0 1.5rem; text-align: center; font-family: var(--font-display), serif; font-size: clamp(1.4rem, 4vw, 2.6rem); color: #f0e6d6; text-shadow: 0 2px 20px #000; animation: lineIn .6s ease 1s both; }
+.kokila-scare .ks-face { position: absolute; inset: -12%; background: url(/raat/scenes/her-face.webp) 49% 30% / cover no-repeat; filter: contrast(1.35) brightness(.95) saturate(.8); animation: ksFace .9s cubic-bezier(.1,.9,.2,1) .9s both, ksShake .5s .9s 2; opacity: 0; }
+.kokila-scare .ks-hair { position: absolute; inset: 0; background: radial-gradient(ellipse 45% 70% at 50% 40%, transparent 60%, rgba(0,0,0,.9)); animation: ksHair 3s ease-in-out .9s infinite alternate; }
+.kokila-scare .ks-line { position: absolute; left: 0; right: 0; bottom: 12%; padding: 0 1.5rem; text-align: center; font-family: var(--font-display), serif; font-size: clamp(1.4rem, 4vw, 2.6rem); color: #f0e6d6; text-shadow: 0 2px 20px #000; animation: lineIn .6s ease 1.5s both; }
 .lang-hi .kokila-scare .ks-line { font-family: var(--font-deva-serif), serif; }
 .lang-gu .kokila-scare .ks-line { font-family: var(--font-guj-serif), serif; }
 .kokila-scare.soft .ks-face { animation: ksSoft 2.6s ease both; }
@@ -219,3 +219,21 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .call-btn.big span { font-size: .8rem; color: #D4C8B5; }
 @keyframes answerPulse { 0% { box-shadow: 0 0 0 0 rgba(90,150,105,.55) } 100% { box-shadow: 0 0 0 26px rgba(90,150,105,0) } }
 .phone-call.forced { border-color: rgba(114,25,31,.5); }
+
+/* the final ticket: real text printed on the paper, sized with the ticket */
+.ticket-text { position: absolute; inset: 0; font-size: calc((min(100vw, 792px) - 2rem) / 47.5); color: #1b140c; }
+.ticket-text > p { position: absolute; margin: 0; white-space: nowrap; will-change: clip-path, opacity; opacity: 0; }
+.tk-head { font: 600 1.25em/1 var(--font-body), sans-serif; letter-spacing: .04em; color: #2a1f14; }
+.tk-sub { font: 400 .85em/1 var(--font-body), sans-serif; letter-spacing: .06em; color: #5b4630; }
+.tk-row { display: flex; align-items: baseline; width: 52%; }
+.tk-k { width: 43%; font: 500 .82em/1 var(--font-body), sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #5b4630; }
+.tk-v { font: 700 1.4em/1 var(--font-body), sans-serif; letter-spacing: .02em; }
+.tk-stamp { padding: .3em .7em; border: .16em solid #72191F; color: #72191F; font: 800 1.35em/1 var(--font-body), sans-serif; letter-spacing: .08em; transform-origin: center; mix-blend-mode: multiply; }
+.ticket-text[lang="hi"] .tk-v, .ticket-text[lang="hi"] .tk-stamp, .ticket-text[lang="hi"] .tk-k { font-family: var(--font-deva), sans-serif; letter-spacing: 0; }
+.ticket-text[lang="gu"] .tk-v, .ticket-text[lang="gu"] .tk-stamp, .ticket-text[lang="gu"] .tk-k { font-family: var(--font-guj), sans-serif; letter-spacing: 0; }
+/* the phone-screen reflection: her face in the glass behind the message, then gone */
+.phone-note { overflow: hidden; }
+.phone-note > :not(.note-reflect) { position: relative; z-index: 1; }
+.note-reflect { position: absolute; inset: 0; background: url(/raat/scenes/her-face.webp) 50% 38% / 120% auto no-repeat; filter: grayscale(.6) contrast(1.2) brightness(.9); mix-blend-mode: screen; opacity: 0; transform: scaleX(-1); animation: noteReflect 2.6s ease-in-out 1s both; pointer-events: none; }
+@keyframes noteReflect { 0% { opacity: 0 } 45% { opacity: .38 } 60% { opacity: .38 } 100% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .note-reflect { display: none; } }

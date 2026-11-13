@@ -20,6 +20,8 @@ export interface StageOut {
 let cur: string | null = null, prev: string | null = null, cutAt = 0;
 let dipUntil = 0, nextDip = 0, nextRandom = 0, glitch = 0, speed = 0;
 let wired = false;
+// the camera eases toward each frame's framing and focus; a cut snaps it
+const cam = { x: .5, y: .5, zoom: 1, fx: .5, fy: .5, shot: '' };
 
 export const stage: { out: StageOut | null; small: boolean } = { out: null, small: false };
 
@@ -32,6 +34,12 @@ export function tick(realNow: number, dt: number): StageOut {
   const f = live.override ? frameAt(live.override.scene, live.override.t, null) : frameAt(sc.id, live.local, cue ? cue.who : null);
   const name = imageFor(f.img, s.gender);
   if (name !== cur) { prev = cur; cur = name; cutAt = now; glitch = Math.max(glitch, f.flicker ? .9 : .45); }
+  const snap = !cam.shot || (f.shot !== cam.shot && !f.glide) || s.reduced;
+  const k = snap ? 1 : 1 - Math.exp(-dt * (f.glide ? 1.6 : 4));
+  cam.x += (f.x - cam.x) * k; cam.y += (f.y - cam.y) * k; cam.zoom += (f.zoom - cam.zoom) * k;
+  cam.fx += (f.fx - cam.fx) * (snap ? 1 : 1 - Math.exp(-dt * 1.6)); cam.fy += (f.fy - cam.fy) * (snap ? 1 : 1 - Math.exp(-dt * 1.6));
+  cam.shot = f.shot;
+  const fr = { ...f, x: cam.x, y: cam.y, zoom: cam.zoom, fx: cam.fx, fy: cam.fy };
   const mix = Math.min(1, Math.max(0, (now - cutAt) / 520));
 
   let fl = 1;
@@ -51,7 +59,7 @@ export function tick(realNow: number, dt: number): StageOut {
   const sh = s.reduced ? 0 : f.shake * (.6 + Math.random() * .4) + live.shake;
 
   const out: StageOut = {
-    frame: f, cur, prev, mix, flicker: fl, light: f.light * fl,
+    frame: fr, cur, prev, mix, flicker: fl, light: f.light * fl,
     glitch: s.reduced || s.safe ? glitch * .3 : glitch, speed: s.reduced ? speed * .3 : speed,
     shakeX: (Math.random() - .5) * sh, shakeY: (Math.random() - .5) * sh,
   };

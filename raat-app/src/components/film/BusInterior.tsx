@@ -28,7 +28,7 @@ function Relief({ name, yaw, small }: { name: string; yaw: number; small: boolea
   useEffect(() => () => mat.dispose(), [mat]);
   useFrame(() => {
     const map = texture(`/raat/scenes/${name}${small ? '-m' : ''}.webp`), d = texture(`/raat/scenes/${name}-d.webp`, false);
-    const u = mat.uniforms; u.uMap.value = map; u.uDepth.value = d; u.uHas.value = map && d ? 1 : 0; u.uLight.value = now.flick * (1 + now.f.flash * 2.2);
+    const u = mat.uniforms; u.uMap.value = map; u.uDepth.value = d; u.uHas.value = map && d ? 1 : 0; u.uLight.value = now.flick * (1 + now.f.flash * 1.1);
   });
   return (
     <mesh material={mat} rotation-y={yaw} frustumCulled={false}>
@@ -43,14 +43,14 @@ function Shell() {
     <group>
       {[-1, 1].map((s) => (
         <group key={s}>
-          <mesh renderOrder={-1} position={[s * 1.25, -.35, -2]} rotation-y={-s * Math.PI / 2}><planeGeometry args={[18, 2.2]} /><meshBasicMaterial color="#0e0a08" depthWrite={false} depthTest={false} /></mesh>
-          <mesh renderOrder={-1} position={[s * 1.24, .25, -2]} rotation-y={-s * Math.PI / 2}><planeGeometry args={[18, .8]} /><meshBasicMaterial color="#18202a" depthWrite={false} depthTest={false} /></mesh>
+          <mesh renderOrder={-1} position={[s * 1.25, -.35, -2]} rotation-y={-s * Math.PI / 2}><planeGeometry args={[18, 2.2]} /><meshBasicMaterial color="#1f1612" depthWrite={false} depthTest={false} /></mesh>
+          <mesh renderOrder={-1} position={[s * 1.24, .25, -2]} rotation-y={-s * Math.PI / 2}><planeGeometry args={[18, .8]} /><meshBasicMaterial color="#2a3644" depthWrite={false} depthTest={false} /></mesh>
         </group>
       ))}
       {Array.from({ length: 16 }, (_, i) => -11 + i * .9).map((z) => [-1, 1].map((s) => (
-        <mesh key={`${z}${s}`} renderOrder={-1} position={[s * .78, -.72, z]}><boxGeometry args={[.82, .62, .08]} /><meshBasicMaterial color="#1a0907" depthWrite={false} depthTest={false} /></mesh>
+        <mesh key={`${z}${s}`} renderOrder={-1} position={[s * .78, -.72, z]}><boxGeometry args={[.82, .62, .08]} /><meshBasicMaterial color="#33100c" depthWrite={false} depthTest={false} /></mesh>
       )))}
-      <mesh renderOrder={-1} position={[0, .95, -2]} rotation-x={Math.PI / 2}><planeGeometry args={[2.5, 18]} /><meshBasicMaterial color="#14100c" depthWrite={false} depthTest={false} /></mesh>
+      <mesh renderOrder={-1} position={[0, .95, -2]} rotation-x={Math.PI / 2}><planeGeometry args={[2.5, 18]} /><meshBasicMaterial color="#231a13" depthWrite={false} depthTest={false} /></mesh>
       <mesh renderOrder={-1} position={[0, -1.5, -2]} rotation-x={-Math.PI / 2}><planeGeometry args={[2.5, 18]} /><meshBasicMaterial color="#0d0b09" depthWrite={false} depthTest={false} /></mesh>
     </group>
   );

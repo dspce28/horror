@@ -10,7 +10,7 @@ export default function KokilaScare({ safe, line }: { safe: boolean; line?: stri
   useEffect(() => {
     if (safe) { audio.whisper(0, .6); return; }
     audio.silence();
-    const id = window.setTimeout(() => { audio.hit(); audio.shriek(.75); try { if (navigator.vibrate) navigator.vibrate([350]); } catch { /* unsupported */ } }, 260);
+    const id = window.setTimeout(() => { audio.hit(); audio.shriek(.75); try { if (navigator.vibrate) navigator.vibrate([350]); } catch { /* unsupported */ } }, 900); // black and silence first, then her
     return () => { window.clearTimeout(id); audio.restoreMusic(); };
   }, [safe]);
   return (

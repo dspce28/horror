@@ -15,5 +15,5 @@ export function useT() {
   const name = useMemo(() => rawName.trim() || translate(lang, 'default_name', { name: '', gender }), [rawName, lang, gender]);
   const device = useMemo(() => translate(lang, deviceKey(), { name, gender }), [lang, name, gender]);
   // {START}: the moment they boarded; {TIME}: the live clock, formatted the same way
-  return useCallback((k: Key) => translate(lang, k, { name, gender, time: storyTime(null, lang), start: storyTime(sessionStart, lang), device, batt }), [lang, name, gender, device, batt, sessionStart]);
+  return useCallback((k: Key) => translate(lang, k, { name, gender, time: storyTime('now', lang), start: storyTime('start', lang), device, batt }), [lang, name, gender, device, batt, sessionStart]);
 }

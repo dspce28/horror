@@ -34,6 +34,14 @@ export interface Shot {
   dof?: number;
   /** cut to whoever is talking (the twist) */
   bySpeaker?: boolean;
+  /** where the lens focuses (0–1 of the image), if not where the camera points: rack focus, over-the-shoulder */
+  dofAt?: [number, number];
+  /** move to this shot without a cut (same photo): a slow pan or a rack focus */
+  glide?: boolean;
+  /** the tube lights die row by row across this shot, back of the bus first */
+  rowsOut?: boolean;
+  /** a reflection of her in the glass: where (0–1 of the image) and how tall */
+  reflection?: [number, number, number];
 }
 
 const SHOTS: Partial<Record<SceneId, Shot[]>> = {
@@ -67,23 +75,51 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: .84, img: 'inside-empty', focus: [.5, .5], zoom: [1.05, 1.1], flicker: 2 },
     { at: .92, img: 'black', focus: [.5, .5], zoom: [1, 1] },
   ],
+  // no big zooms: framing changes by cutting and by slow drifts; the people move on their own (life.ts)
   driver: [
-    { at: 0, img: 'driver-back', focus: [.75, .4], zoom: [1, 1.18], flicker: 1, rain: .3 },
-    { at: .22, img: 'driver-turn', focus: [.6, .28], zoom: [1, 1.4], flicker: 1 },
-    { at: .59, img: 'driver-turn', focus: [.58, .28], zoom: [1.4, 1.6], light: .3 },
-    { at: .76, img: 'driver-turn', focus: [.55, .27], zoom: [2.2, 2.4], light: .45 },
-    { at: .84, img: 'her-look', focus: [.52, .4], zoom: [1, 1.2], flicker: 1 },
+    { at: 0, img: 'driver-back', focus: [.74, .4], zoom: [1, 1.04], flicker: 1, rain: .3 },
+    { at: .1, img: 'driver-back', focus: [.6, .36], zoom: [1.06, 1.1], flicker: 1, rain: .3, reflection: [.4, .3, .34], glide: true },
+    { at: .22, img: 'driver-turn', focus: [.58, .32], zoom: [1.05, 1.18], flicker: 1 },
+    { at: .41, img: 'driver-turn', focus: [.62, .36], zoom: [1.18, 1.22], flicker: 1, dofAt: [.5, .3] },
+    // "You mean… you are…" — {N} glances back: she is still in her seat, a little closer
+    { at: .645, img: 'her-behind', focus: [.53, .45], zoom: [1.12, 1.16], flicker: 1, dof: 1.2 },
+    { at: .7, img: 'driver-turn', focus: [.52, .32], zoom: [1.3, 1.34], light: .4 },
+    { at: .76, img: 'driver-turn', focus: [.5, .3], zoom: [1.42, 1.46], light: .45 },
+    { at: .84, img: 'her-look', focus: [.48, .4], zoom: [1.02, 1.1], flicker: 1 },
   ],
   encounter: [
-    { at: 0, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.2], flicker: 2, shake: .3, rain: .6 },
-    { at: .14, img: 'her-look', focus: [.52, .28], zoom: [1.2, 1.7], flicker: 2, shake: .4 },
-    { at: .28, img: 'her-lunge', focus: [.5, .4], zoom: [1, 1.3], flicker: 2, shake: .5 },
-    { at: .93, img: 'her-lunge', focus: [.5, .4], zoom: [1.3, 1.32], light: .35 },
+    { at: 0, img: 'inside-empty', focus: [.5, .48], zoom: [1.04, 1.1], flicker: 1, shake: .2, rowsOut: true },
+    { at: .14, img: 'her-look', focus: [.48, .32], zoom: [1.15, 1.3], flicker: 2, shake: .2 },
+    { at: .28, img: 'her-lunge', focus: [.5, .38], zoom: [1, 1.1], flicker: 2, shake: .4 },
+    // Ramesh, weary: "not now, Kokila"
+    { at: .38, img: 'driver-turn', focus: [.55, .34], zoom: [1.2, 1.24], flicker: 1 },
+    { at: .46, img: 'her-lunge', focus: [.52, .34], zoom: [1.12, 1.16], flicker: 2, shake: .2 },
+    { at: .55, img: 'her-lunge', focus: [.5, .4], zoom: [1.02, 1.05], flicker: 2, shake: .5, dofAt: [.25, .7] },
+    { at: .64, img: 'her-lunge', focus: [.53, .3], zoom: [1.25, 1.28], flicker: 2 },
+    // "Ramesh. Explain it." — he looks away
+    { at: .83, img: 'driver-turn', focus: [.6, .36], zoom: [1.15, 1.18], light: .5 },
+    { at: .93, img: 'her-lunge', focus: [.5, .4], zoom: [1.1, 1.12], light: .35 },
   ],
+  // the twist: the same lit bus, but staged like a scene: two-shots, close-ups, reactions, over the shoulder
   twist: [
-    { at: 0, img: 'twist', focus: [.5, .5], zoom: [1.05, 1.05], warm: true, bySpeaker: true },
-    { at: .77, img: 'black', focus: [.5, .5], zoom: [1, 1] },
-    { at: .83, img: 'twist', focus: [.5, .5], zoom: [1.05, 1.05], warm: true, bySpeaker: true },
+    { at: 0, img: 'twist', focus: [.5, .42], zoom: [1.04, 1.08], warm: true },
+    { at: .12, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.58], warm: true, dofAt: [.73, .36] },            // Ramesh doesn't look up
+    { at: .19, img: 'twist', focus: [.42, .34], zoom: [1.42, 1.45], warm: true, dofAt: [.32, .22] },           // over his shoulder, at her
+    { at: .26, img: 'twist', focus: [.7, .4], zoom: [1.5, 1.52], warm: true, dofAt: [.73, .36] },              // "we're dead"
+    { at: .32, img: 'twist', focus: [.33, .27], zoom: [1.68, 1.72], warm: true },                              // "so? book online!"
+    { at: .38, img: 'twist', focus: [.5, .42], zoom: [1.02, 1.04], warm: true },                               // {N}: "you're not here to kill me?"
+    { at: .44, img: 'twist', focus: [.42, .34], zoom: [1.42, 1.44], warm: true, dofAt: [.32, .22] },
+    { at: .5, img: 'twist', focus: [.33, .25], zoom: [1.78, 1.84], warm: true },                              // she really looks at you
+    { at: .6, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.57], warm: true, dofAt: [.73, .36] },             // Ramesh: he knows what's coming
+    { at: .645, img: 'twist', focus: [.33, .27], zoom: [1.66, 1.7], warm: true },                              // she smiles
+    { at: .69, img: 'twist', focus: [.45, .36], zoom: [1.3, 1.32], warm: true, dofAt: [.32, .22] },
+    { at: .725, img: 'twist', focus: [.45, .36], zoom: [1.32, 1.34], warm: true, dofAt: [.73, .36], glide: true },          // rack focus: "Ramesh, look"
+    { at: .78, img: 'black', focus: [.5, .5], zoom: [1, 1] },
+    { at: .83, img: 'twist', focus: [.5, .42], zoom: [1.06, 1.08], warm: true },
+    { at: .865, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.57], warm: true, dofAt: [.73, .36] },          // Ramesh shrugs at "horoscopes"
+    { at: .895, img: 'twist', focus: [.33, .27], zoom: [1.66, 1.7], warm: true },
+    { at: .94, img: 'twist', focus: [.5, .42], zoom: [1.04, 1.06], warm: true, shake: .3 },
+    { at: .965, img: 'twist', focus: [.33, .25], zoom: [1.8, 1.86], warm: true, light: .85 },                  // "I'll call you."
   ],
 };
 
@@ -96,6 +132,11 @@ const SPEAKER_FOCUS: Partial<Record<Speaker, { focus: [number, number]; zoom: nu
 export interface Frame {
   img: ImgId; prev: ImgId | null; mix: number;
   x: number; y: number; zoom: number;
+  /** the point in focus */
+  fx: number; fy: number;
+  /** which shot this is (a new value = a cut), and whether to glide into it instead */
+  shot: string; glide: boolean;
+  rowsOut: number; reflection: [number, number, number] | null; reflectAmt: number;
   light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean; fog: number; dof: number;
 }
 
@@ -112,9 +153,11 @@ export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Fra
   return {
     img: s.img, prev: i > 0 ? list[i - 1].img : null, mix,
     x: focus[0], y: focus[1], zoom,
+    fx: (s.dofAt ?? focus)[0], fy: (s.dofAt ?? focus)[1], shot: `${scene}:${i}`, glide: !!s.glide,
+    rowsOut: s.rowsOut ? range(t, s.at, s.at + (end - s.at) * .85) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
     light: s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
     glow: s.glow ?? null, glowAmt: s.glow ? k : 0, warm: !!s.warm,
-    fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.bySpeaker ? 1.2 : .75),
+    fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.dofAt ? 1.35 : s.bySpeaker ? 1.2 : .75),
   };
 }
 

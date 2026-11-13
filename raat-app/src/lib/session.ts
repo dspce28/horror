@@ -9,8 +9,13 @@ const KEY = 'raat-session';
 
 interface Saved { start: number; tz: string; hour12: boolean; call: CallState; declines: number; results: Partial<Record<GameId, GameResult>> }
 
-/** Called once, when the visitor presses the final boarding button. */
+/**
+ * THE story clock. Called once, when the visitor presses Begin: captures their local time, time zone and
+ * 12/24-hour habit. Every time shown anywhere in the story comes from this one reference (see storyTime).
+ * A reload keeps the original start.
+ */
 export function beginSession() {
+  if (store.get().sessionStart) return;
   store.set({ sessionStart: Date.now(), ...deviceClock() });
   save();
 }
@@ -42,15 +47,28 @@ export function clearSession() { try { sessionStorage.removeItem(KEY); } catch {
 
 const LOCALE: Record<Lang, string> = { en: 'en-IN', hi: 'hi-IN', gu: 'gu-IN' };
 
-/** Format a story time the same way everywhere: the visitor's zone, their 12/24-hour habit, the story language. */
-export function storyTime(ts: number | null, lang: Lang): string {
+/**
+ * Every time on screen comes from here, formatted the same way: the visitor's zone, their 12/24-hour habit,
+ * the story language.
+ * - 'start': the moment the visitor began (opening narration, lock screen, the ticket).
+ * - 'now':   that same start plus the minutes elapsed since (notifications and the final call, which happen later).
+ * Before the visitor begins there is no session yet, so both read the device clock.
+ */
+export function storyTime(kind: 'start' | 'now', lang: Lang): string {
   const s = store.get();
-  const when = ts ?? Date.now();
-  // before boarding there is no session yet: read the device directly (the store only has SSR defaults)
-  const c = s.sessionStart ? { tz: s.tz, hour12: s.hour12 } : deviceClock();
+  const start = s.sessionStart;
+  const when = start == null ? Date.now() : kind === 'start' ? start : start + Math.floor((Date.now() - start) / 60000) * 60000;
+  const c = start ? { tz: s.tz, hour12: s.hour12 } : deviceClock();
   try {
     return new Intl.DateTimeFormat(LOCALE[lang], { hour: 'numeric', minute: '2-digit', hour12: c.hour12, timeZone: c.tz }).format(when);
   } catch {
     const d = new Date(when); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
+}
+
+/** The hour (0–23) at the story's start, in the visitor's zone: decides whether the ghost says "night" or "day". */
+export function storyHour(): number {
+  const s = store.get();
+  const c = s.sessionStart ? { tz: s.tz, hour12: s.hour12 } : deviceClock();
+  try { return +new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: c.tz }).format(s.sessionStart ?? Date.now()); } catch { return new Date().getHours(); }
 }

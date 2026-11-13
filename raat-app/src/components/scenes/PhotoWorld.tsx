@@ -4,7 +4,9 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PHOTO_FRAG, PHOTO_VERT } from '@/lib/three/shaders';
 import { glowTexture, texture } from '@/lib/three/textures';
+import { store } from '@/lib/store';
 import { sceneUrl, stage } from '@/lib/animation/stageState';
+import { lifeFor } from '@/lib/animation/life';
 
 /** The photograph plane is 16 × 9 world units, centred on the origin, facing the camera. */
 export const PLANE_W = 16, PLANE_H = 9, DEPTH_SCALE = 1.5;
@@ -17,6 +19,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
       uMap: { value: null }, uDepth: { value: null }, uHasMap: { value: 0 }, uHasDepth: { value: 0 }, uDepthScale: { value: DEPTH_SCALE },
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .3 }, uTime: { value: 0 }, uDissolve: { value: role === 'cur' ? 1 : 0 },
       uFade: { value: 1 }, uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
+      uLife: { value: 0 }, uHeadA: { value: new THREE.Vector4() }, uHeadB: { value: new THREE.Vector4() }, uBodyA: { value: new THREE.Vector4() }, uBodyB: { value: new THREE.Vector4() }, uHairA: { value: new THREE.Vector4() }, uRowsOut: { value: 0 },
     },
   }), [role]);
   useEffect(() => () => mat.dispose(), [mat]);
@@ -33,7 +36,12 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     u.uFade.value = role === 'prev' && !o.cur ? 1 - o.mix : 1;
     u.uMix.value = o.mix; u.uLight.value = o.light; u.uWarm.value = o.frame.warm ? 1 : 0;
     u.uFog.value = o.frame.fog; u.uDof.value = o.frame.dof; u.uTime.value = state.clock.elapsedTime;
-    u.uFocus.value.set(o.frame.x, 1 - o.frame.y);
+    u.uFocus.value.set(o.frame.fx, 1 - o.frame.fy);
+    // the people in the picture breathe (off for reduced motion)
+    const l = lifeFor(name);
+    u.uLife.value = store.get().reduced ? 0 : l.amp;
+    u.uRowsOut.value = role === 'cur' ? o.frame.rowsOut : 0;
+    u.uHeadA.value.set(...l.headA); u.uHeadB.value.set(...l.headB); u.uBodyA.value.set(...l.bodyA); u.uBodyB.value.set(...l.bodyB); u.uHairA.value.set(...l.hair);
   });
 
   return (
@@ -63,6 +71,30 @@ function Headlight() {
       <spriteMaterial map={tex} transparent depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
     </sprite>
   );
+}
+
+/** Her reflection in the glass: faint, mirrored, cold, and only where the shot asks for it. She is behind you. */
+function Reflection() {
+  const ref = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(.62, .74, .86), opacity: 0 }), []);
+  useEffect(() => () => mat.dispose(), [mat]);
+  useFrame((state) => {
+    const o = stage.out, m = ref.current; if (!o || !m) return;
+    const r = o.frame.reflection, amt = o.frame.reflectAmt * Math.min(1, o.light + .2);
+    m.visible = !!r && amt > .01;
+    if (!r || !m.visible) return;
+    const tex = texture('/raat/cutouts/her-look.webp');
+    if (!tex) { m.visible = false; return; } // still loading: never show an empty plane
+    if (mat.map !== tex) { mat.map = tex; mat.needsUpdate = true; }
+    const img = tex?.image as HTMLImageElement | undefined;
+    const aspect = img && img.naturalWidth ? img.naturalWidth / img.naturalHeight : .45;
+    const h = r[2] * PLANE_H;
+    m.scale.set(-h * aspect, h, 1); // mirrored, like a reflection
+    m.position.set((r[0] - .5) * PLANE_W, (.5 - r[1]) * PLANE_H, DEPTH_SCALE * .3);
+    // rain on the glass breaks the reflection up a little
+    mat.opacity = amt * (.55 + Math.sin(state.clock.elapsedTime * 2.3) * .06 + Math.sin(state.clock.elapsedTime * 17) * .03);
+  });
+  return <mesh ref={ref} material={mat} renderOrder={3}><planeGeometry args={[1, 1]} /></mesh>;
 }
 
 /** Dust hanging in the air between the camera and the picture: real 3D parallax. */
@@ -100,6 +132,7 @@ export default function PhotoWorld({ small }: { small: boolean }) {
       <PhotoSurface role="prev" segments={seg} />
       <PhotoSurface role="cur" segments={seg} />
       <Headlight />
+      <Reflection />
       <Dust count={small ? 220 : 600} />
     </>
   );

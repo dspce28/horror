@@ -5,7 +5,7 @@ import { useT } from '@/hooks/useT';
 import { live, store, useStore } from '@/lib/store';
 import { audio } from '@/lib/audio/engine';
 import { scroll } from '@/lib/scroll';
-import { clearSession } from '@/lib/session';
+import { beginSession, clearSession } from '@/lib/session';
 import { ghostFace } from '@/components/fx/Overlays';
 import type { Key } from '@/data/translations';
 
@@ -40,8 +40,8 @@ export default function EndingCard() {
     if (blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'raat-last-passenger.png'; a.click(); setMsg((m) => (m ? `${m} · ${t('share_saved')}` : t('share_saved'))); }
   };
   const again = () => {
-    store.set({ results: {}, callAccepted: null, callOpen: false, finished: false, game: null, call: 'IDLE', declines: 0 });
-    clearSession(); live.lookBacks = 0;
+    store.set({ results: {}, callAccepted: null, callOpen: false, finished: false, game: null, call: 'IDLE', declines: 0, sessionStart: null });
+    clearSession(); beginSession(); live.lookBacks = 0; // a new journey starts a new story clock
     scroll.toProgress(0);
   };
 

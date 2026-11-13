@@ -22,6 +22,8 @@ export interface InteriorFrame {
 }
 
 const turn = (t: number, a: number, b: number, from: number, to: number) => lerp(from, to, smooth(range(t, a, b)));
+// a whip pan: the camera holds, then the whole turn happens in the middle third (motion blur hides the in-between)
+const whip = (t: number, a: number, b: number, from: number, to: number) => turn(t, a + (b - a) * .35, b - (b - a) * .35, from, to);
 
 export function interiorAt(t: number, lookBacks: number): InteriorFrame {
   // yaw keyframes: a slow turn back is the scariest part, a fast one is panic
@@ -71,9 +73,9 @@ export function boardingAt(k: number): InteriorFrame {
 }
 function boardYaw(k: number) {
   let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);                    // up the steps, turning to the cab
-  if (k > .3) yaw = turn(k, .3, .45, Math.PI, Math.PI * 2);             // turn to the aisle
-  if (k > .62) yaw = turn(k, .62, .69, Math.PI * 2, Math.PI * 3);       // glance back: the driver, far away now
-  if (k > .7) yaw = turn(k, .7, .77, Math.PI * 3, Math.PI * 4);         // and back to the aisle
+  if (k > .3) yaw = whip(k, .3, .45, Math.PI, Math.PI * 2);             // whip round to the aisle
+  if (k > .62) yaw = whip(k, .62, .69, Math.PI * 2, Math.PI * 3);       // glance back: the driver, far away now
+  if (k > .7) yaw = whip(k, .7, .77, Math.PI * 3, Math.PI * 4);         // and back to the aisle
   return yaw;
 }
 

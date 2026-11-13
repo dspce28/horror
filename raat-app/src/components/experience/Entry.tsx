@@ -43,16 +43,13 @@ export default function Entry() {
     return () => window.clearTimeout(id);
   }, []);
 
-  // the phone's lock-screen clock is live
-  useEffect(() => {
-    const tick = () => setClock(storyTime(null, store.get().lang));
-    tick(); const id = window.setInterval(tick, 5000);
-    return () => window.clearInterval(id);
-  }, [lang]);
+  // the lock screen shows the story clock: the moment the visitor pressed Begin
+  useEffect(() => { if (phase !== 'gate') setClock(storyTime('start', lang)); }, [lang, phase]);
 
   // first tap: sound becomes possible, the dark sequence begins
   const begin = (noScares: boolean) => {
     if (phase !== 'gate') return;
+    beginSession(); // the visitor's real local time, captured once; every scene reads it from the session
     store.set({ safe: noScares });
     audio.safe = noScares;
     audio.init(); audio.setVolume(store.get().volume);
@@ -82,7 +79,6 @@ export default function Entry() {
   const board = () => {
     if (started.current) return;
     started.current = true;
-    beginSession(); // the visitor's real local time, captured once, used by every scene
     audio.loadTheme('/raat/audio/theme.mp4');
     try { localStorage.setItem('raat-name', store.get().name); localStorage.setItem('raat-gender', store.get().gender); } catch { /* private mode */ }
     void batteryLevel().then((b) => store.set({ batt: b }));

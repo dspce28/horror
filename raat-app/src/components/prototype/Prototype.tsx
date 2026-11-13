@@ -130,7 +130,7 @@ export default function Prototype() {
       {phase !== 'start' && phoneOn && (
         <div className="phone-note" role="status">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[.18em] text-ash/70">
-            <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> {storyTime(sessionStart, lang)} <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
+            <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> {storyTime('start', lang)} <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
           </div>
           <p className="mt-1 text-[15px] font-semibold text-bone">{t('h3')}</p>
         </div>

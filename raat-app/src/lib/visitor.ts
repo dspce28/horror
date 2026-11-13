@@ -11,15 +11,6 @@ export function deviceKey(): Key {
   return 'dev_generic';
 }
 
-export function localTime(): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date());
-  } catch {
-    const d = new Date();
-    return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
-  }
-}
-
 interface BatteryLike { level: number }
 export async function batteryLevel(): Promise<number | null> {
   try {

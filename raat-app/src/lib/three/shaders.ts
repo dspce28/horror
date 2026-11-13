@@ -28,15 +28,57 @@ uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof, uFade,
 uniform vec4 uDoor; // the bus door in image space: x0, y0, x1, y1 (top-left origin)
 uniform vec2 uFocus;
 uniform vec3 uFogColor;
+// living photographs: where the people are in this image (image space, top-left origin)
+uniform float uLife;
+uniform vec4 uHeadA, uHeadB;   // head ellipses: cx, cy, rx, ry (rx = 0: nobody there)
+uniform vec4 uBodyA, uBodyB;   // torso boxes: x0, y0, x1, y1
+uniform vec4 uHairA;           // ellipse around loose hair
+uniform float uRowsOut;        // lights dying row by row, from the back of the bus (far) to the camera (near): 0..1
 varying vec2 vUv;
 varying float vD;
 ${NOISE}
+float ell(vec2 p, vec4 e) { return e.z <= 0. ? 0. : 1. - smoothstep(.55, 1., length((p - e.xy) / e.zw)); }
+float box(vec2 p, vec4 b) { if (b.z <= b.x) return 0.; vec2 m = min(p - b.xy, b.zw - p); return smoothstep(0., .04, min(m.x, m.y)); }
+// small, slow, never in sync: a head that drifts and nods, a chest that breathes, hair that moves in the air
+vec2 lifeOffset(vec2 iu, float ph) {
+  float t = uTime;
+  vec2 d = vec2(0.);
+  float br = sin(t * 1.25 + ph);                                   // breath, about 12 a minute
+  float hA = ell(iu, uHeadA), hB = ell(iu, uHeadB + vec4(0.));
+  d += hA * vec2(sin(t * .53 + ph) * .0042 + sin(t * 1.7) * .0007, sin(t * .41 + ph * 2.) * .0028 + br * .0012);
+  d += hB * vec2(sin(t * .47 + ph + 2.) * .0038, sin(t * .37 + 1.3) * .0026 + sin(t * 1.1 + 2.) * .001);
+  float bA = box(iu, uBodyA), bB = box(iu, uBodyB);
+  d.y += bA * br * .0026 * (1. - (iu.y - uBodyA.y) / max(.01, uBodyA.w - uBodyA.y));
+  d.y += bB * sin(t * 1.05 + 1.7) * .0022 * (1. - (iu.y - uBodyB.y) / max(.01, uBodyB.w - uBodyB.y));
+  return d;
+}
 void main() {
   if (uHasMap < .5) discard;
+  vec2 uv = vUv;
+  if (uLife > 0.) {
+    vec2 iu = vec2(vUv.x, 1. - vUv.y);
+    vec2 d = lifeOffset(iu, 0.);
+    // hair: only the dark strands near the head move, on slow air
+    float hm = ell(iu, uHairA);
+    if (hm > 0.) {
+      float lum = dot(texture2D(uMap, vUv).rgb, vec3(.3, .59, .11));
+      hm *= 1. - smoothstep(.12, .3, lum);
+      d += hm * (vec2(fbm(iu * vec2(5., 9.) + vec2(uTime * .13, uTime * .31)), fbm(iu * vec2(7., 4.) + uTime * .19)) - .5) * .009;
+    }
+    uv -= vec2(d.x, -d.y) * uLife;
+  }
   // depth of field: blur by distance from the depth at the focus point
   float fd = texture2D(uDepth, uFocus).r;
   float blur = smoothstep(.2, .6, abs(vD - fd)) * uDof;
-  vec3 c = texture2D(uMap, vUv, blur).rgb;
+  vec3 c = texture2D(uMap, uv, blur).rgb;
+  if (uRowsOut > 0.) {
+    // five rows of tube lights; each row goes out with a stutter as the front reaches its depth
+    float rows = floor(uRowsOut * 5.99) / 5.;
+    float edge = rows * 1.05;
+    float out_ = 1. - smoothstep(edge - .04, edge + .02, vD);
+    float stutter = step(.5, fract(uTime * 13.)) * step(fract(uRowsOut * 5.99), .25);
+    c *= mix(1., .12 + .25 * stutter, out_);
+  }
   // drifting fog that lives in the far parts of the picture
   float far = pow(1. - vD, 1.4);
   float f = fbm(vUv * vec2(3., 5.) + vec2(uTime * .025, uTime * .006));
@@ -57,7 +99,7 @@ void main() {
   c *= uLight;
   c = mix(c, c * vec3(1.08, .97, .82), uWarm);
   // the doorway's light fills the frame: the cut to the interior hides inside it
-  c = mix(c, vec3(1.15, .98, .78), uFill * (.75 + .25 * (1. - length(vUv - .5))));
+  c = mix(c, vec3(.86, .66, .42) * (.8 + .35 * (1. - length(vUv - .5))), uFill * .82); // the doorway fills the frame with warm cabin light, not white
   float a = 1.;
   if (uDissolve > .5) {
     float n = noise(vUv * 9. + uTime * .3);

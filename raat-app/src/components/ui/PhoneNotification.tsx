@@ -1,4 +1,5 @@
 'use client';
+import { storyHour } from '@/lib/session';
 import { useEffect, useMemo, useState } from 'react';
 import { SCENES } from '@/data/stories/last-passenger';
 import { useStore } from '@/lib/store';
@@ -19,7 +20,7 @@ export default function PhoneNotification() {
     return c && c.who === 'phone' ? c : null;
   }, [cueKey]);
 
-  useEffect(() => { if (cue) { const h = new Date().getHours(); const k: Key = cue.k === 'fw_time' && h >= 5 && h < 21 ? 'fw_time_day' : cue.k; setShown({ id: cueKey, k, from: t('sp_unknown') }); } }, [cue, cueKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (cue) { const h = storyHour(); const k: Key = cue.k === 'fw_time' && h >= 5 && h < 21 ? 'fw_time_day' : cue.k; setShown({ id: cueKey, k, from: t('sp_unknown') }); } }, [cue, cueKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (notice) setShown({ id: `n${notice.id}`, k: notice.k as Key, from: notice.from === 'kokila' ? t('call_name') : t('sp_unknown') }); }, [notice]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!shown) return;
@@ -30,6 +31,8 @@ export default function PhoneNotification() {
   if (!shown || game) return null;
   return (
     <div className="phone-note" role="status" key={shown.id}>
+      {/* in the dark glass, for a moment, a face that is not yours */}
+      {shown.k === 'n2' && <div className="note-reflect" aria-hidden />}
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[.18em] text-ash/70">
         <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> {shown.from} <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
       </div>
