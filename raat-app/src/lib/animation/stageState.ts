@@ -8,7 +8,7 @@ import { events, live, store } from '@/lib/store';
 export const sceneUrl = (name: string, small: boolean, kind: '' | 'depth' = '') =>
   kind === 'depth' ? `/raat/scenes/${name}-d.webp` : `/raat/scenes/${name}${small ? '-m' : ''}.webp`;
 
-const GLITCHY = new Set(['teleport', 'flicker-out', 'jumpscare', 'crack', 'shriek', 'blackout', 'driver-turn', 'stare', 'her-look']);
+const GLITCHY = new Set(['teleport', 'flicker-out', 'jumpscare', 'lights-die', 'shriek', 'blackout', 'driver-turn', 'stare', 'her-look']);
 
 export interface StageOut {
   frame: Frame;

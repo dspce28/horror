@@ -1,8 +1,8 @@
 import type { Key } from '@/data/translations';
 
-export type SceneId = 'open' | 'highway' | 'bus' | 'inside' | 'driver' | 'encounter' | 'twist' | 'ticket' | 'end' | 'proto';
+export type SceneId = 'open' | 'highway' | 'bus' | 'board' | 'inside' | 'driver' | 'encounter' | 'twist' | 'ticket' | 'end' | 'proto';
 export type Speaker = 'nar' | 'big' | 'you' | 'driver' | 'her' | 'kokila' | 'phone';
-export type GameId = 'hunt' | 'photo';
+export type GameId = 'hunt' | 'cabin' | 'photo';
 
 export interface Cue {
   /** scene-local progress (0–1) at which the line appears */
@@ -25,7 +25,7 @@ export interface SceneDef {
   cues: Cue[];
   events: StoryEvent[];
   /** a mini-game offered when the visitor reaches the end of this scene */
-  gameAfter?: GameId;
+  gameAfter?: GameId | GameId[];
 }
 
 export const SCENES: SceneDef[] = [
@@ -45,13 +45,19 @@ export const SCENES: SceneDef[] = [
     events: [{ at: .17, id: 'ping' }, { at: .28, id: 'bark' }, { at: .73, id: 'ping' }, { at: .88, id: 'engine-far' }],
   },
   {
-    id: 'bus', vh: 300, label: 'sc_bus',
+    id: 'bus', vh: 240, label: 'sc_bus',
+    cues: [{ at: .04, who: 'nar', k: 'b1' }, { at: .3, who: 'you', k: 'b2' }, { at: .78, who: 'nar', k: 'bd1' }],
+    events: [{ at: .4, id: 'brake' }, { at: .54, id: 'stop' }],
+  },
+  {
+    // boarding: the door opens, the driver asks, the visitor climbs in; the cut hides in the doorway's light
+    id: 'board', vh: 380, label: 'sc_board',
     cues: [
-      { at: .04, who: 'nar', k: 'b1' }, { at: .22, who: 'you', k: 'b2' }, { at: .45, who: 'driver', k: 'b3' },
-      { at: .53, who: 'you', k: 'b4' }, { at: .61, who: 'driver', k: 'b5' }, { at: .69, who: 'you', k: 'b6' },
-      { at: .77, who: 'driver', k: 'b7' }, { at: .88, who: 'nar', k: 'b8' },
+      { at: .05, who: 'driver', k: 'b3' }, { at: .13, who: 'you', k: 'b4' }, { at: .2, who: 'driver', k: 'b5' },
+      { at: .28, who: 'you', k: 'b6' }, { at: .35, who: 'driver', k: 'b7' }, { at: .43, who: 'nar', k: 'b8' },
+      { at: .58, who: 'nar', k: 'bd2' }, { at: .74, who: 'nar', k: 'bd3' }, { at: .86, who: 'nar', k: 'bd4' },
     ],
-    events: [{ at: .32, id: 'brake' }, { at: .43, id: 'stop' }, { at: .62, id: 'door' }, { at: .9, id: 'step-in' }],
+    events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .555, id: 'door-close' }, { at: .9, id: 'creak-back' }],
   },
   {
     id: 'inside', vh: 360, label: 'sc_inside',
@@ -65,7 +71,7 @@ export const SCENES: SceneDef[] = [
       { at: .31, id: 'engine-start' }, { at: .4, id: 'ping' }, { at: .54, id: 'ping' }, { at: .62, id: 'teleport' },
       { at: .77, id: 'her-look' }, { at: .85, id: 'flicker-out' }, { at: .93, id: 'whisper-close' }, { at: .96, id: 'blackout' },
     ],
-    gameAfter: 'hunt',
+    gameAfter: ['hunt', 'cabin'],
   },
   {
     id: 'driver', vh: 320, label: 'sc_driver',
@@ -86,7 +92,7 @@ export const SCENES: SceneDef[] = [
       { at: .65, who: 'her', k: 'r7' }, { at: .76, who: 'you', k: 'r8' }, { at: .84, who: 'her', k: 'r9' }, { at: .93, who: 'nar', k: 'r10' },
     ],
     events: [
-      { at: .04, id: 'crack' }, { at: .15, id: 'heartbeat' }, { at: .29, id: 'shriek' }, { at: .62, id: 'music-dip' },
+      { at: .04, id: 'lights-die' }, { at: .15, id: 'heartbeat' }, { at: .29, id: 'shriek' }, { at: .62, id: 'music-dip' },
       { at: .66, id: 'jumpscare' }, { at: .93, id: 'silence' },
     ],
   },
@@ -117,6 +123,12 @@ export const SCENES: SceneDef[] = [
     events: [{ at: .06, id: 'laugh' }, { at: .46, id: 'whisper-close' }, { at: .84, id: 'call' }],
   },
 ];
+
+/** position of a scene by name, so code never depends on scene numbers */
+export const sceneIndex = (id: SceneId) => SCENES.findIndex((s) => s.id === id);
+
+/** the games offered at the end of a scene, in order */
+export const gamesOf = (s: SceneDef): GameId[] => (s.gameAfter ? (Array.isArray(s.gameAfter) ? s.gameAfter : [s.gameAfter]) : []);
 
 export const TOTAL_VH = SCENES.reduce((s, x) => s + x.vh, 0);
 

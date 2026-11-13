@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { RANGES, SCENES, TOTAL_VH, cueAt, sceneAt } from '@/data/stories/last-passenger';
+import { RANGES, SCENES, TOTAL_VH, cueAt, gamesOf, sceneAt } from '@/data/stories/last-passenger';
 import { events, live, store, useStore } from '@/lib/store';
 import { scroll } from '@/lib/scroll';
 
@@ -62,10 +62,11 @@ export default function ScrollController() {
             const r = RANGES[i];
             s.events.forEach((e) => { const at = r.a + e.at * (r.b - r.a); if (prev < at && p >= at) events.emit(e.id); });
             // mini-games wait at the end of their scene
-            if (s.gameAfter && !store.get().results[s.gameAfter] && prev < r.b - .0005 && p >= r.b - .0005) {
+            const next = gamesOf(s).find((g) => !store.get().results[g]);
+            if (next && prev < r.b - .0005 && p >= r.b - .0005) {
               scroll.toProgress(r.b - .0006);
               scroll.lock(true);
-              store.set({ game: s.gameAfter });
+              store.set({ game: next });
             }
           });
         }

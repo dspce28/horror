@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { live, useStore } from '@/lib/store';
+import { live, store, useStore } from '@/lib/store';
+import { storyTime } from '@/lib/session';
 import { useT } from '@/hooks/useT';
 import { range } from '@/lib/animation/director';
+import { SCENES } from '@/data/stories/last-passenger';
 
 const W = 760, H = 400, S = 2; // ticket drawn at W×H, burn mask computed at 1/S resolution
 
@@ -14,7 +16,7 @@ export default function TicketScene() {
   const lang = useStore((s) => s.lang);
   const ref = useRef<HTMLCanvasElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
-  const active = scene === 7;
+  const active = SCENES[scene]?.id === 'ticket';
 
   useEffect(() => {
     if (!active) return;
@@ -48,7 +50,7 @@ export default function TicketScene() {
         const bg = pg.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#d9ccb0'); bg.addColorStop(1, '#bfae8c'); pg.fillStyle = bg; pg.fillRect(0, 0, W, H);
       }
       pg.fillStyle = '#2a1f14'; pg.font = '600 20px Inter'; pg.fillText(t('tk_head'), 250, 66);
-      pg.fillStyle = '#5b4630'; pg.font = '14px Inter'; pg.fillText('12:47 AM · SEAT: LAST · No. 001313', 250, 90);
+      pg.fillStyle = '#5b4630'; pg.font = '14px Inter'; pg.fillText(`${storyTime(store.get().sessionStart, lang)} · SEAT: LAST · No. 001313`, 250, 90);
       const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_dest'), t('tk_dest_v')], [t('tk_status'), t('tk_status_v')], [t('tk_return'), t('tk_return_v')], [t('tk_fare'), t('tk_fare_v')]];
       rows.forEach(([k, v], i) => {
         const a = Math.max(0, Math.min(1, reveal * rows.length - i));

@@ -14,7 +14,7 @@ export default function StoryText() {
   const game = useStore((s) => s.game);
   const batt = useStore((s) => s.batt);
   const name = useStore((s) => s.name);
-  const callOpen = useStore((s) => s.callOpen);
+  const callOpen = useStore((s) => s.call !== 'IDLE' && s.call !== 'DONE');
   const finished = useStore((s) => s.finished);
   const cue = useMemo(() => {
     const [sid, k] = cueKey.split(':');

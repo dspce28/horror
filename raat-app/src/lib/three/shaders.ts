@@ -24,7 +24,8 @@ void main() {
 
 export const PHOTO_FRAG = /* glsl */ `
 uniform sampler2D uMap, uDepth;
-uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof, uFade;
+uniform float uMix, uLight, uWarm, uFog, uTime, uHasMap, uDissolve, uDof, uFade, uDoorOpen, uFill;
+uniform vec4 uDoor; // the bus door in image space: x0, y0, x1, y1 (top-left origin)
 uniform vec2 uFocus;
 uniform vec3 uFogColor;
 varying vec2 vUv;
@@ -40,8 +41,23 @@ void main() {
   float far = pow(1. - vD, 1.4);
   float f = fbm(vUv * vec2(3., 5.) + vec2(uTime * .025, uTime * .006));
   c = mix(c, uFogColor, clamp(far * uFog * (.15 + f * .55), 0., .5));
+  // the bus door folds open: warm cabin light inside its frame, spilling down onto the wet road
+  if (uDoorOpen > 0.) {
+    vec2 iu = vec2(vUv.x, 1. - vUv.y);
+    vec2 dc = vec2((uDoor.x + uDoor.z) * .5, (uDoor.y + uDoor.w) * .5), dh = vec2((uDoor.z - uDoor.x) * .5, (uDoor.w - uDoor.y) * .5);
+    float inside = step(abs(iu.x - dc.x), dh.x * uDoorOpen) * step(abs(iu.y - dc.y), dh.y);
+    float hum = .93 + .07 * sin(uTime * 37.) * step(.97, fract(uTime * .31));
+    vec3 warm = vec3(1., .74, .42) * (.62 + .38 * smoothstep(uDoor.w, uDoor.y, iu.y)) * hum;
+    // light through the doorway: the photo's own detail stays, lit warm from inside, brightest at the top step
+    vec3 lit = c * vec3(2.3, 1.7, 1.05) + warm * (.12 + .22 * smoothstep(uDoor.w, uDoor.y, iu.y));
+    c = mix(c, lit, inside);
+    float spill = exp(-pow((iu.x - dc.x) / (dh.x * 2.4), 2.)) * step(uDoor.w, iu.y) * (1. - smoothstep(uDoor.w, uDoor.w + .3, iu.y));
+    c += vec3(1., .7, .38) * spill * uDoorOpen * .45;
+  }
   c *= uLight;
   c = mix(c, c * vec3(1.08, .97, .82), uWarm);
+  // the doorway's light fills the frame: the cut to the interior hides inside it
+  c = mix(c, vec3(1.15, .98, .78), uFill * (.75 + .25 * (1. - length(vUv - .5))));
   float a = 1.;
   if (uDissolve > .5) {
     float n = noise(vUv * 9. + uTime * .3);

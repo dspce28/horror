@@ -75,7 +75,7 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: .84, img: 'her-look', focus: [.52, .4], zoom: [1, 1.2], flicker: 1 },
   ],
   encounter: [
-    { at: 0, img: 'cabin-crack', focus: [.5, .4], zoom: [1.05, 1.2], flicker: 2, shake: .6, rain: .6 },
+    { at: 0, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.2], flicker: 2, shake: .3, rain: .6 },
     { at: .14, img: 'her-look', focus: [.52, .28], zoom: [1.2, 1.7], flicker: 2, shake: .4 },
     { at: .28, img: 'her-lunge', focus: [.5, .4], zoom: [1, 1.3], flicker: 2, shake: .5 },
     { at: .93, img: 'her-lunge', focus: [.5, .4], zoom: [1.3, 1.32], light: .35 },
@@ -130,6 +130,7 @@ export function soundAt(scene: SceneId, t: number) {
     case 'open': s.dread = .25; break;
     case 'highway': if (t > .78) { s.engine = range(t, .78, 1) * .4; s.rpm = .5; } s.dread = .2 + t * .2; break;
     case 'bus': { const k = range(t, 0, .38); s.engine = .45 + (1 - k) * .4; s.rpm = .25 + (1 - k) * .45; s.dread = .35; break; }
+    case 'board': s.engine = .32; s.rpm = .2; s.dread = .4; break; // idling at the door
     case 'inside': { const go = range(t, .31, .45); s.engine = .35 + go * .2; s.rpm = .25 + go * .3; s.dread = .4 + t * .35; break; }
     case 'driver': s.engine = .5; s.rpm = .5; s.dread = .6 + t * .2; s.lights = !(t > .59 && t < .84); break;
     case 'encounter': s.engine = t > .93 ? .3 : .55; s.rpm = .55; s.dread = 1; break;

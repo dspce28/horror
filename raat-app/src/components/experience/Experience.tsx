@@ -5,6 +5,7 @@ import { live, store, useStore } from '@/lib/store';
 import { guessGender } from '@/lib/gender';
 import type { Lang } from '@/data/translations';
 import Entry from './Entry';
+import { sceneIndex } from '@/data/stories/last-passenger';
 import WorldStage from './WorldStage';
 import ScrollController from './ScrollController';
 import AudioController from './AudioController';
@@ -14,11 +15,14 @@ import AtmosphereCanvas from '@/components/fx/AtmosphereCanvas';
 import Hud from '@/components/ui/Hud';
 import StoryText from '@/components/ui/StoryText';
 import PhoneNotification from '@/components/ui/PhoneNotification';
-import EndingCard, { CallScreen } from '@/components/ui/EndingCard';
+import EndingCard from '@/components/ui/EndingCard';
+import IncomingCall from '@/components/ui/IncomingCall';
+import { restoreSession } from '@/lib/session';
 import TicketScene from '@/components/scenes/TicketScene';
 
 // Heavy pieces load only when needed.
-const GhostHuntGame = dynamic(() => import('@/components/games/GhostHuntGame'), { ssr: false });
+const GhostDetectionGame = dynamic(() => import('@/components/games/GhostDetectionGame'), { ssr: false });
+const DriverSecretGame = dynamic(() => import('@/components/games/DriverSecretGame'), { ssr: false });
 const PhotographPuzzle = dynamic(() => import('@/components/games/PhotographPuzzle'), { ssr: false });
 
 export default function Experience() {
@@ -37,6 +41,7 @@ export default function Experience() {
     try { saved = localStorage.getItem('raat-lang') as Lang | null; name = localStorage.getItem('raat-name') ?? ''; gender = localStorage.getItem('raat-gender') as 'm' | 'f' | null; } catch { /* private mode */ }
     const guess: Lang = /^gu/i.test(navigator.language) ? 'gu' : /^hi/i.test(navigator.language) ? 'hi' : 'en';
     store.set({ reduced, quality: small || weak ? 'low' : 'high', lang: saved ?? guess, name, gender: gender ?? guessGender(name) });
+    restoreSession();
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   }, []);
@@ -57,9 +62,9 @@ export default function Experience() {
 
   return (
     <main className={`lang-${lang} relative min-h-screen bg-ink text-bone`}>
-      {entered && scene < 7 && <WorldStage />}
+      {entered && scene < sceneIndex('ticket') && <WorldStage />}
       {entered && scene === 0 && <div className="fixed inset-0"><AtmosphereCanvas red density={1} /></div>}
-      {entered && scene >= 7 && <div className="fixed inset-0 bg-ink"><AtmosphereCanvas red={scene === 8} density={.7} /></div>}
+      {entered && scene >= sceneIndex('ticket') && <div className="fixed inset-0 bg-ink"><AtmosphereCanvas red={scene === sceneIndex('end')} density={.7} /></div>}
       <ScrollController />
       {entered && (
         <>
@@ -68,13 +73,14 @@ export default function Experience() {
           <TicketScene />
           <StoryText />
           <PhoneNotification />
-          <CallScreen />
+          <IncomingCall />
           <EndingCard />
         </>
       )}
       <Overlays />
       <Hud />
-      {game === 'hunt' && <GhostHuntGame />}
+      {game === 'hunt' && <GhostDetectionGame />}
+      {game === 'cabin' && <DriverSecretGame />}
       {game === 'photo' && <PhotographPuzzle />}
       <Entry />
     </main>

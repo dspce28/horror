@@ -9,6 +9,7 @@ import { useT } from '@/hooks/useT';
 import { live, store, useStore } from '@/lib/store';
 import { audio } from '@/lib/audio/engine';
 import { guessGender } from '@/lib/gender';
+import { beginSession, storyTime } from '@/lib/session';
 import { LANGS } from '@/data/translations';
 import { film } from '@/lib/film/clock';
 import { CUES, LENGTH, LINES, PHONE, type CueId } from '@/lib/film/highway';
@@ -40,6 +41,7 @@ export default function Prototype() {
   const gender = useStore((s) => s.gender);
   const muted = useStore((s) => s.muted);
   const reduced = useStore((s) => s.reduced);
+  const sessionStart = useStore((s) => s.sessionStart);
   const [phase, setPhase] = useState<'start' | 'play' | 'done'>('start');
   const [time, setTime] = useState(0);
   const [small, setSmall] = useState(false);
@@ -101,7 +103,7 @@ export default function Prototype() {
   const start = () => {
     audio.init(); audio.setMuted(store.get().muted); audio.startBed(); audio.loadTheme('/raat/audio/theme.mp4'); audio.themeLevel(.12);
     try { localStorage.setItem('raat-name', store.get().name); } catch { /* private mode */ }
-    seek(0); clock.current.paused = false; setPhase('play');
+    beginSession(); seek(0); clock.current.paused = false; setPhase('play');
   };
   const toggleSound = () => { audio.init(); const m = !muted; audio.setMuted(m); store.set({ muted: m }); };
 
@@ -128,7 +130,7 @@ export default function Prototype() {
       {phase !== 'start' && phoneOn && (
         <div className="phone-note" role="status">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[.18em] text-ash/70">
-            <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> 12:47 <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
+            <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> {storyTime(sessionStart, lang)} <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
           </div>
           <p className="mt-1 text-[15px] font-semibold text-bone">{t('h3')}</p>
         </div>

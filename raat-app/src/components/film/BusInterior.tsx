@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { GHOSTS, interiorAt, type GhostPose } from '@/lib/film/interior';
+import { GHOSTS, boardingAt, interiorAt, type GhostPose, type InteriorMode } from '@/lib/film/interior';
 import { LENS_FRAG, LENS_VERT, RELIEF_FRAG, RELIEF_VERT } from '@/lib/three/shaders';
 import { texture } from '@/lib/three/textures';
 import { glow } from '@/lib/film/textures';
@@ -28,7 +28,7 @@ function Relief({ name, yaw, small }: { name: string; yaw: number; small: boolea
   useEffect(() => () => mat.dispose(), [mat]);
   useFrame(() => {
     const map = texture(`/raat/scenes/${name}${small ? '-m' : ''}.webp`), d = texture(`/raat/scenes/${name}-d.webp`, false);
-    const u = mat.uniforms; u.uMap.value = map; u.uDepth.value = d; u.uHas.value = map && d ? 1 : 0; u.uLight.value = now.flick;
+    const u = mat.uniforms; u.uMap.value = map; u.uDepth.value = d; u.uHas.value = map && d ? 1 : 0; u.uLight.value = now.flick * (1 + now.f.flash * 2.2);
   });
   return (
     <mesh material={mat} rotation-y={yaw} frustumCulled={false}>
@@ -100,7 +100,7 @@ function Ghost({ small }: { small: boolean }) {
       m.position.set(g.pos[0], g.pos[1] + g.h / 2, g.pos[2] + closer);
       m.rotation.y = Math.atan2(camera.position.x - m.position.x, camera.position.z - m.position.z);
       mat.opacity = now.f.ghostAlpha;
-      mat.color.setScalar(Math.min(1.1, now.flick * 1.05));
+      mat.color.setScalar(Math.min(1.1, now.flick * 1.05) * now.f.ghostDim);
     });
   });
   return (
@@ -112,6 +112,25 @@ function Ghost({ small }: { small: boolean }) {
         </mesh>
       ))}
     </>
+  );
+}
+
+/** The driver in his seat, seen from behind. He never turns round while you board. */
+function Driver({ small }: { small: boolean }) {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame(() => {
+    const m = ref.current; if (!m) return;
+    const tx = texture(`/raat/cutouts/driver-back${small ? '-m' : ''}.webp`), mat = m.material as THREE.MeshBasicMaterial;
+    if (tx && mat.map !== tx) { mat.map = tx; mat.needsUpdate = true; }
+    m.visible = !!tx && now.f.driver;
+    mat.color.setScalar(Math.min(1, now.flick * .95 * (1 + now.f.flash)));
+  });
+  // facing the cabin (+z), his seat is on the right, i.e. world -x
+  return (
+    <mesh ref={ref} position={[-1.05, -.62, 2.45]} rotation-y={Math.PI} renderOrder={2}>
+      <planeGeometry args={[1.1, 1.12]} />
+      <meshBasicMaterial transparent alphaTest={.35} />
+    </mesh>
   );
 }
 
@@ -129,7 +148,7 @@ function Dust({ count }: { count: number }) {
 }
 
 /** Camera, flicker and the lens pass. */
-function Director({ reduced, progress }: { reduced: boolean; progress: () => number }) {
+function Director({ reduced, progress }: { reduced: boolean; progress: () => { mode: InteriorMode; t: number } }) {
   const { gl, scene, camera, size } = useThree();
   const cam = camera as THREE.PerspectiveCamera;
   const dpr = useThree((s) => s.viewport.dpr), setDpr = useThree((s) => s.setDpr);
@@ -147,7 +166,7 @@ function Director({ reduced, progress }: { reduced: boolean; progress: () => num
   useFrame((state, delta) => {
     st.sum += delta; st.n++;
     if (st.n === 90) { if (st.sum / st.n > 1 / 38 && st.level < 2) { st.level++; setDpr(st.level === 1 ? 1 : .75); } st.n = 0; st.sum = 0; }
-    const t = progress(), f = interiorAt(t, live.lookBacks), ms = performance.now();
+    const p = progress(), t = p.t, f = p.mode === 'board' ? boardingAt(t) : interiorAt(t, live.lookBacks), ms = performance.now();
     now.f = f;
     // tube lights: occasional dips, chaos at the end
     let fl = 1;
@@ -156,14 +175,14 @@ function Director({ reduced, progress }: { reduced: boolean; progress: () => num
       if (ms < st.dip) fl = f.flicker === 2 ? Math.random() * .3 : .3 + Math.random() * .3;
     }
     if (reduced) fl = Math.max(.7, fl);
-    now.flick = fl * (t > .965 ? 0 : 1); live.flicker = fl;
+    now.flick = fl * (p.mode === 'inside' && t > .965 ? 0 : 1); live.flicker = fl;
     // she changes place: the lens glitches
     if (f.ghost !== st.lastGhost) { st.glitch = 1; st.lastGhost = f.ghost; }
     st.glitch = Math.max(0, st.glitch - Math.min(delta, .05) * 2.6);
 
     const vib = reduced ? 0 : f.moving * .006;
     const px = reduced ? 0 : live.pointer.x * .04, py = reduced ? 0 : -live.pointer.y * .03;
-    cam.position.set(Math.sin(state.clock.elapsedTime * 13) * vib, f.height + Math.sin(state.clock.elapsedTime * 9.3) * vib, -f.dolly * Math.cos(f.yaw) * (f.yaw < .2 ? 1 : 0));
+    cam.position.set(Math.sin(state.clock.elapsedTime * 13) * vib, f.height + Math.sin(state.clock.elapsedTime * 9.3) * vib, -f.dolly);
     cam.rotation.set(f.pitch + py, -f.yaw + px, 0, 'YXZ');
     if (Math.abs(cam.fov - f.fov) > .01) { cam.fov = f.fov; cam.updateProjectionMatrix(); }
 
@@ -178,7 +197,7 @@ function Director({ reduced, progress }: { reduced: boolean; progress: () => num
  * The inside of the bus as a real space: the back of the bus in front of you, the driver's cabin
  * behind you, rebuilt in 3D from two photographs and their depth maps.
  */
-export default function BusInterior({ small, reduced, progress }: { small: boolean; reduced: boolean; progress: () => number }) {
+export default function BusInterior({ small, reduced, progress }: { small: boolean; reduced: boolean; progress: () => { mode: InteriorMode; t: number } }) {
   return (
     <Canvas className="!absolute inset-0" dpr={small ? [1, 1.5] : [1, 1.75]} flat linear
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
@@ -187,6 +206,7 @@ export default function BusInterior({ small, reduced, progress }: { small: boole
       <Relief name="inside-empty" yaw={0} small={small} />
       <Relief name="cabin" yaw={Math.PI} small={small} />
       <Ghost small={small} />
+      <Driver small={small} />
       <PassingLights />
       <Dust count={small ? 150 : 400} />
       <Director reduced={reduced} progress={progress} />

@@ -4,6 +4,7 @@ import type { Gender, Lang } from '@/data/translations';
 import type { GameId } from '@/data/stories/last-passenger';
 
 export type GameResult = 'win' | 'lose' | 'skip';
+export type CallState = 'IDLE' | 'CALL_1' | 'DECLINED_1' | 'CALL_2' | 'DECLINED_2' | 'CALL_3' | 'DECLINED_3' | 'KOKILA_JUMPSCARE' | 'FORCED_CALL' | 'ANSWERED' | 'FINAL_CONVERSATION' | 'DONE';
 export type Quality = 'high' | 'low';
 
 export interface State {
@@ -26,6 +27,13 @@ export interface State {
   finished: boolean;
   batt: number | null;
   notice: { id: number; k: string; from: 'unknown' | 'kokila' } | null;
+  /** the moment the visitor boarded: one reference time for every story timestamp */
+  sessionStart: number | null;
+  tz: string;
+  hour12: boolean;
+  /** Kokila's final call */
+  call: CallState;
+  declines: number;
 }
 
 const initial: State = {
@@ -33,6 +41,7 @@ const initial: State = {
   lang: 'en', name: '', gender: 'm', muted: false, volume: .8,
   sceneIndex: 0, cueKey: '', game: null, results: {}, callAccepted: null, callOpen: false, finished: false,
   batt: null, notice: null,
+  sessionStart: null, tz: 'UTC', hour12: true, call: 'IDLE', declines: 0,
 };
 
 let state: State = initial;

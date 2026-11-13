@@ -72,8 +72,6 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .fx-flash { position: fixed; inset: 0; z-index: 17; pointer-events: none; background: #e9e6df; opacity: 0; }
 .fx-black { position: fixed; inset: 0; z-index: 18; pointer-events: none; background: #000; opacity: 0; transition: opacity .08s; }
 .fx-black.on { opacity: 1; }
-.fx-crack { position: fixed; inset: 0; z-index: 14; pointer-events: none; width: 100%; height: 100%; animation: crackIn .25s ease-out; }
-@keyframes crackIn { from { opacity: 0; transform: scale(1.04) } to { opacity: 1; transform: none } }
 .fx-scare { position: fixed; inset: 0; z-index: 60; background: #000; display: grid; place-items: center; pointer-events: none; animation: scare .55s steps(2) forwards; }
 .fx-scare img { height: 112vh; max-width: none; filter: contrast(1.4) drop-shadow(6px 0 0 rgba(255,0,0,.35)) drop-shadow(-6px 0 0 rgba(0,200,255,.25)); animation: scareImg .55s ease-out forwards; }
 @keyframes scare { 0% { opacity: 1 } 80% { opacity: 1 } 100% { opacity: 0 } }
@@ -117,8 +115,9 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .phone-call { width: min(92vw, 360px); padding: 2.2rem 1.5rem 2.4rem; text-align: center; border-radius: 36px; background: linear-gradient(180deg, #171619, #0d0c0e); border: 1px solid rgba(182,169,154,.12); box-shadow: 0 40px 90px rgba(0,0,0,.8); }
 .phone-call.ringing { animation: ring 1.1s ease-in-out infinite; }
 @keyframes ring { 0%,100% { transform: rotate(0) } 10% { transform: rotate(-2deg) } 20% { transform: rotate(2deg) } 30% { transform: rotate(-1deg) } 40% { transform: rotate(0) } }
-.call-btn { display: flex; flex-direction: column; align-items: center; gap: .5rem; width: 4.2rem; padding-top: 1.1rem; height: 4.2rem; border-radius: 999px; color: #D4C8B5; font-size: .7rem; }
-.call-btn span { margin-top: 1.4rem; color: #B6A99A; white-space: nowrap; }
+.call-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 4.4rem; height: 4.4rem; border-radius: 999px; color: #f0e6d6; font-size: .72rem; }
+.call-btn svg { width: 38%; height: 38%; }
+.call-btn span { position: absolute; top: calc(100% + .55rem); left: 50%; transform: translateX(-50%); color: #B6A99A; white-space: nowrap; }
 .end-card { animation: lineIn 1.4s ease both; }
 .ticket-wrap { transform-style: preserve-3d; will-change: transform, opacity; }
 
@@ -156,3 +155,67 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .film-you, .film-driver { bottom: 9%; font-size: clamp(1rem, 2vw, 1.35rem); color: #ece3d4; }
 .film-who { display: block; font-size: .62rem; letter-spacing: .32em; text-transform: uppercase; color: #9fb0a8; margin-bottom: .3rem; }
 .film-driver .film-who { color: #c8a675; }
+
+/* opening: the figure, the eyes, the phone */
+.op-figure { position: absolute; left: 50%; bottom: 8%; height: 62vh; transform: translateX(-50%); filter: brightness(.22) contrast(1.4) blur(.6px); opacity: .9; pointer-events: none; }
+.op-figure.soft { animation: softIn .9s ease forwards; opacity: 0; }
+.op-eyes { position: absolute; left: 50%; top: 42%; width: 64vw; height: 15vw; transform: translate(-50%, -50%); background-size: 266.7vw 150vw; background-position: -101.3vw -40.5vw; filter: brightness(.95) contrast(1.6) saturate(.5); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 40%, transparent 100%); pointer-events: none; }
+.op-eyes.soft { animation: softIn .5s ease forwards; opacity: 0; }
+@keyframes softIn { 0% { opacity: 0 } 50% { opacity: .55 } 100% { opacity: 0 } }
+.op-phone { position: absolute; left: 50%; top: 50%; width: min(88vw, 340px); padding: 2.4rem 1rem 1.2rem; border-radius: 38px; border: 1px solid rgba(182,169,154,.14); background: linear-gradient(180deg, rgba(23,22,25,.92), rgba(9,9,11,.96)); box-shadow: 0 0 0 6px #0c0c0e, 0 40px 120px rgba(0,0,0,.9), 0 0 60px rgba(114,25,31,.15); transform: translate(-50%, -46%) scale(.96); opacity: 0; transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.8,.2,1); text-align: left; }
+.op-phone.in { opacity: 1; transform: translate(-50%, -50%) scale(1); animation: phoneBuzz .5s ease 3; }
+@keyframes phoneBuzz { 0%,100% { margin-left: 0 } 25% { margin-left: -3px } 75% { margin-left: 3px } }
+.op-clock { text-align: center; font-family: var(--font-body), sans-serif; font-weight: 200; font-size: 3.4rem; letter-spacing: -.02em; color: #D4C8B5; line-height: 1; }
+.op-note { margin-top: 1.6rem; padding: .9rem 1rem 1rem; border-radius: 18px; background: rgba(40,38,44,.7); backdrop-filter: blur(10px); opacity: 0; transform: translateY(-8px); transition: all .9s ease; }
+.op-note.in { opacity: 1; transform: none; }
+.lang-hi .op-note .font-display { font-family: var(--font-deva-serif), serif; }
+.lang-gu .op-note .font-display { font-family: var(--font-guj-serif), serif; }
+
+/* flashlight games (milestone 3) */
+.game-stage { position: absolute; inset: 0; overflow: hidden; outline: none; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; background: #000; cursor: none; }
+@media (pointer: coarse) { .game-stage { cursor: auto; } }
+.dark-view { position: absolute; left: 0; top: 50%; width: max(100%, calc(100svh * 1.7778)); height: max(100svh, calc(100vw / 1.7778)); transform: translate(0, -50%); will-change: transform; }
+.beam-dark { position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle var(--fr, 120px) at var(--fx, 50%) var(--fy, 55%), transparent 0%, rgba(0,0,0,.18) 45%, rgba(0,0,0,.85) 78%, #000 100%);
+          mask-image: radial-gradient(circle var(--fr, 120px) at var(--fx, 50%) var(--fy, 55%), transparent 0%, rgba(0,0,0,.18) 45%, rgba(0,0,0,.85) 78%, #000 100%); }
+.beam-warm { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; background: radial-gradient(circle var(--fr, 120px) at var(--fx, 50%) var(--fy, 55%), rgba(255,222,170,.55), rgba(255,222,170,0) 70%); }
+.kokila-spot { position: absolute; transform: translateX(-50%); pointer-events: none; transition: filter .15s; }
+.hint-pulse { position: absolute; width: 9%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 999px; background: radial-gradient(circle, rgba(179,38,47,.75), rgba(179,38,47,0) 70%); animation: hintPulse 1.3s ease-out forwards; pointer-events: none; z-index: 3; }
+@keyframes hintPulse { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.5) } 30% { opacity: 1 } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6) } }
+.clue-glint { position: absolute; width: 7%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 999px; background: radial-gradient(circle, rgba(255,236,200,.0), rgba(255,236,200,0) 60%); transition: background .3s, box-shadow .3s; }
+.clue-glint[data-lit="true"], .clue-glint:focus-visible { background: radial-gradient(circle, rgba(255,236,200,.55), rgba(255,236,200,.05) 35%, rgba(255,236,200,0) 62%); }
+.clue-glint.hinted { background: radial-gradient(circle, rgba(179,38,47,.7), rgba(179,38,47,0) 62%); }
+.clue-glint.done { background: radial-gradient(circle, rgba(114,25,31,.6), rgba(114,25,31,0) 45%); }
+.prop-card { width: min(90vw, 420px); padding: 1.4rem 1.4rem 1.2rem; background: #e6dcc4; color: #1b140c; box-shadow: 0 30px 80px rgba(0,0,0,.85); transform: rotate(-1.2deg); animation: pop .5s cubic-bezier(.2,1.4,.4,1); font-size: .95rem; line-height: 1.5; }
+.prop-card .ghost-btn { color: #1b140c; border-color: rgba(27,20,12,.45); }
+.prop-card .ghost-btn:hover, .prop-card .ghost-btn:focus-visible { background: rgba(27,20,12,.08); }
+.prop-card h3 { font-family: var(--font-body), sans-serif; font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: #6b5a40; margin-bottom: .6rem; }
+.prop-id { background: linear-gradient(135deg, #d9d2bd, #c6bca2); border: 1px solid #8a7a58; font-family: ui-monospace, monospace; font-size: .82rem; }
+.prop-log { background: repeating-linear-gradient(#efe6cf 0 26px, #cfc3a6 26px 27px); font-family: "Segoe Script", "Bradley Hand", cursive; color: #1d2a5e; }
+.prop-news { background: #ddd5bf; font-family: Georgia, serif; }
+.prop-news p::first-line { font-weight: 700; letter-spacing: .02em; }
+.prop-photo { width: 84px; height: 104px; float: right; margin: 0 0 .6rem .8rem; background-size: 430% auto; background-position: 22% 28%; filter: sepia(.6) contrast(1.1); border: 2px solid #f1ead8; }
+.wedding { aspect-ratio: 1536 / 1024 !important; }
+.ink-date { position: absolute; right: 7%; bottom: 6%; font-family: "Segoe Script", "Bradley Hand", cursive; font-size: clamp(.7rem, 1.8vw, 1.05rem); color: rgba(40,35,90,.75); transform: rotate(-4deg); pointer-events: none; }
+.magnifier { position: absolute; left: 0; top: 0; border-radius: 999px; border: 2px solid rgba(230,220,200,.75); box-shadow: 0 0 0 6px rgba(0,0,0,.35), 0 20px 50px rgba(0,0,0,.7); background-repeat: no-repeat; pointer-events: none; transition: opacity .2s; z-index: 5; }
+.clue-line { padding: .6rem 1rem; background: rgba(9,9,11,.75); color: #e8dfcd; font-size: .95rem; backdrop-filter: blur(4px); animation: lineIn .5s ease both; }
+
+/* Kokila, too close */
+.kokila-scare { position: fixed; inset: 0; z-index: 70; background: #000; overflow: hidden; pointer-events: none; animation: ksIn .25s steps(1) forwards; }
+.kokila-scare .ks-face { position: absolute; inset: -12%; background: url(/raat/scenes/her-face.webp) 49% 30% / cover no-repeat; filter: contrast(1.35) brightness(.95) saturate(.8); animation: ksFace .9s cubic-bezier(.1,.9,.2,1) .26s both, ksShake .5s .26s 2; opacity: 0; }
+.kokila-scare .ks-hair { position: absolute; inset: 0; background: radial-gradient(ellipse 45% 70% at 50% 40%, transparent 60%, rgba(0,0,0,.9)); animation: ksHair 3s ease-in-out .26s infinite alternate; }
+.kokila-scare .ks-line { position: absolute; left: 0; right: 0; bottom: 12%; padding: 0 1.5rem; text-align: center; font-family: var(--font-display), serif; font-size: clamp(1.4rem, 4vw, 2.6rem); color: #f0e6d6; text-shadow: 0 2px 20px #000; animation: lineIn .6s ease 1s both; }
+.lang-hi .kokila-scare .ks-line { font-family: var(--font-deva-serif), serif; }
+.lang-gu .kokila-scare .ks-line { font-family: var(--font-guj-serif), serif; }
+.kokila-scare.soft .ks-face { animation: ksSoft 2.6s ease both; }
+.kokila-scare.soft { animation: none; }
+@keyframes ksIn { 0% { opacity: 1 } }
+@keyframes ksFace { 0% { opacity: 1; transform: scale(1.55) } 100% { opacity: 1; transform: scale(1.18) } }
+@keyframes ksShake { 0%,100% { margin-left: 0 } 20% { margin-left: -14px } 40% { margin-left: 12px } 60% { margin-left: -8px } 80% { margin-left: 5px } }
+@keyframes ksHair { 0% { transform: translateX(-1%) skewX(-1deg) } 100% { transform: translateX(1%) skewX(1deg) } }
+@keyframes ksSoft { 0% { opacity: 0; transform: scale(1.05) } 100% { opacity: .85; transform: scale(1.12) } }
+.call-btn { min-width: 4.4rem; min-height: 4.4rem; }
+.call-btn.big { width: 5.6rem; height: 5.6rem; box-shadow: 0 0 0 0 rgba(47,74,53,.7); animation: answerPulse 1.4s ease-out infinite; }
+.call-btn.big span { font-size: .8rem; color: #D4C8B5; }
+@keyframes answerPulse { 0% { box-shadow: 0 0 0 0 rgba(90,150,105,.55) } 100% { box-shadow: 0 0 0 26px rgba(90,150,105,0) } }
+.phone-call.forced { border-color: rgba(114,25,31,.5); }

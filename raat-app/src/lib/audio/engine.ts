@@ -246,7 +246,7 @@ class AudioEngine {
     ([[1000, 1], [1600, .7], [3100, .5]] as Pt[]).forEach(([f, a]) => { const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 5; const ag = c.createGain(); ag.gain.value = a * 1.3; voice.connect(bp); bp.connect(ag); ag.connect(ws); });
     voice.start(t); vib.start(t); voice.stop(t + 1.6); vib.stop(t + 1.6);
   }
-  hit() { if (!this.ok) return; this.thump(this.safe ? .3 : .9, 70); this.crack(); }
+  hit() { if (!this.ok) return; this.thump(this.safe ? .3 : .9, 70); this.glitch(); }
   glitch() {
     if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .5;
     for (let i = 0; i < 8; i++) g.gain.setValueAtTime(Math.random() * .25, t + i * .07); g.gain.setValueAtTime(0, t + .6); n.connect(bp); bp.connect(g); g.connect(this.master); n.start(t); n.stop(t + .65);
@@ -263,6 +263,63 @@ class AudioEngine {
     if (!this.ok) return; const c = this.ctx!, t0 = this.now;
     const n = this.src(), lp = c.createBiquadFilter(), g = c.createGain(); lp.type = 'lowpass'; lp.frequency.value = 700; this.env(g, t0, [[.6, .18], [3, .12], [4, 0]]); n.connect(lp); lp.connect(g); this.out(g, 0, .2); n.start(t0); n.stop(t0 + 4.1);
     for (let i = 0; i < 40; i++) { const at = t0 + Math.random() * 3.6, o = this.src(), hp = c.createBiquadFilter(), cg = c.createGain(); hp.type = 'highpass'; hp.frequency.value = 2000; this.env(cg, at, [[.002, .12 * Math.random()], [.03, 0]]); o.connect(hp); hp.connect(cg); this.out(cg, Math.random() - .5, .1); o.start(at, Math.random()); o.stop(at + .04); }
+  }
+  /** a distant bus horn: two detuned reeds, far away in the fog */
+  horn(v = .5) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+    const g = c.createGain(); this.env(g, t, [[.08, .07 * v], [.9, .06 * v], [1.4, 0]]);
+    [233, 277].forEach((f) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t); o.frequency.linearRampToValueAtTime(f * .985, t + 1.4); o.connect(lp); o.start(t); o.stop(t + 1.5); });
+    lp.connect(g); this.out(g, -.4, 1.2);
+  }
+  /** a phone vibrating on a hard surface */
+  vibrate(times = 2) {
+    if (!this.ok) return; const c = this.ctx!; let t = this.now;
+    for (let i = 0; i < times; i++) {
+      const o = c.createOscillator(), g = c.createGain(), am = c.createOscillator(), ag = c.createGain();
+      o.type = 'square'; o.frequency.value = 150; am.frequency.value = 33; ag.gain.value = .5; am.connect(ag); ag.connect(g.gain);
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 600;
+      this.env(g, t, [[.02, .09], [.42, .08], [.46, 0]]); o.connect(lp); lp.connect(g); this.out(g, .25, .05);
+      o.start(t); am.start(t); o.stop(t + .5); am.stop(t + .5); t += .75;
+    }
+  }
+  /** metal or a seat creaking */
+  creak(v = .5, pan = 0) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(70 + Math.random() * 30, t); o.frequency.linearRampToValueAtTime(42, t + 1.6);
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 9; bp.frequency.setValueAtTime(900, t); bp.frequency.linearRampToValueAtTime(380, t + 1.6);
+    const am = c.createOscillator(), amg = c.createGain(), vg = c.createGain(); am.frequency.value = 15 + Math.random() * 6; amg.gain.value = .5; vg.gain.value = .5; am.connect(amg); amg.connect(vg.gain);
+    const g = c.createGain(); this.env(g, t, [[.15, .25 * v], [1.2, .18 * v], [1.7, 0]]);
+    o.connect(bp); bp.connect(vg); vg.connect(g); this.out(g, pan, .6); o.start(t); am.start(t); o.stop(t + 1.8); am.stop(t + 1.8);
+  }
+  /** an uneven heartbeat that skips */
+  irregularHeart(beats = 6) {
+    if (!this.ok) return; let at = 0;
+    for (let i = 0; i < beats; i++) { const d = at; window.setTimeout(() => this.heartbeat(.32 + Math.random() * .1), d); at += 700 + Math.random() * 600 + (Math.random() < .25 ? 700 : 0); }
+  }
+  /** the bus door folding shut */
+  doorClose() { if (!this.ok) return; this.hiss(this.now, .5); window.setTimeout(() => { this.thump(.6, 85); this.creak(.25, .3); }, 380); }
+  /** footsteps on ribbed metal steps */
+  stepsMetal(n = 3) {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < n; i++) window.setTimeout(() => {
+      this.step(.4, i % 2 ? .15 : -.15);
+      const t = this.now, n2 = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 6;
+      this.env(g, t, [[.003, .12], [.12, 0]]); n2.connect(bp); bp.connect(g); this.out(g, 0, .4); n2.start(t, Math.random()); n2.stop(t + .14);
+    }, i * 520);
+  }
+  /** rain against the windows, a soft patter layer (0 stops) */
+  private rainNode: { out: GainNode } | null = null;
+  setRain(level: number) {
+    if (!this.ok) return; const c = this.ctx!;
+    if (!this.rainNode) {
+      if (level <= 0) return;
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.master);
+      const n = this.src(), hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900; lp.type = 'lowpass'; lp.frequency.value = 6000;
+      const g = c.createGain(); g.gain.value = .07; n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out); n.start();
+      this.rainNode = { out };
+    }
+    this.rainNode.out.gain.setTargetAtTime(level, this.now, .6);
   }
   /** phone ringtone loop */
   startRing() {

@@ -7,21 +7,18 @@ export const ghostFace = (): string => '/raat/scenes/her-face.webp';
 export const oldPhoto = (): string => '/raat/scenes/photo-1999.webp';
 export const weddingPhoto = (): string => '/raat/scenes/wedding-1974.webp';
 
-/** Film grain, vignette, flashes, blackouts, cracked glass and the one real jump scare. */
+/** Film grain, vignette, flashes, blackouts and the one real jump scare. */
 export default function Overlays() {
-  const scene = useStore((s) => s.sceneIndex);
   const safe = useStore((s) => s.safe);
   const reduced = useStore((s) => s.reduced);
   const flash = useRef<HTMLDivElement>(null);
   const [black, setBlack] = useState(false);
   const [scare, setScare] = useState(false);
-  const [crack, setCrack] = useState(false);
   const face = ghostFace();
 
   useEffect(() => {
     const off = events.on((id) => {
       if (id === 'blackout') { setBlack(true); window.setTimeout(() => setBlack(false), 1000); }
-      if (id === 'crack') setCrack(true);
       if (id === 'jumpscare' && !store.get().safe && !store.get().reduced) { setScare(true); window.setTimeout(() => setScare(false), 520); }
     });
     // film grain: a small noise tile drawn once, then shifted with CSS
@@ -40,21 +37,12 @@ export default function Overlays() {
     return () => { off(); cancelAnimationFrame(raf); };
   }, [reduced]);
 
-  useEffect(() => { if (scene < 5 || scene > 5) setCrack(false); }, [scene]);
 
   return (
     <>
       <div className="fx-vignette" aria-hidden />
       <div className={`fx-grain ${reduced ? 'still' : ''}`} aria-hidden />
       <div ref={flash} className="fx-flash" aria-hidden />
-      {crack && (
-        <svg className="fx-crack" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden>
-          <g stroke="rgba(230,226,215,.55)" strokeWidth="1.2" fill="none">
-            <path d="M0 80 L140 120 L210 90 L330 160 L420 140" /><path d="M140 120 L120 220 L160 300" /><path d="M210 90 L240 10" />
-            <path d="M1000 420 L860 380 L800 440 L690 400 L610 470" /><path d="M860 380 L880 260 L840 200" /><path d="M800 440 L790 560" />
-          </g>
-        </svg>
-      )}
       <div className={`fx-black ${black ? 'on' : ''}`} aria-hidden />
       {scare && !safe && (
         <div className="fx-scare" aria-hidden>

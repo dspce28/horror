@@ -3,6 +3,7 @@
 import { clamp, lerp, range, smooth } from '@/lib/animation/director';
 
 export type GhostPose = 'none' | 'hair' | 'behind' | 'look';
+export type InteriorMode = 'board' | 'inside';
 
 export interface InteriorFrame {
   yaw: number;          // 0 = facing the back, PI = facing the cabin
@@ -15,6 +16,9 @@ export interface InteriorFrame {
   flicker: 0 | 1 | 2;
   moving: number;       // 0 parked … 1 driving (passing lights)
   turnSpeed: number;    // for the lens
+  flash: number;        // the doorway's light, fading as the eyes adjust
+  ghostDim: number;     // 1 = seen plainly, lower = only a silhouette
+  driver: boolean;      // the driver's cut-out sits in his seat
 }
 
 const turn = (t: number, a: number, b: number, from: number, to: number) => lerp(from, to, smooth(range(t, a, b)));
@@ -29,7 +33,7 @@ export function interiorAt(t: number, lookBacks: number): InteriorFrame {
   if (t > .92) yaw = Math.PI * 4 + turn(t, .92, .935, 0, -.75);   // a whisper behind your right ear
 
   const sit = smooth(range(t, .3, .37));
-  const dolly = t < .3 ? lerp(-.3, .55, smooth(range(t, 0, .22))) : lerp(.55, 0, sit);
+  const dolly = t < .3 ? lerp(.6, .75, smooth(range(t, 0, .22))) : lerp(.75, 0, sit);
   const fov = t < .3 ? lerp(46, 34, smooth(range(t, .1, .24))) : t > .745 && t < .85 ? lerp(46, 38, smooth(range(t, .76, .84))) : 46;
 
   let ghost: GhostPose = 'none', ghostAlpha = 0;
@@ -43,7 +47,35 @@ export function interiorAt(t: number, lookBacks: number): InteriorFrame {
   // turning speed: how fast yaw changes per unit of progress, mapped to 0–1
   const k = .003, y2 = interiorYawOnly(t + k), y1 = interiorYawOnly(t - k);
   const turnSpeed = clamp(Math.abs(y2 - y1) / (2 * k) / 140);
-  return { yaw, pitch: t > .745 && t < .85 ? .05 : 0, dolly, height: -sit * .32, fov, ghost, ghostAlpha, flicker, moving: smooth(range(t, .31, .42)), turnSpeed };
+  return { yaw, pitch: t > .745 && t < .85 ? .05 : 0, dolly, height: -sit * .32, fov, ghost, ghostAlpha, flicker, moving: smooth(range(t, .31, .42)), turnSpeed, flash: 0, ghostDim: 1, driver: true };
+}
+
+/**
+ * Boarding, inside half (k 0–1): stepping in facing the driver, the door shuts behind, a turn to the
+ * aisle, a walk down it, a glance back at the driver now far away, and the silhouette at the back.
+ * Ends exactly where the 'inside' scene starts (facing the back, a little way down the aisle).
+ */
+export function boardingAt(k: number): InteriorFrame {
+  let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);              // up the steps, turning to the cabin
+  if (k > .36) yaw = turn(k, .36, .55, Math.PI, Math.PI * 2);       // turn to the aisle
+  if (k > .78) yaw = turn(k, .78, .84, Math.PI * 2, Math.PI * 3);   // glance back: the driver, far away now
+  if (k > .88) yaw = turn(k, .88, .95, Math.PI * 3, Math.PI * 4);   // and back to the aisle
+  const dolly = k < .55 ? 0 : lerp(0, .6, smooth(range(k, .55, .78)));
+  const step = k < .2 ? Math.max(0, Math.sin(k * Math.PI * 14)) * .03 : 0;
+  const ghostAlpha = smooth(range(k, .64, .76)) * (k > .78 && k < .95 ? 0 : 1);
+  const y1 = boardYaw(k + .003), y0 = boardYaw(k - .003);
+  return {
+    yaw, pitch: k < .2 ? -.06 : 0, dolly, height: -.12 + k * .12 + step, fov: k > .62 && k < .78 ? lerp(46, 38, smooth(range(k, .62, .76))) : 46,
+    ghost: 'hair', ghostAlpha, flicker: k > .08 ? 1 : 0, moving: 0, turnSpeed: clamp(Math.abs(y1 - y0) / .006 / 140),
+    flash: 1 - smooth(range(k, 0, .1)), ghostDim: .6, driver: true,
+  };
+}
+function boardYaw(k: number) {
+  let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);
+  if (k > .36) yaw = turn(k, .36, .55, Math.PI, Math.PI * 2);
+  if (k > .78) yaw = turn(k, .78, .84, Math.PI * 2, Math.PI * 3);
+  if (k > .88) yaw = turn(k, .88, .95, Math.PI * 3, Math.PI * 4);
+  return yaw;
 }
 
 function interiorYawOnly(t: number) {

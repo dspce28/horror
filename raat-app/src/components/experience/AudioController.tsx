@@ -2,9 +2,10 @@
 import { useEffect } from 'react';
 import { audio } from '@/lib/audio/engine';
 import { events, live, store } from '@/lib/store';
-import { SCENES } from '@/data/stories/last-passenger';
+import { SCENES, sceneIndex } from '@/data/stories/last-passenger';
 import { soundAt } from '@/lib/animation/director';
 import { film } from '@/lib/film/clock';
+import { startCallIfIdle } from '@/components/ui/IncomingCall';
 
 function buzzPhone(pattern: number[]) {
   if (store.get().safe || !navigator.vibrate) return;
@@ -23,6 +24,10 @@ export default function AudioController() {
         case 'brake': audio.brake(); live.shake = .9; film.shake = 1.2; break;
         case 'stop': live.shake = .7; film.shake = .7; audio.thump(.4, 70); break;
         case 'door': audio.door(); break;
+        case 'door-open': audio.door(); break;
+        case 'steps-metal': audio.stepsMetal(3); break;
+        case 'door-close': audio.doorClose(); live.shake = .4; break;
+        case 'creak-back': audio.creak(.4, .8); break;
         case 'step-in': audio.steps(3); break;
         case 'engine-start': audio.thump(.35, 60); break;
         case 'teleport': audio.thump(.5, 70); audio.glitch(); break;
@@ -32,14 +37,15 @@ export default function AudioController() {
         case 'driver-turn': audio.breath(); break;
         case 'thunder': audio.thunder(); live.flash = 1; break;
         case 'stare': audio.themeLevel(0, .2); audio.heartbeat(.6); break;
-        case 'crack': audio.crack(); live.shake = 1; break;
+        // story-motivated, not broken glass: the lights die, a seat creaks behind you, the phone buzzes with nothing on it
+        case 'lights-die': audio.creak(.55, .7); window.setTimeout(() => audio.vibrate(1), 900); live.shake = .4; buzzPhone([120]); break;
         case 'shriek': audio.shriek(.9); live.shake = 1.2; buzzPhone([300, 50, 300]); break;
         case 'jumpscare': audio.hit(); if (!s.safe) audio.shriek(.7); buzzPhone([400]); break;
         case 'yell': audio.shriek(.35); break;
         case 'reveal-next': audio.thump(.5, 50); break;
         case 'burn': audio.burn(); break;
         case 'laugh': audio.laugh(); break;
-        case 'call': store.set({ callOpen: true }); break;
+        case 'call': startCallIfIdle(); break;
         default: break;
       }
     });
@@ -53,18 +59,19 @@ export default function AudioController() {
       const s = store.get();
       audio.setEngine(s.game ? w.engine * .4 : w.engine, w.rpm);
       audio.dread(w.dread);
-      const inBus = i >= 3 && i <= 6;
+      const inBus = ['board', 'inside', 'driver', 'encounter', 'twist'].includes(id) && !(id === 'board' && t < .55);
       audio.setBuzz(inBus && w.lights ? .5 * Math.min(1, live.flicker) : 0);
       const heart = (id === 'driver' && t > .9) || (id === 'encounter' && t < .93) ? 95 : id === 'inside' && t > .6 ? 72 : 0;
       audio.setHeart(s.game ? 0 : heart);
-      const theme = i <= 1 ? .16 : i === 2 ? .1 : i <= 4 ? .07 : id === 'encounter' && t < .62 ? .1 : 0;
+      const theme = id === 'open' || id === 'highway' ? .16 : id === 'bus' || id === 'board' ? .1 : id === 'inside' || id === 'driver' ? .07 : id === 'encounter' && t < .62 ? .1 : 0;
       audio.themeLevel(s.game ? .04 : theme);
-      const silent = (id === 'encounter' && t > .93) || i === 6;
-      audio.bedLevel(silent ? 0 : i >= 7 ? .5 : 1, silent ? .05 : 1);
-      if (i === 6 && t < .97 && !comedy) { comedy = true; audio.startComedy(); }
-      if ((i !== 6 || t >= .97) && comedy) { comedy = false; audio.stopComedy(); }
-      if (i < 5) audio.restoreMusic();
-      if (store.get().callOpen) audio.themeLevel(0);
+      const silent = (id === 'encounter' && t > .93) || id === 'twist';
+      audio.bedLevel(silent ? 0 : id === 'ticket' || id === 'end' ? .5 : 1, silent ? .05 : 1);
+      audio.setRain(id === 'highway' || id === 'bus' || (id === 'board' && t < .55) ? .9 : inBus ? .45 : 0);
+      if (id === 'twist' && t < .97 && !comedy) { comedy = true; audio.startComedy(); }
+      if ((id !== 'twist' || t >= .97) && comedy) { comedy = false; audio.stopComedy(); }
+      if (i < sceneIndex('encounter')) audio.restoreMusic();
+      const c = store.get().call; if (c !== 'IDLE' && c !== 'DONE') audio.themeLevel(0);
     }, 100);
 
     return () => { off(); window.clearInterval(tick); audio.stopComedy(); audio.stopRing(); };

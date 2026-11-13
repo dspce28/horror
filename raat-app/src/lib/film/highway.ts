@@ -54,7 +54,7 @@ export function busAt(t: number): { z: number; lights: number; visible: boolean;
 }
 
 /** the last shot: a cut to the bus's door */
-export const DOOR_SHOT = { from: 38.6, to: LENGTH };
+export const DOOR_SHOT = { from: 38.6, to: 45 };
 
 export interface Line { from: number; to: number; k: Key; kind: 'title' | 'intro' | 'nar' | 'you' | 'driver' | 'time' }
 export const LINES: Line[] = [

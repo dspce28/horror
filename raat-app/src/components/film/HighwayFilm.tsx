@@ -265,12 +265,14 @@ function DoorShot({ small }: { small: boolean }) {
       uMap: { value: null }, uDepth: { value: null }, uHasMap: { value: 0 }, uHasDepth: { value: 0 }, uDepthScale: { value: 1.5 },
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .6 }, uTime: { value: 0 }, uDissolve: { value: 0 }, uFade: { value: 1 },
       uDof: { value: 1.2 }, uFocus: { value: new THREE.Vector2(.84, .45) }, uFogColor: { value: new THREE.Color('#14161a') },
+      uDoor: { value: new THREE.Vector4(.797, .35, .888, .70) }, uDoorOpen: { value: 0 }, uFill: { value: 0 },
     },
   }), []);
   useDispose(mat);
   useFrame((state) => {
     const u = mat.uniforms, map = texture(`/raat/scenes/bus-side${small ? '-m' : ''}.webp`), d = texture('/raat/scenes/bus-side-d.webp', false);
     u.uMap.value = map; u.uHasMap.value = map ? 1 : 0; u.uDepth.value = d; u.uHasDepth.value = d ? 1 : 0; u.uTime.value = state.clock.elapsedTime;
+    u.uDoorOpen.value = smooth(range(film.t, 39.0, 40.4)); u.uFill.value = smooth(range(film.t, 44.0, 45));
   });
   return <mesh material={mat} position={DOOR_ORIGIN.toArray()}><planeGeometry args={[16, 9, 192, 108]} /></mesh>;
 }
@@ -311,10 +313,12 @@ function FilmCamera({ reduced }: { reduced: boolean }) {
       if (scene.fog) (scene.fog as THREE.FogExp2).density = .028;
     } else {
       // push in on the door: the photo plane is 16 × 9, the door sits near its right edge
-      const k = smooth(range(t, DOOR_SHOT.from, DOOR_SHOT.to));
+      // walk to the door, then up its steps: the frame closes on the lit doorway
+      const k = smooth(range(t, DOOR_SHOT.from, 42)) * .45 + smooth(range(t, 41.5, 45)) * 2.9;
       const aspect = size.width / size.height, cover = aspect > 16 / 9 ? 16 / aspect : 9;
-      const hv = cover / (1.1 + k * 1.5) * .86, wv = hv * aspect;
-      const fx = (.84 - .5) * 16, fy = (.5 - .52) * 9;
+      const hv = cover / (1.1 + k) * .86, wv = hv * aspect;
+      const step = Math.max(0, Math.sin((t - 42.2) * Math.PI * 1.6)) * .05 * range(t, 42.2, 44.5);
+      const fx = (.842 - .5) * 16, fy = (.5 - .53) * 9 + step;
       const cx = THREE.MathUtils.clamp(fx, -(16 - wv) / 2, (16 - wv) / 2), cy = THREE.MathUtils.clamp(fy, -(9 - hv) / 2, (9 - hv) / 2);
       const fov = 40, dist = hv / (2 * Math.tan(THREE.MathUtils.degToRad(fov / 2)));
       cam.position.set(DOOR_ORIGIN.x + cx + px * 2, DOOR_ORIGIN.y + cy + py * 2, dist);

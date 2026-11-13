@@ -20,6 +20,7 @@ export interface Vars {
   time?: string;
   device?: string;
   batt?: number | null;
+  start?: string;
 }
 
 /** Look up a line, pick the [male|female] form and fill the visitor tokens. */
@@ -29,6 +30,7 @@ export function translate(lang: Lang, key: Key, v: Vars): string {
     .replace(/\[([^\]|]*)\|([^\]]*)\]/g, (_, m: string, f: string) => (v.gender === 'f' ? f : m))
     .replace(/\{N\}/g, v.name)
     .replace(/\{TIME\}/g, v.time ?? '')
+    .replace(/\{START\}/g, v.start ?? v.time ?? '')
     .replace(/\{DEVICE\}/g, v.device ?? '')
     .replace(/\{BATT\}/g, v.batt == null ? '' : String(v.batt));
 }
