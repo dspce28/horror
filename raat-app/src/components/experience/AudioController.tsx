@@ -103,7 +103,9 @@ export default function AudioController() {
       // thunder now and then: often outside, rarely inside the bus, never during a game or the call
       const outside = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end';
       if (!s.game && !call && now > nextThunder) {
-        if (nextThunder > 0) { audio.thunder(outside ? 1 : .55); if (outside) live.flash = .7; }
+        // lightning only lights the open road; the ticket and the call stay dark (thunder is still heard)
+        const sky = id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41);
+        if (nextThunder > 0) { audio.thunder(outside ? 1 : .55); if (sky) live.flash = .45; }
         nextThunder = now + (outside ? 14000 + Math.random() * 16000 : 30000 + Math.random() * 30000);
       }
       const silent = (id === 'reveal' && t > .14 && t < .9) || (id === 'leave' && t > .9);

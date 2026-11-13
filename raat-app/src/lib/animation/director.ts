@@ -168,7 +168,7 @@ export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Fra
     press: s.press ? smooth(range(t, s.at + (end - s.at) * .15, s.at + (end - s.at) * .75)) : 0,
     shadow: s.shadow ?? null, shadowAmt: s.shadow ? smooth(range(t, s.at, s.at + (end - s.at) * .5)) * (1 - smooth(range(t, end - (end - s.at) * .2, end))) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
     light: s.lightTo != null ? lerp(s.light ?? 1, s.lightTo, k) : s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
-    glow: s.glow ?? null, glowAmt: s.glow ? (s.glowFade ? 1 - k : k) : 0, warm: !!s.warm,
+    glow: s.glow ?? null, glowAmt: s.glow ? (s.glowFade ? (1 - k) * .3 : k) : 0, warm: !!s.warm, // a fading light stays small: one diffuse point, not a flood
     fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.dofAt ? 1.35 : s.bySpeaker ? 1.2 : .75),
   };
 }
