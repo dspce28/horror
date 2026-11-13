@@ -64,6 +64,37 @@ export default function AudioController() {
         case 'burn': audio.burn(); break;
         case 'vibrate': audio.vibrate(2); buzzPhone([200, 100, 200]); break;
         case 'call': startCallIfIdle(); break;
+        // ---------- Part 2 ----------
+        case 'p2-night': audio.startBed(); break;
+        case 'p2-walk': audio.footsteps(6, 'road'); break;
+        case 'p2-run': audio.footsteps(8, 'road', true); audio.breathHeavy(3); live.shake = s.safe ? 0 : .3; break;
+        case 'p2-run-stop': audio.breathHeavy(3); break;
+        case 'anklet': audio.anklet(.3); break;
+        case 'diya': audio.diya(); break;
+        case 'metal-ring': audio.metalRing(.25); break;
+        case 'rumble': audio.rumble(.5); break;
+        case 'her-step': audio.fabric(.3); if (Math.random() < .6) audio.anklet(.18); break;   // closer each time: saree, anklets
+        case 'diya-out': audio.hushAll(1.2); audio.breath(); break;
+        case 'knock-1': audio.knock(1); break;
+        case 'knock-2': audio.knock(2, false, .38); break;
+        case 'chain': audio.chain(); break;
+        case 'door-wood': audio.doorWood(); break;
+        case 'steps-stone': audio.footsteps(4, 'stone'); break;
+        case 'leaves': audio.leaves(.5); break;
+        case 'rope-creak': audio.ropeCreak(.5); break;
+        case 'metal-impact': if (s.safe) audio.thump(.3, 80); else { audio.metalImpact(.7); live.shake = .5; } break;
+        case 'p2-silence': audio.hushAll(2.5); break;
+        case 'metal-vibe': audio.metalVibe(.35); break;
+        case 'msg-run': audio.vibrate(2); buzzPhone([150, 80, 150]); store.set({ notice: { id: Date.now(), k: 'p2_msg1', from: 'kokila' } }); break;
+        case 'msg-enter': audio.vibrate(2); buzzPhone([150, 80, 150]); store.set({ notice: { id: Date.now(), k: 'p2_msg2', from: 'kokila' } }); break;
+        case 'debris': audio.debris(); live.shake = s.safe ? .1 : .5; break;
+        case 'ritual-move': audio.ritualMove(); break;
+        case 'doll-amb': audio.hum(.25, true, -.3); break;
+        case 'knocks-inside': audio.knock(3, true, .55); live.shake = s.safe ? 0 : .15; break;
+        case 'traffic': audio.traffic(.4); break;
+        case 'tank-open': audio.creak(.15, .3); window.setTimeout(() => audio.thump(.12, 400), 500); break;
+        case 'laugh': audio.laugh(.7, true); break;
+        case 'p2-end': audio.hushAll(1.5); window.setTimeout(() => { store.set({ p2done: true }); }, 900); break;
         default: break;
       }
     });
@@ -92,19 +123,25 @@ export default function AudioController() {
       const s = store.get();
       // before boarding: the empty road (soft wind, the bus arriving). After the door shuts: only the horror theme and
       // single effects (no rain, no wind, no engine drone, no tube hum, no rattle)
+      const p2 = id.startsWith('p2');
       const before = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55);
       audio.setEngine(before && id !== 'open' ? w.engine * .7 : 0, w.rpm);
       audio.dread(w.dread);
-      audio.setBuzz(0);
+      // Part 2: the petrol pump's tube light hums
+      audio.setBuzz(id === 'p2pump' && t < .93 ? .35 : 0);
       audio.setBike(id === 'highway' && t < .5 ? 1 : 0, .6);
-      audio.setInsects(0);
+      // Part 2 outdoors: a few insects, very low, on the road and at the crossroads only
+      audio.setInsects(id === 'p2call' || id === 'p2cross' ? .12 : 0);
       audio.setRain(0);
-      const heart = (id === 'driver' && t > .7) || (id === 'reveal' && t > .4 && t < .9) ? 90 : id === 'inside' && t > .6 ? 70 : 0;
+      const heart = (id === 'driver' && t > .7) || (id === 'reveal' && t > .4 && t < .9) ? 90 : id === 'inside' && t > .6 ? 70
+        : (id === 'p2her' && t > .3 && t < .7) || (id === 'p2banyan' && t > .3 && t < .72) || (id === 'p2house' && t > .6 && t < .9) ? 80 : 0;
       audio.setHeart(s.game ? 0 : heart);
       // the horror theme stays under the whole story, low; the effects sit above it
       const call = s.call !== 'IDLE' && s.call !== 'DONE';
-      audio.themeLevel(s.game ? .07 : call ? .06 : .12);
-      audio.bedLevel(before ? .75 : 0, before ? 1 : 2.5);
+      audio.themeLevel(s.game ? .07 : call || s.p2call === 'RING' || s.p2call === 'TALK' ? .05 : id === 'p2banyan' && t > .72 && t < .8 ? 0 : .12);
+      // wind: before boarding in Part 1; everywhere outside in Part 2, but gone in the banyan's silence and the black at the end
+      const p2wind = p2 && !(id === 'p2banyan' && t > .72 && t < .8) && !(id === 'p2pump' && t > .93) ? (id === 'p2build' ? .9 : .6) : 0;
+      audio.bedLevel(before ? .75 : p2wind, before || p2 ? 1 : 2.5);
       if (i < sceneIndex('reveal')) audio.restoreMusic();
       const c = store.get().call; if (c !== 'IDLE' && c !== 'DONE') audio.themeLevel(0);
     }, 100);

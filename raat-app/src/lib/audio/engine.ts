@@ -569,6 +569,142 @@ class AudioEngine {
 
   /* ---------- Kokila's signature: her bangles, her tune ---------- */
   /** glass bangles (choodi) clinking as she moves; often heard when nothing is seen */
+  /* ---------- Part 2 ---------- */
+  /** footsteps: on the road or on stone; running is faster and heavier */
+  footsteps(n = 6, surface: 'road' | 'stone' = 'road', run = false) {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < n; i++) {
+      const t = this.now + i * (run ? .3 : .56) + Math.random() * .04, v = (run ? .55 : .35) * (.85 + Math.random() * .3), pan = i % 2 ? .12 : -.12;
+      const nz = this.src(), f = c.createBiquadFilter(), g = c.createGain();
+      f.type = 'bandpass'; f.frequency.value = surface === 'stone' ? 2200 : 900; f.Q.value = .9;
+      this.env(g, t, [[.004, v * (surface === 'stone' ? .22 : .16)], [.09, 0]]); nz.connect(f); f.connect(g); this.out(g, pan, surface === 'stone' ? .5 : .15); nz.start(t, Math.random()); nz.stop(t + .12);
+      const o = c.createOscillator(), og = c.createGain(); o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(48, t + .08);
+      this.env(og, t, [[.004, v * .5], [.12, 0]]); o.connect(og); this.out(og, pan, .1); o.start(t); o.stop(t + .14);
+      // wet road: a small splash after each step
+      if (surface === 'road') { const s2 = this.src(), hp = c.createBiquadFilter(), sg = c.createGain(); hp.type = 'highpass'; hp.frequency.value = 3500; this.env(sg, t + .02, [[.01, v * .07], [.14, 0]]); s2.connect(hp); hp.connect(sg); this.out(sg, pan, .1); s2.start(t + .02, Math.random()); s2.stop(t + .2); }
+    }
+  }
+  /** out of breath after running */
+  breathHeavy(n = 4) { if (!this.ok) return; for (let i = 0; i < n; i++) window.setTimeout(() => this.breath(), i * 760); }
+  /** anklets, faint, somewhere behind: two steps' worth of tiny bells */
+  anklet(v = .25) { if (!this.ok) return; this.bangles(v * .5, .2); window.setTimeout(() => this.bangles(v * .4, -.2), 620); }
+  /** the diya: a few tiny crackles */
+  diya() {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < 5; i++) {
+      const t = this.now + Math.random() * 1.2, n = this.src(), hp = c.createBiquadFilter(), g = c.createGain();
+      hp.type = 'highpass'; hp.frequency.value = 2500; this.env(g, t, [[.002, .05 + Math.random() * .04], [.03, 0]]); n.connect(hp); hp.connect(g); this.out(g, .05, .05); n.start(t, Math.random()); n.stop(t + .05);
+    }
+  }
+  /** a very faint metallic ringing, far off, that doesn't stop quickly */
+  metalRing(v = .2) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    [523, 1310, 2091, 3402].forEach((f, j) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * .04 / (j + 1), t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + 4.5 - j * .6); o.connect(g); this.out(g, .5, .8); o.start(t); o.stop(t + 4.6); });
+  }
+  /** a low rumble that swells and goes */
+  rumble(v = .5) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), lp = c.createBiquadFilter(), g = c.createGain();
+    lp.type = 'lowpass'; lp.frequency.value = 70; this.env(g, t, [[1.8, v * .5], [4.2, 0]]); n.connect(lp); lp.connect(g); this.out(g, 0, .2); n.start(t, Math.random()); n.stop(t + 4.4);
+  }
+  /** knocks on wood; muffled = from the other side of a door */
+  knock(n = 1, muffled = false, gap = .42) {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < n; i++) {
+      const t = this.now + i * gap, v = muffled ? .5 : .7;
+      const o = c.createOscillator(), g = c.createGain(); o.frequency.setValueAtTime(muffled ? 120 : 170, t); o.frequency.exponentialRampToValueAtTime(70, t + .08);
+      this.env(g, t, [[.002, v * .6], [.13, 0]]); o.connect(g);
+      const nz = this.src(), bp = c.createBiquadFilter(), ng = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = muffled ? 380 : 700; bp.Q.value = 1.2;
+      this.env(ng, t, [[.001, v * .45], [.05, 0]]); nz.connect(bp); bp.connect(ng);
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = muffled ? 500 : 4000; g.connect(lp); ng.connect(lp);
+      this.out(lp, muffled ? 0 : .1, muffled ? .55 : .3); o.start(t); o.stop(t + .16); nz.start(t, Math.random()); nz.stop(t + .07);
+    }
+  }
+  /** a chain slipping off a door ring and hitting the stone */
+  chain() {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < 9; i++) {
+      const t = this.now + i * (.06 + Math.random() * .05);
+      [2300, 3700, 5200].forEach((f, j) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f * (1 + (Math.random() - .5) * .1); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.025 / (j + 1), t + .002); g.gain.exponentialRampToValueAtTime(.0001, t + .12); o.connect(g); this.out(g, .1, .3); o.start(t); o.stop(t + .13); });
+    }
+    window.setTimeout(() => this.thump(.35, 110), 700);
+  }
+  /** a heavy old wooden door swinging open by itself */
+  doorWood() { if (!this.ok) return; this.creak(.6, -.15); window.setTimeout(() => this.creak(.45, .15), 900); window.setTimeout(() => this.thump(.25, 60), 2600); }
+  /** leaves moving in the wind above */
+  leaves(v = .4) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(), am = c.createOscillator(), ag = c.createGain();
+    bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = .6; am.frequency.value = 3.3; ag.gain.value = v * .03; am.connect(ag);
+    this.env(g, t, [[.8, v * .05], [2.4, v * .04], [3.6, 0]]); ag.connect(g.gain); n.connect(bp); bp.connect(g); this.out(g, .3, .3); n.start(t, Math.random()); am.start(t); n.stop(t + 3.7); am.stop(t + 3.7);
+  }
+  /** rope under weight, high in the branches */
+  ropeCreak(v = .4) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    for (let k = 0; k < 2; k++) {
+      const at = t + k * 1.1, o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(140, at); o.frequency.linearRampToValueAtTime(95, at + .9);
+      const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500; bp.Q.value = 14;
+      const am = c.createOscillator(), amg = c.createGain(), vg = c.createGain(); am.frequency.value = 26; amg.gain.value = .5; vg.gain.value = .5; am.connect(amg); amg.connect(vg.gain);
+      const g = c.createGain(); this.env(g, at, [[.1, .14 * v], [.7, .1 * v], [.95, 0]]);
+      o.connect(bp); bp.connect(vg); vg.connect(g); this.out(g, k ? .45 : -.3, .7); o.start(at); am.start(at); o.stop(at + 1); am.stop(at + 1);
+    }
+  }
+  /** something metal hits the ground, hard */
+  metalImpact(v = .7) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    [181, 412, 737, 1293, 2100].forEach((f, j) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * .09 / (j + 1), t + .003); g.gain.exponentialRampToValueAtTime(.0001, t + 2.2 - j * .3); o.connect(g); this.out(g, -.2, .6); o.start(t); o.stop(t + 2.3); });
+    this.thump(v * .6, 80);
+  }
+  /** the concrete frame hums with the wind */
+  metalVibe(v = .3) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    [110, 113.5].forEach((f) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = f; this.env(g, t, [[1.2, v * .05], [3, v * .04], [4.2, 0]]); o.connect(g); this.out(g, .2, .5); o.start(t); o.stop(t + 4.3); });
+  }
+  /** a piece of concrete falling inside: a crack, a fall, an impact, grit */
+  debris() {
+    if (!this.ok) return; const c = this.ctx!;
+    this.thump(.25, 200);
+    window.setTimeout(() => { this.thump(.7, 55);
+      const t = this.now, n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = .7;
+      this.env(g, t, [[.01, .2], [1.1, 0]]); n.connect(bp); bp.connect(g); this.out(g, .1, .4); n.start(t, Math.random()); n.stop(t + 1.2);
+    }, 650);
+  }
+  /** small things moving on the ground by themselves: a lemon rolls, a thread drags */
+  ritualMove() {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1200; bp.Q.value = 2;
+    this.env(g, t, [[.3, .05], [1.2, .03], [1.6, 0]]); n.connect(bp); bp.connect(g); this.out(g, -.3, .3); n.start(t, Math.random()); n.stop(t + 1.7);
+    window.setTimeout(() => this.thump(.12, 300), 1500);
+  }
+  /** a truck passing far away on the highway */
+  traffic(v = .35) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), bp = c.createBiquadFilter(), g = c.createGain();
+    bp.type = 'bandpass'; bp.Q.value = .8; bp.frequency.setValueAtTime(250, t); bp.frequency.linearRampToValueAtTime(800, t + 2.6); bp.frequency.linearRampToValueAtTime(260, t + 6);
+    this.env(g, t, [[2.6, v * .12], [6, 0]]);
+    let node: AudioNode = g;
+    if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.setValueAtTime(-.8, t); p.pan.linearRampToValueAtTime(.8, t + 6); g.connect(p); node = p; }
+    n.connect(bp); bp.connect(g); node.connect(this.fx); n.start(t, Math.random()); n.stop(t + 6.1);
+  }
+  /**
+   * Her laughter, made from breath and voice: a few short "ha"s falling in pitch.
+   * `phone`: squeezed through a phone line.
+   */
+  laugh(v = .6, phone = false) {
+    if (!this.ok) return; const c = this.ctx!;
+    const n = 5 + Math.floor(v * 4), bus = c.createGain(); bus.gain.value = 1;
+    let out: AudioNode = bus;
+    if (phone) { const hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 320; lp.type = 'lowpass'; lp.frequency.value = 3200; bus.connect(hp); hp.connect(lp); out = lp; }
+    this.out(out, .05, phone ? .05 : .35, this.dlg);
+    for (let i = 0; i < n; i++) {
+      const t = this.now + i * (.19 + Math.random() * .04), f0 = 330 - i * 14 + Math.random() * 10, len = .11 + Math.random() * .04;
+      const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 1.06, t); o.frequency.linearRampToValueAtTime(f0, t + len);
+      const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), g = c.createGain(), g2 = c.createGain();
+      f1.type = 'bandpass'; f1.frequency.value = 820; f1.Q.value = 5; f2.type = 'bandpass'; f2.frequency.value = 1250; f2.Q.value = 6;
+      this.env(g, t, [[.02, v * .22], [len * .7, v * .15], [len, 0]]);
+      o.connect(f1); o.connect(f2); f1.connect(g); f2.connect(g2); g2.gain.value = .6; g2.connect(g); g.connect(bus);
+      const br = this.src(), bh = c.createBiquadFilter(), bg = c.createGain(); bh.type = 'bandpass'; bh.frequency.value = 1600; bh.Q.value = 1;
+      this.env(bg, t - .03, [[.02, v * .06], [len + .03, 0]]); br.connect(bh); bh.connect(bg); bg.connect(bus);
+      o.start(t); o.stop(t + len + .02); br.start(t - .03, Math.random()); br.stop(t + len + .05);
+    }
+  }
   bangles(v = .5, pan = -.4) {
     if (!this.ok) return; const c = this.ctx!, t0 = this.now;
     const n = 3 + Math.floor(Math.random() * 3);

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { film } from '@/lib/film/clock';
-import { DOOR_SHOT, WORLD, busAt, cameraAt } from '@/lib/film/highway';
+import { BIKE, DOOR_SHOT, P2, PUMP, WORLD, attendantAt, busAt, cameraAt, cameraP2 } from '@/lib/film/highway';
 import { asphalt, dirt, fogSheet, glow, puddles, streak, tree } from '@/lib/film/textures';
 import { LENS_FRAG, LENS_VERT, PHOTO_FRAG, PHOTO_VERT } from '@/lib/three/shaders';
 import { texture } from '@/lib/three/textures';
@@ -167,6 +167,7 @@ function Rain({ count }: { count: number }) {
     }
     a.needsUpdate = true;
     ref.current?.position.set(camera.position.x, 0, camera.position.z);
+    if (ref.current) ref.current.visible = film.t < P2.start; // Part 2: no rain, only wet road and fog
   });
   return <lineSegments ref={ref} geometry={geo}><lineBasicMaterial color="#9aa3ad" transparent opacity={.32} /></lineSegments>;
 }
@@ -180,6 +181,7 @@ function Visitor({ gender, small }: { gender: 'm' | 'f'; small: boolean }) {
   const aspect = gender === 'f' ? .621 : .627, h = WORLD.hero.h, w = h * aspect;
   useFrame(({ camera }, dt) => {
     const m = ref.current; if (!m) return;
+    if (film.t >= P2.start) { m.visible = false; return; } // Part 2 is first person: the visitor is the camera
     const tx = texture(url, true); const mat = m.material as THREE.MeshBasicMaterial;
     if (tx && mat.map !== tx) { mat.map = tx; mat.needsUpdate = true; }
     m.visible = !!tx;
@@ -220,7 +222,7 @@ function Bus({ small }: { small: boolean }) {
 
   useFrame((state) => {
     const t = film.t, b = busAt(t), g = grp.current; if (!g) return;
-    g.visible = b.visible;
+    g.visible = b.visible && t < P2.start;
     g.position.set(WORLD.busLane, 0, b.z);
     // nose dips as it brakes, settles after
     g.rotation.x = Math.sin(b.braking * Math.PI) * .025;
@@ -277,6 +279,107 @@ function DoorShot({ small }: { small: boolean }) {
   return <mesh material={mat} position={DOOR_ORIGIN.toArray()}><planeGeometry args={[16, 9, 192, 108]} /></mesh>;
 }
 
+/* ---------------- Part 2: the petrol pump, the bike, the attendant ---------------- */
+function PetrolPump() {
+  const grp = useRef<THREE.Group>(null), tube = useRef<THREE.MeshBasicMaterial>(null), far = useRef<THREE.Sprite>(null), lamp = useRef<THREE.PointLight>(null);
+  const g = useMemo(() => glow('225,255,235'), []), amber = useMemo(() => glow('255,190,120'), []);
+  useDispose(g, amber);
+  const { x, z, w, d, h } = PUMP;
+  useFrame(() => {
+    // it is only there on the way back: on the walk away from the bus, the road ahead is empty
+    const t = film.t, on = t >= P2.ret[0], gp = grp.current; if (!gp) return;
+    gp.visible = on; if (!on) return;
+    // one tube light is old: it stutters now and then
+    const now = performance.now(), stutter = (Math.sin(now / 1300) > .97 && Math.random() < .5) ? .35 : 1;
+    if (tube.current) tube.current.color.setScalar(.95 * stutter);
+    if (lamp.current) lamp.current.intensity = 38 * stutter;
+    // from far down the road it is only a dim light in the fog
+    if (far.current) { const dist = Math.abs((t < 135 ? -340 + (t - 120) / 15 * 190 : -110) - z); far.current.visible = dist > 40; far.current.scale.setScalar(6 + Math.min(1, dist / 200) * 10); }
+  });
+  const pillars: [number, number][] = [[-w / 2 + .4, -d / 2 + .4], [w / 2 - .4, -d / 2 + .4], [-w / 2 + .4, d / 2 - .4], [w / 2 - .4, d / 2 - .4]];
+  return (
+    <group ref={grp} position={[x, 0, z]} visible={false}>
+      {/* forecourt */}
+      <mesh rotation-x={-Math.PI / 2} position={[0, .006, 0]}><planeGeometry args={[w + 4, d + 6]} /><meshStandardMaterial color="#5d5e5c" roughness={.55} metalness={.1} /></mesh>
+      {/* canopy, pillars, the strip of tube lights under it */}
+      <mesh position={[0, h, 0]}><boxGeometry args={[w, .45, d]} /><meshStandardMaterial color="#c9c7bf" roughness={.8} /></mesh>
+      <mesh position={[0, h + .3, 0]}><boxGeometry args={[w + .1, .18, d + .1]} /><meshStandardMaterial color="#7a1d1d" roughness={.7} /></mesh>
+      {pillars.map(([px, pz], i) => <mesh key={i} position={[px, h / 2, pz]}><boxGeometry args={[.32, h, .32]} /><meshStandardMaterial color="#8f8b82" roughness={.85} /></mesh>)}
+      {[-1.6, 0, 1.6].map((pz, i) => (
+        <mesh key={i} position={[0, h - .25, pz]}><boxGeometry args={[w * .7, .06, .12]} /><meshBasicMaterial ref={i === 1 ? tube : undefined} color="#eefff4" /></mesh>
+      ))}
+      <sprite position={[0, h - .5, 0]} scale={[9, 5, 1]}><spriteMaterial map={g} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={.55} /></sprite>
+      <pointLight ref={lamp} position={[0, h - .6, 0]} color="#e6fff0" intensity={38} distance={26} decay={1.5} />
+      {/* the dispenser: no brand, a small dim display */}
+      <group position={[-1.6, 0, 1.5]}>
+        <mesh position={[0, .45, 0]}><boxGeometry args={[1.1, .9, .7]} /><meshStandardMaterial color="#6e6c66" roughness={.8} /></mesh>
+        <mesh position={[0, 1.3, 0]}><boxGeometry args={[.8, .9, .45]} /><meshStandardMaterial color="#b9b4a8" roughness={.7} /></mesh>
+        <mesh position={[0, 1.42, .23]}><planeGeometry args={[.42, .2]} /><meshBasicMaterial color="#5f8f6f" /></mesh>
+        <mesh position={[.43, 1.1, 0]}><boxGeometry args={[.06, .5, .08]} /><meshStandardMaterial color="#202020" /></mesh>
+      </group>
+      {/* the attendant's cabin, its window lit amber */}
+      <group position={[w / 2 + 2.2, 0, -1.5]}>
+        <mesh position={[0, 1.4, 0]}><boxGeometry args={[3, 2.8, 3]} /><meshStandardMaterial color="#8a8172" roughness={.95} /></mesh>
+        <mesh position={[-1.51, 1.5, .2]} rotation-y={-Math.PI / 2}><planeGeometry args={[1.2, .8]} /><meshBasicMaterial color="#c99a5a" /></mesh>
+        <sprite position={[-1.7, 1.5, .2]} scale={[2.2, 1.6, 1]}><spriteMaterial map={amber} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={.5} /></sprite>
+      </group>
+      {/* a sign on a pole, blank and faded */}
+      <group position={[-w / 2 - 1.2, 0, -d / 2 - 2]}>
+        <mesh position={[0, 3, 0]}><cylinderGeometry args={[.08, .1, 6, 6]} /><meshStandardMaterial color="#222" /></mesh>
+        <mesh position={[0, 6.2, 0]}><boxGeometry args={[1.6, 1.1, .12]} /><meshStandardMaterial color="#9e9a90" emissive="#3a3a34" roughness={.9} /></mesh>
+      </group>
+      {/* seen from far away: one dim light */}
+      <sprite ref={far} position={[0, h - .3, 0]} scale={[10, 10, 1]}><spriteMaterial map={g} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={.5} fog={false} /></sprite>
+    </group>
+  );
+}
+
+function ParkedBike({ gender, small }: { gender: 'm' | 'f'; small: boolean }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const url = `/assets/part2/petrol-pump/p2-bike-${gender}.webp`;
+  const H = gender === 'f' ? 1.54 : 1.4, aspect = gender === 'f' ? .395 : .387;
+  void small;
+  useFrame(({ camera }) => {
+    const m = ref.current; if (!m) return;
+    const on = film.t >= P2.start; const tx = on ? texture(url, true) : null;
+    m.visible = on && !!tx; if (!m.visible || !tx) return;
+    const mat = m.material as THREE.MeshBasicMaterial; if (mat.map !== tx) { mat.map = tx; mat.needsUpdate = true; }
+    m.rotation.y = Math.atan2(camera.position.x - BIKE.x, camera.position.z - BIKE.z);
+  });
+  return <mesh ref={ref} position={[BIKE.x, H / 2, BIKE.z]}><planeGeometry args={[H * aspect, H]} /><meshBasicMaterial transparent alphaTest={.4} color="#cfd2d6" /></mesh>;
+}
+
+function attendantTexture(): THREE.CanvasTexture {
+  // a man in a work shirt, backlit by the tube lights: only his outline, a thin rim of cold light
+  const c = document.createElement('canvas'); c.width = 96; c.height = 256; const g = c.getContext('2d')!;
+  const shape = () => {
+    g.beginPath(); g.ellipse(48, 26, 12, 15, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.moveTo(42, 40); g.lineTo(54, 40); g.lineTo(55, 48);
+    g.bezierCurveTo(72, 50, 79, 56, 80, 70); g.bezierCurveTo(82, 98, 80, 124, 77, 132); g.lineTo(72, 132); g.lineTo(71, 96); g.lineTo(69, 136);
+    g.bezierCurveTo(70, 180, 68, 216, 66, 250); g.lineTo(52, 250); g.lineTo(49, 160); g.lineTo(45, 250); g.lineTo(31, 250);
+    g.bezierCurveTo(29, 216, 27, 180, 28, 136); g.lineTo(25, 96); g.lineTo(24, 132); g.lineTo(19, 132); g.bezierCurveTo(16, 124, 14, 98, 16, 70);
+    g.bezierCurveTo(17, 56, 24, 50, 41, 48); g.closePath(); g.fill();
+  };
+  g.fillStyle = 'rgba(190,225,205,.35)'; g.save(); g.translate(1.5, -1); shape(); g.restore();
+  g.fillStyle = '#0a0a0b'; shape();
+  return new THREE.CanvasTexture(c);
+}
+function Attendant() {
+  const ref = useRef<THREE.Mesh>(null);
+  const tex = useMemo(() => (typeof document === 'undefined' ? null : attendantTexture()), []);
+  useEffect(() => () => tex?.dispose(), [tex]);
+  useFrame(({ camera }) => {
+    const m = ref.current; if (!m) return;
+    const a = attendantAt(film.t);
+    m.visible = film.t >= P2.ret[0] && a.visible; if (!m.visible) return;
+    const walking = film.t > 143.4 && film.t < 146.2;
+    m.position.set(a.x, .85 + (walking ? Math.abs(Math.sin(film.t * 9)) * .03 : 0), a.z);
+    m.rotation.y = Math.atan2(camera.position.x - a.x, camera.position.z - a.z);
+  });
+  if (!tex) return null;
+  return <mesh ref={ref}><planeGeometry args={[.64, 1.7]} /><meshBasicMaterial map={tex} transparent alphaTest={.3} /></mesh>;
+}
+
 /* ---------------- camera, cuts and the lens ---------------- */
 function FilmCamera({ reduced }: { reduced: boolean }) {
   const { gl, scene, camera, size } = useThree();
@@ -298,19 +401,19 @@ function FilmCamera({ reduced }: { reduced: boolean }) {
     perf.sum += delta; perf.n++;
     if (perf.n === 90) { if (perf.sum / perf.n > 1 / 38 && perf.level < 2) { perf.level++; setDpr(perf.level === 1 ? 1 : .75); } perf.n = 0; perf.sum = 0; }
     const t = film.t, portrait = size.width < size.height;
-    const shot = t >= DOOR_SHOT.from ? 'door' : 'road';
+    const shot = t >= P2.start ? 'p2' : t >= DOOR_SHOT.from ? 'door' : 'road';
     if (shot !== perf.lastShot) { film.glitch = Math.max(film.glitch, .35); perf.lastShot = shot; } // the cut to the door hides in a short dip of light
     film.glitch = Math.max(0, film.glitch - Math.min(delta, .05) * 2.4);
     film.shake = Math.max(0, film.shake - Math.min(delta, .05) * 1.5);
     const sh = reduced ? 0 : film.shake * .06;
     const px = reduced ? 0 : live.pointer.x * .12, py = reduced ? 0 : -live.pointer.y * .06;
 
-    if (shot === 'road') {
-      const c = cameraAt(t, portrait);
+    if (shot === 'road' || shot === 'p2') {
+      const c = shot === 'p2' ? cameraP2(t, portrait) : cameraAt(t, portrait);
       cam.position.set(c.pos[0] + px + (Math.random() - .5) * sh, c.pos[1] + py + (Math.random() - .5) * sh, c.pos[2]);
       cam.lookAt(c.look[0], c.look[1], c.look[2]);
       if (cam.fov !== c.fov) { cam.fov = c.fov; cam.updateProjectionMatrix(); }
-      if (scene.fog) (scene.fog as THREE.FogExp2).density = .028;
+      if (scene.fog) (scene.fog as THREE.FogExp2).density = shot === 'p2' ? .03 : .028;
     } else {
       // push in on the door: the photo plane is 16 × 9, the door sits near its right edge
       // walk to the door, then up its steps: the frame closes on the lit doorway
@@ -357,6 +460,9 @@ export default function HighwayFilm({ gender, small, reduced }: { gender: 'm' | 
       <Rain count={small ? 500 : 1200} />
       <Visitor gender={gender} small={small} />
       <Bus small={small} />
+      <PetrolPump />
+      <ParkedBike gender={gender} small={small} />
+      <Attendant />
       <DoorShot small={small} />
       <FilmCamera reduced={reduced} />
     </Canvas>

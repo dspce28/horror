@@ -4,7 +4,7 @@ import { ArrowLeft, ExternalLink, Film, Music2, RotateCcw, SkipForward } from 'l
 import { useT } from '@/hooks/useT';
 import { events, store, useStore } from '@/lib/store';
 import { audio } from '@/lib/audio/engine';
-import { replayStory } from '@/lib/replay';
+import { replayStory, startPart2 } from '@/lib/replay';
 import { FILMS, SONGS } from '@/data/recommendations';
 
 type Panel = 'menu' | 'teaser' | 'films' | 'songs';
@@ -12,7 +12,9 @@ type Panel = 'menu' | 'teaser' | 'films' | 'songs';
 /** END OF PART ONE: a quiet title card, one question, and four ways out. */
 export default function EndScreen() {
   const t = useT();
-  const finished = useStore((s) => s.finished);
+  const p1 = useStore((s) => s.finished);
+  const p2 = useStore((s) => s.p2done);
+  const finished = p1 || p2;
   const lang = useStore((s) => s.lang);
   const [panel, setPanel] = useState<Panel>('menu');
   useEffect(() => { if (finished) setPanel('menu'); }, [finished]);
@@ -30,13 +32,18 @@ export default function EndScreen() {
         <div className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center text-center">
           <p className="end-line text-[11px] uppercase tracking-[.5em] text-ash/70" style={{ animationDelay: '.2s' }}>{t('end_presents')}</p>
           <h2 id="end-title" className="end-line mt-5 font-display text-4xl tracking-[.18em] text-bone sm:text-6xl" style={{ animationDelay: '1.4s' }}>{t('end_title')}</h2>
-          <p className="end-line mt-4 text-xs uppercase tracking-[.4em] text-[#b3262f]" style={{ animationDelay: '2.8s' }}>{t('end_part')}</p>
-          <p className="end-line mt-12 max-w-md font-display text-xl text-bone/90 sm:text-2xl" style={{ animationDelay: '4.4s' }}>{t('end_q')}</p>
+          {p2 && <p className="end-line mt-3 font-display text-2xl tracking-[.3em] text-bone/80" style={{ animationDelay: '2.1s' }}>{t('p2_end_title')}</p>}
+          <p className="end-line mt-4 text-xs uppercase tracking-[.4em] text-[#b3262f]" style={{ animationDelay: '2.8s' }}>{t(p2 ? 'p2_end_part' : 'end_part')}</p>
+          <p className="end-line mt-12 max-w-md font-display text-xl text-bone/90 sm:text-2xl" style={{ animationDelay: '4.4s' }}>{t(p2 ? 'p2_end_q' : 'end_q')}</p>
           <div className="end-line mt-14 grid w-full max-w-sm grid-cols-1 gap-3 sm:grid-cols-2" style={{ animationDelay: '6.2s' }}>
-            <button type="button" className="end-opt" onClick={() => setPanel('teaser')}><SkipForward size={16} aria-hidden />{t('end_next')}</button>
+            {/* Part 1 goes straight on into Part 2; after Part 2 there is only a hint of Part 3 */}
+            <button type="button" className="end-opt" onClick={() => (p2 ? setPanel('teaser') : startPart2())}><SkipForward size={16} aria-hidden />{t('end_next')}</button>
             <button type="button" className="end-opt" onClick={() => setPanel('films')}><Film size={16} aria-hidden />{t('end_films')}</button>
             <button type="button" className="end-opt" onClick={() => setPanel('songs')}><Music2 size={16} aria-hidden />{t('end_songs')}</button>
-            <button type="button" className="end-opt" onClick={() => replayStory()}><RotateCcw size={16} aria-hidden />{t('end_replay')}</button>
+            {p2
+              ? <button type="button" className="end-opt" onClick={() => startPart2()}><RotateCcw size={16} aria-hidden />{t('p2_replay')}</button>
+              : <button type="button" className="end-opt" onClick={() => replayStory()}><RotateCcw size={16} aria-hidden />{t('end_replay')}</button>}
+            {p2 && <button type="button" className="end-opt sm:col-span-2" onClick={() => replayStory()}><RotateCcw size={16} aria-hidden />{t('p2_start_over')}</button>}
           </div>
         </div>
       )}
@@ -89,6 +96,7 @@ function List({ title, note, back, onBack, children }: { title: string; note: st
 function Teaser({ onBack }: { onBack: () => void }) {
   const t = useT();
   const [step, setStep] = useState(0);
+  const p2m = store.get().part === 2; // after Part 2: no scene, just the promise of a third part
   useEffect(() => {
     const safe = store.get().safe;
     const at = [1200, 4200, 7400, 8600, 10200];
@@ -102,13 +110,13 @@ function Teaser({ onBack }: { onBack: () => void }) {
   return (
     <div className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center text-center">
       <div className={`teaser-scene ${step >= 4 ? 'cut' : ''}`} aria-live="polite">
-        {step >= 1 && step < 4 && <p className="end-line font-display text-2xl text-bone/90">{t('tz1')}</p>}
-        {step >= 2 && step < 4 && <p className="end-line mt-4 font-display text-2xl text-bone/90">{t('tz2')}</p>}
-        {step >= 3 && step < 4 && <p className="end-line mt-4 font-display text-2xl text-bone/90">{t('tz3')}</p>}
+        {!p2m && step >= 1 && step < 4 && <p className="end-line font-display text-2xl text-bone/90">{t('tz1')}</p>}
+        {!p2m && step >= 2 && step < 4 && <p className="end-line mt-4 font-display text-2xl text-bone/90">{t('tz2')}</p>}
+        {!p2m && step >= 3 && step < 4 && <p className="end-line mt-4 font-display text-2xl text-bone/90">{t('tz3')}</p>}
       </div>
       {step >= 5 && (
         <>
-          <p className="end-line text-xs uppercase tracking-[.5em] text-[#b3262f]">{t('end_soon')}</p>
+          <p className="end-line text-xs uppercase tracking-[.5em] text-[#b3262f]">{t(store.get().part === 2 ? 'p2_soon' : 'end_soon')}</p>
           <button type="button" onClick={onBack} className="end-line ghost-btn mt-10 flex items-center gap-2" style={{ animationDelay: '1s' }}><ArrowLeft size={15} aria-hidden />{t('end_back')}</button>
         </>
       )}

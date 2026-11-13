@@ -6,8 +6,15 @@ import { frameAt, imageFor, type Frame } from './director';
 import { events, live, store } from '@/lib/store';
 import { visualGender } from '@/lib/gender';
 
+/** Part 2 photographs live in /assets/part2/<place>/ */
+const P2_DIR: Record<string, string> = {
+  'p2-highway-after-bus': 'highway', 'p2-highway-distant-light': 'highway', 'p2-crossroads-wide': 'crossroads', 'p2-black-doll-closeup': 'doll',
+  'p2-haveli-entrance': 'haveli', 'p2-banyan-courtyard': 'banyan', 'p2-construction-building': 'construction', 'p2-ritual-house': 'abandoned-house',
+  'p2-lane-run': 'transitions', 'p2-lane-run-2': 'transitions',
+};
+const base = (name: string) => (P2_DIR[name] ? `/assets/part2/${P2_DIR[name]}/${name}` : `/raat/scenes/${name}`);
 export const sceneUrl = (name: string, small: boolean, kind: '' | 'depth' = '') =>
-  kind === 'depth' ? `/raat/scenes/${name}-d.webp` : `/raat/scenes/${name}${small ? '-m' : ''}.webp`;
+  kind === 'depth' ? `${base(name)}-d.webp` : `${base(name)}${small ? '-m' : ''}.webp`;
 
 const GLITCHY = new Set(['teleport', 'flicker-out', 'jumpscare', 'lights-die', 'shriek', 'blackout', 'driver-turn', 'stare', 'her-look']);
 
@@ -25,6 +32,9 @@ let wired = false;
 const cam = { x: .5, y: .5, zoom: 1, fx: .5, fy: .5, shot: '' };
 
 export const stage: { out: StageOut | null; small: boolean } = { out: null, small: false };
+
+/** where {N}'s name sits on screen (CSS pixels), projected from the doll each frame; the name itself is real text */
+export const anchors = { name: { x: 0, y: 0, px: 0, rot: 0, amt: 0 } };
 
 export function tick(realNow: number, dt: number): StageOut {
   const now = live.override?.clock ?? realNow; // the prototype can drive its own clock (frame-exact capture)
@@ -61,7 +71,8 @@ export function tick(realNow: number, dt: number): StageOut {
   live.velocity *= .9;
   glitch = Math.max(0, glitch - dt * 2.6);
   live.shake = Math.max(0, live.shake - dt * 1.4);
-  const sh = s.reduced ? 0 : f.shake * (.6 + Math.random() * .4) + live.shake;
+  const stride = f.run && !s.reduced ? Math.abs(Math.sin(now / 170)) * .5 : 0; // footfalls while running
+  const sh = s.reduced ? 0 : f.shake * (.6 + Math.random() * .4) + live.shake + stride;
 
   const out: StageOut = {
     frame: fr, cur, prev, mix, flicker: fl, light: f.light * fl,

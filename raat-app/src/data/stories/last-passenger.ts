@@ -1,6 +1,7 @@
 import type { Key } from '@/data/translations';
 
-export type SceneId = 'open' | 'highway' | 'bus' | 'board' | 'inside' | 'driver' | 'reveal' | 'leave' | 'ticket' | 'end' | 'proto';
+export type SceneId = 'open' | 'highway' | 'bus' | 'board' | 'inside' | 'driver' | 'reveal' | 'leave' | 'ticket' | 'end' | 'proto'
+  | 'p2call' | 'p2cross' | 'p2her' | 'p2haveli' | 'p2banyan' | 'p2build' | 'p2house' | 'p2return' | 'p2pump';
 export type Speaker = 'nar' | 'big' | 'you' | 'driver' | 'her' | 'kokila' | 'phone';
 /** how a voiced line is delivered */
 export type Delivery = 'normal' | 'whisper' | 'close';
@@ -32,6 +33,8 @@ export interface SceneDef {
   events: StoryEvent[];
   /** a mini-game offered when the visitor reaches the end of this scene */
   gameAfter?: GameId | GameId[];
+  /** which part of the story the scene belongs to (default 1) */
+  part?: 1 | 2;
 }
 
 export const SCENES: SceneDef[] = [
@@ -137,6 +140,95 @@ export const SCENES: SceneDef[] = [
     cues: [{ at: .05, who: 'nar', k: 'c1' }, { at: .22, who: 'nar', k: 'c2' }],
     events: [{ at: .22, id: 'vibrate' }, { at: .4, id: 'call' }],
   },
+
+  /* ================= PART 2 · THE CIRCLE ================= */
+  {
+    // the same highway; the bus is gone. Her call: walk away, don't look back. The visitor walks.
+    id: 'p2call', vh: 300, label: 'sc_p2call', part: 2,
+    cues: [
+      { at: .03, who: 'nar', k: 'p2_a1' }, { at: .1, who: 'nar', k: 'p2_a2' },
+      { at: .3, who: 'nar', k: 'p2_a4' }, { at: .55, who: 'nar', k: 'p2_a5' },
+    ],
+    events: [{ at: .01, id: 'p2-night' }, { at: .12, id: 'dog-cry' }, { at: .18, id: 'p2-call-1' }, { at: .3, id: 'p2-walk' }, { at: .55, id: 'anklet' }, { at: .64, id: 'breath-far' }, { at: .8, id: 'p2-walk' }],
+  },
+  {
+    // a deserted crossroads; a circle of water on the road; offerings; a diya; a doll. Someone across the road.
+    id: 'p2cross', vh: 420, label: 'sc_p2cross', part: 2,
+    cues: [
+      { at: .03, who: 'big', k: 'p2_b1' }, { at: .16, who: 'nar', k: 'p2_b2' }, { at: .32, who: 'nar', k: 'p2_b3' },
+      { at: .5, who: 'nar', k: 'p2_b4' }, { at: .66, who: 'nar', k: 'p2_b5' }, { at: .86, who: 'nar', k: 'p2_b6' },
+    ],
+    events: [{ at: .02, id: 'p2-walk' }, { at: .2, id: 'dog-cry' }, { at: .4, id: 'diya' }, { at: .55, id: 'metal-ring' }, { at: .7, id: 'diya' }, { at: .86, id: 'rumble' }],
+  },
+  {
+    // she comes closer every time; then her face; the warning; the diya dies; run
+    id: 'p2her', vh: 400, label: 'sc_p2her', part: 2,
+    cues: [
+      { at: .04, who: 'nar', k: 'p2_c1' }, { at: .22, who: 'nar', k: 'p2_c2' }, { at: .4, who: 'nar', k: 'p2_c3' },
+      { at: .55, who: 'her', k: 'p2_c4', direct: true, voice: 'close', from: .1 }, { at: .7, who: 'nar', k: 'p2_c5' }, { at: .82, who: 'big', k: 'p2_c6' },
+    ],
+    events: [
+      { at: .1, id: 'her-step' }, { at: .2, id: 'her-step' }, { at: .3, id: 'her-step' }, { at: .4, id: 'her-step' }, { at: .5, id: 'breath-close' },
+      { at: .7, id: 'diya-out' }, { at: .82, id: 'p2-run' },
+    ],
+  },
+  {
+    // the haveli: knock once, knock twice; the chain falls; the door opens on its own
+    id: 'p2haveli', vh: 340, label: 'sc_p2haveli', part: 2,
+    cues: [
+      { at: .04, who: 'nar', k: 'p2_d1' }, { at: .25, who: 'nar', k: 'p2_d2' }, { at: .42, who: 'nar', k: 'p2_d3' },
+      { at: .6, who: 'nar', k: 'p2_d4' }, { at: .82, who: 'nar', k: 'p2_d5' },
+    ],
+    events: [{ at: .02, id: 'p2-run-stop' }, { at: .26, id: 'knock-1' }, { at: .43, id: 'knock-2' }, { at: .58, id: 'chain' }, { at: .62, id: 'door-wood' }, { at: .85, id: 'steps-stone' }],
+  },
+  {
+    // the banyan in the courtyard; something creaks above; eleven of them; she is behind {N}
+    id: 'p2banyan', vh: 460, label: 'sc_p2banyan', part: 2,
+    cues: [
+      { at: .03, who: 'nar', k: 'p2_e1' }, { at: .15, who: 'nar', k: 'p2_e2' }, { at: .25, who: 'nar', k: 'p2_e3' },
+      { at: .35, who: 'nar', k: 'p2_e4' }, { at: .45, who: 'nar', k: 'p2_e5' }, { at: .54, who: 'nar', k: 'p2_e6' }, { at: .6, who: 'big', k: 'p2_e7' },
+      { at: .67, who: 'nar', k: 'p2_e8' }, { at: .75, who: 'nar', k: 'p2_e9' },
+      { at: .82, who: 'her', k: 'i_name', direct: true, voice: 'whisper', from: 'behind' },
+      { at: .88, who: 'her', k: 'p2_e10', direct: true, voice: 'close', from: 'behind' },
+    ],
+    events: [
+      { at: .02, id: 'leaves' }, { at: .15, id: 'rope-creak' }, { at: .3, id: 'rope-creak' }, { at: .5, id: 'leaves' }, { at: .62, id: 'rope-creak' },
+      { at: .69, id: 'metal-impact' }, { at: .72, id: 'p2-silence' }, { at: .76, id: 'breath-close' }, { at: .96, id: 'p2-run' },
+    ],
+  },
+  {
+    // the unfinished building: she stands on a floor and does not come down; a message; she is gone; concrete falls
+    id: 'p2build', vh: 340, label: 'sc_p2build', part: 2,
+    cues: [
+      { at: .04, who: 'nar', k: 'p2_f1' }, { at: .22, who: 'nar', k: 'p2_f2' }, { at: .5, who: 'nar', k: 'p2_f3' },
+      { at: .66, who: 'nar', k: 'p2_f4' }, { at: .8, who: 'big', k: 'p2_c6' },
+    ],
+    events: [{ at: .02, id: 'p2-run-stop' }, { at: .3, id: 'metal-vibe' }, { at: .38, id: 'msg-run' }, { at: .66, id: 'debris' }, { at: .8, id: 'p2-run' }],
+  },
+  {
+    // the locked house: the ritual at the door; a doll with {N}'s name; DO NOT ENTER; knocks from inside
+    id: 'p2house', vh: 420, label: 'sc_p2house', part: 2,
+    cues: [
+      { at: .03, who: 'nar', k: 'p2_g1' }, { at: .13, who: 'nar', k: 'p2_g2' }, { at: .26, who: 'nar', k: 'p2_g3' }, { at: .36, who: 'nar', k: 'p2_g4' },
+      { at: .66, who: 'nar', k: 'p2_g5' }, { at: .78, who: 'nar', k: 'p2_g6' }, { at: .9, who: 'big', k: 'p2_c6' },
+    ],
+    events: [{ at: .02, id: 'p2-run-stop' }, { at: .1, id: 'ritual-move' }, { at: .3, id: 'doll-amb' }, { at: .52, id: 'msg-enter' }, { at: .66, id: 'knocks-inside' }, { at: .78, id: 'knocks-inside' }, { at: .9, id: 'p2-run' }],
+  },
+  {
+    // back on the four-lane highway: the same lamps; a dim light far away
+    id: 'p2return', vh: 320, label: 'sc_p2return', part: 2,
+    cues: [{ at: .05, who: 'nar', k: 'p2_h1' }, { at: .35, who: 'nar', k: 'p2_h2' }, { at: .7, who: 'nar', k: 'p2_h3' }],
+    events: [{ at: .02, id: 'p2-run-stop' }, { at: .2, id: 'traffic' }, { at: .45, id: 'p2-walk' }, { at: .75, id: 'p2-walk' }],
+  },
+  {
+    // the petrol pump; her last call; the bike; the tank is empty
+    id: 'p2pump', vh: 420, label: 'sc_p2pump', part: 2,
+    cues: [
+      { at: .04, who: 'nar', k: 'p2_i1' }, { at: .5, who: 'nar', k: 'p2_i2' }, { at: .6, who: 'nar', k: 'p2_i3' },
+      { at: .72, who: 'nar', k: 'p2_i4' }, { at: .8, who: 'nar', k: 'p2_i5' }, { at: .88, who: 'nar', k: 'p2_i6' },
+    ],
+    events: [{ at: .2, id: 'p2-call-2' }, { at: .62, id: 'tank-open' }, { at: .88, id: 'laugh' }, { at: .97, id: 'p2-end' }],
+  },
 ];
 
 /** position of a scene by name, so code never depends on scene numbers */
@@ -145,24 +237,39 @@ export const sceneIndex = (id: SceneId) => SCENES.findIndex((s) => s.id === id);
 /** the games offered at the end of a scene, in order */
 export const gamesOf = (s: SceneDef): GameId[] => (s.gameAfter ? (Array.isArray(s.gameAfter) ? s.gameAfter : [s.gameAfter]) : []);
 
-export const TOTAL_VH = SCENES.reduce((s, x) => s + x.vh, 0);
+/** which part is playing: the scroll track only covers that part's scenes */
+let activePart: 1 | 2 = 1;
+export const partOf = (s: SceneDef): 1 | 2 => s.part ?? 1;
+const windowOf = (part: 1 | 2) => SCENES.map((s, i) => (partOf(s) === part ? i : -1)).filter((i) => i >= 0);
 
-/** start/end of each scene in global progress (0–1) */
-export const RANGES = (() => {
+/** scroll length of the active part, in viewport heights */
+export let TOTAL_VH = 0;
+/** start/end of each scene in the active part's progress (0–1); scenes of the other part sit at -1 */
+export let RANGES: { id: SceneId; a: number; b: number }[] = [];
+
+export function setPart(part: 1 | 2) {
+  activePart = part;
+  const win = windowOf(part);
+  TOTAL_VH = win.reduce((sum, i) => sum + SCENES[i].vh, 0);
   let acc = 0;
-  return SCENES.map((s) => {
-    const a = acc / TOTAL_VH;
-    acc += s.vh;
+  RANGES = SCENES.map((s) => {
+    if (partOf(s) !== part) return { id: s.id, a: -1, b: -1 };
+    const a = acc / TOTAL_VH; acc += s.vh;
     return { id: s.id, a, b: acc / TOTAL_VH };
   });
-})();
+}
+setPart(1);
+export const currentPart = () => activePart;
+/** the first scene of a part */
+export const firstOf = (part: 1 | 2) => windowOf(part)[0];
 
 export function sceneAt(p: number): { index: number; local: number } {
-  for (let i = 0; i < RANGES.length; i++) {
-    const r = RANGES[i];
-    if (p < r.b || i === RANGES.length - 1) return { index: i, local: Math.min(1, Math.max(0, (p - r.a) / (r.b - r.a))) };
+  const win = windowOf(activePart);
+  for (let n = 0; n < win.length; n++) {
+    const i = win[n], r = RANGES[i];
+    if (p < r.b || n === win.length - 1) return { index: i, local: Math.min(1, Math.max(0, (p - r.a) / (r.b - r.a))) };
   }
-  return { index: 0, local: 0 };
+  return { index: win[0], local: 0 };
 }
 
 export function cueAt(scene: SceneDef, local: number): Cue | null {

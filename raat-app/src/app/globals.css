@@ -272,3 +272,14 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 @media (prefers-reduced-motion: reduce) { .fin-face { animation: finFaceSoft 1.6s ease forwards; } .fin-hair { animation: finHair 2s ease-out forwards; } }
 /* her face, for two or three frames */
 .subliminal { position: fixed; inset: 0; z-index: 48; pointer-events: none; background: 50% 40% / cover no-repeat; opacity: .34; filter: grayscale(.4) contrast(1.3) brightness(.8); mix-blend-mode: screen; }
+
+/* ---------- Part 2 ---------- */
+.doll-name { position: fixed; left: 0; top: 0; z-index: 12; pointer-events: none; opacity: 0; white-space: nowrap; font-family: var(--font-display, serif); font-weight: 600; letter-spacing: .04em;
+  font-family: var(--font-display), var(--font-guj), var(--font-deva), serif; color: rgba(78, 6, 9, .92); text-shadow: 0 0 2px rgba(60, 0, 0, .9), 1px 2px 4px rgba(40, 0, 0, .7); filter: blur(.35px); mix-blend-mode: multiply; will-change: transform, opacity; }
+.fuel-gauge { position: fixed; right: max(16px, 5vw); top: 16%; z-index: 12; width: min(42vw, 260px); aspect-ratio: 200 / 130; opacity: 0; visibility: hidden; pointer-events: none;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .9); border-radius: 14px; transition: opacity .2s linear; }
+.fuel-needle { transform-origin: 100px 110px; animation: needle 2.4s ease-in-out infinite; }
+@keyframes needle { 0%, 100% { transform: rotate(0deg) } 50% { transform: rotate(1.5deg) } }
+.fuel-warn { animation: warn 1.1s steps(2) infinite; }
+@keyframes warn { 0% { opacity: 1 } 100% { opacity: .15 } }
+@media (prefers-reduced-motion: reduce) { .fuel-needle, .fuel-warn { animation: none; } }

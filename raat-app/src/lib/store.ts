@@ -34,6 +34,13 @@ export interface State {
   /** Kokila's final call */
   call: CallState;
   declines: number;
+  /** which part of the story is playing */
+  part: 1 | 2;
+  /** Part 2: her two calls (the walk-away call, the petrol-pump call) */
+  p2call: 'IDLE' | 'RING' | 'TALK' | 'ENDED';
+  p2callN: 0 | 1 | 2;
+  /** Part 2 finished: END OF PART TWO */
+  p2done: boolean;
 }
 
 const initial: State = {
@@ -42,6 +49,7 @@ const initial: State = {
   sceneIndex: 0, cueKey: '', game: null, results: {}, callAccepted: null, callOpen: false, finished: false,
   batt: null, notice: null,
   sessionStart: null, tz: 'UTC', hour12: true, call: 'IDLE', declines: 0,
+  part: 1, p2call: 'IDLE', p2callN: 0, p2done: false,
 };
 
 let state: State = initial;

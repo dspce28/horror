@@ -15,6 +15,11 @@ export const VOICED: Partial<Record<Key, { who: Who; style: Style }>> = {
   call_scare: { who: 'kokila', style: 'close' },
   // the last line plays only from a real recording or a voice provider (never the browser's voice); otherwise it is text
   whisper_end: { who: 'kokila', style: 'whisper' },
+  // Part 2 (spoken with a voice provider or recordings; otherwise subtitles)
+  p2_call1: { who: 'kokila', style: 'phone' },
+  p2_c4: { who: 'kokila', style: 'close' },
+  p2_e10: { who: 'kokila', style: 'close' },
+  p2_call2: { who: 'kokila', style: 'phone' },
 };
 
 /** keep letters, combining marks (Devanagari/Gujarati vowel signs), spaces, dots, apostrophes, hyphens; 32 chars max */

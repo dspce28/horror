@@ -7,6 +7,7 @@ import { glowTexture, texture } from '@/lib/three/textures';
 import { store } from '@/lib/store';
 import { sceneUrl, stage } from '@/lib/animation/stageState';
 import { lifeFor } from '@/lib/animation/life';
+import Part2Layers from './Part2Layers';
 
 /** The photograph plane is 16 × 9 world units, centred on the origin, facing the camera. */
 export const PLANE_W = 16, PLANE_H = 9, DEPTH_SCALE = 1.5;
@@ -196,6 +197,7 @@ export default function PhotoWorld({ small }: { small: boolean }) {
       <Reflection />
       <Mirror />
       <Shadow />
+      <Part2Layers />
       <Dust count={small ? 220 : 600} />
     </>
   );

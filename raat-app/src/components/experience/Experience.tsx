@@ -21,6 +21,8 @@ import SubliminalFlash from '@/components/ui/SubliminalFlash';
 import IncomingCall from '@/components/ui/IncomingCall';
 import { restoreSession } from '@/lib/session';
 import TicketScene from '@/components/scenes/TicketScene';
+import Part2Call from '@/components/ui/Part2Call';
+import { DollName, FuelGauge } from '@/components/ui/Part2Overlays';
 
 // Heavy pieces load only when needed.
 const GhostDetectionGame = dynamic(() => import('@/components/games/GhostDetectionGame'), { ssr: false });
@@ -32,6 +34,7 @@ export default function Experience() {
   const game = useStore((s) => s.game);
   const scene = useStore((s) => s.sceneIndex);
   const lang = useStore((s) => s.lang);
+  const part = useStore((s) => s.part);
 
   // first visit: language, reduced motion, device class, remembered name
   useEffect(() => {
@@ -64,9 +67,9 @@ export default function Experience() {
 
   return (
     <main className={`lang-${lang} relative min-h-screen bg-ink text-bone`}>
-      {entered && scene < sceneIndex('ticket') && <WorldStage />}
-      {entered && scene === 0 && <div className="fixed inset-0"><AtmosphereCanvas red density={1} /></div>}
-      {entered && scene >= sceneIndex('ticket') && <div className="fixed inset-0 bg-ink"><AtmosphereCanvas red={scene === sceneIndex('end')} density={.7} /></div>}
+      {entered && (part === 2 || scene < sceneIndex('ticket')) && <WorldStage />}
+      {entered && part === 1 && scene === 0 && <div className="fixed inset-0"><AtmosphereCanvas red density={1} /></div>}
+      {entered && part === 1 && scene >= sceneIndex('ticket') && <div className="fixed inset-0 bg-ink"><AtmosphereCanvas red={scene === sceneIndex('end')} density={.7} /></div>}
       <ScrollController />
       {entered && (
         <>
@@ -76,6 +79,9 @@ export default function Experience() {
           <StoryText />
           <PhoneNotification />
           <IncomingCall />
+          <Part2Call />
+          <DollName />
+          <FuelGauge />
           <FinalSequence />
           <SubliminalFlash />
           <EndScreen />

@@ -5,7 +5,9 @@ import * as THREE from 'three';
 import PhotoWorld, { PLANE_H, PLANE_W } from '@/components/scenes/PhotoWorld';
 import { LENS_FRAG, LENS_VERT } from '@/lib/three/shaders';
 import { disposeTextures } from '@/lib/three/textures';
-import { stage, tick } from '@/lib/animation/stageState';
+import { anchors, stage, tick } from '@/lib/animation/stageState';
+
+const _v = new THREE.Vector3(), _w = new THREE.Vector3();
 import { live, store } from '@/lib/store';
 
 const FOV = 40;
@@ -67,6 +69,16 @@ function CameraAndLens() {
     const k = 1 - Math.exp(-dt * (f.warm ? 9 : 5));
     pos.lerp(wantP, k); tgt.lerp(wantT, k);
     cam.position.copy(pos); cam.lookAt(tgt);
+    // Part 2: {N}'s name on the doll follows the photograph as the camera moves
+    const nm = f.name;
+    if (nm && f.nameAmt > 0) {
+      cam.updateMatrixWorld();
+      _v.set((nm[0] - .5) * PLANE_W, (.5 - nm[1]) * PLANE_H, .9).project(cam);
+      _w.set((nm[0] - .5) * PLANE_W, (.5 - nm[1] - nm[3]) * PLANE_H, .9).project(cam);
+      anchors.name.x = (_v.x * .5 + .5) * size.width; anchors.name.y = (.5 - _v.y * .5) * size.height;
+      anchors.name.px = Math.abs(_v.y - _w.y) * .5 * size.height; anchors.name.rot = nm[2];
+      anchors.name.amt = f.nameAmt * Math.min(1, o.light + .2);
+    } else anchors.name.amt = 0;
 
     // world → target, then the lens to the screen
     gl.setRenderTarget(rt); gl.setClearColor('#000000', 1); gl.clear(); gl.render(scene, cam);

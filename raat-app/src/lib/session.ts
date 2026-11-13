@@ -3,11 +3,11 @@
 // Kokila's call. Kept in sessionStorage so scrolling, language changes or a reload don't reset it.
 import { store, type CallState, type GameResult } from '@/lib/store';
 import type { Lang } from '@/data/translations';
-import type { GameId } from '@/data/stories/last-passenger';
+import { setPart, type GameId } from '@/data/stories/last-passenger';
 
 const KEY = 'raat-session';
 
-interface Saved { start: number; tz: string; hour12: boolean; call: CallState; declines: number; results: Partial<Record<GameId, GameResult>> }
+interface Saved { start: number; tz: string; hour12: boolean; call: CallState; declines: number; results: Partial<Record<GameId, GameResult>>; part?: 1 | 2 }
 
 /**
  * THE story clock. Called once, when the visitor presses Begin: captures their local time, time zone and
@@ -34,12 +34,14 @@ export function restoreSession() {
     const s = JSON.parse(raw) as Saved;
     // a call in progress is parked (not reopened on page load); the decline count is kept
     store.set({ sessionStart: s.start, tz: s.tz, hour12: s.hour12, call: s.call === 'DONE' ? 'DONE' : 'IDLE', declines: s.declines, results: s.results ?? {} });
+    // a visitor who reached Part 2 comes back to Part 2 (from its start)
+    if (s.part === 2) { setPart(2); store.set({ part: 2 }); }
   } catch { /* nothing saved */ }
 }
 
 export function save() {
   const s = store.get(); if (!s.sessionStart) return;
-  const v: Saved = { start: s.sessionStart, tz: s.tz, hour12: s.hour12, call: s.call, declines: s.declines, results: s.results };
+  const v: Saved = { start: s.sessionStart, tz: s.tz, hour12: s.hour12, call: s.call, declines: s.declines, results: s.results, part: s.part };
   try { sessionStorage.setItem(KEY, JSON.stringify(v)); } catch { /* private mode */ }
 }
 

@@ -14,6 +14,7 @@ export default function ScrollController() {
   const track = useRef<HTMLDivElement>(null);
   const entered = useStore((s) => s.entered);
   const reduced = useStore((s) => s.reduced);
+  const part = useStore((s) => s.part);
 
   useEffect(() => {
     if (!entered || !track.current) return;
@@ -37,7 +38,8 @@ export default function ScrollController() {
       if (lenis) lenis.scrollTo(y, { immediate, force: true }); else window.scrollTo({ top: y, behavior: immediate ? 'auto' : 'smooth' });
     };
 
-    let prev = 0;
+    // the first update only records where the page is (a part change must not replay every event before it)
+    let prev = -1;
     let wasDeepInside = false;
     const st = ScrollTrigger.create({
       trigger: el, start: 'top top', end: 'bottom bottom',
@@ -56,10 +58,11 @@ export default function ScrollController() {
           if (wasDeepInside && local < .55) { live.lookBacks++; wasDeepInside = false; }
         }
 
+        if (prev < 0) prev = p < .003 ? 0 : p;
         if (p > prev) {
           // one-shot story events, forward only
           SCENES.forEach((s, i) => {
-            const r = RANGES[i];
+            const r = RANGES[i]; if (r.a < 0) return; // not in the part that is playing
             s.events.forEach((e) => { const at = r.a + e.at * (r.b - r.a); if (prev < at && p >= at) events.emit(e.id); });
             // mini-games wait at the end of their scene
             const next = gamesOf(s).find((g) => !store.get().results[g]);
@@ -81,7 +84,7 @@ export default function ScrollController() {
       lenis?.destroy();
       scroll.lock = () => {}; scroll.toProgress = () => {};
     };
-  }, [entered, reduced]);
+  }, [entered, reduced, part]);
 
-  return <div ref={track} aria-hidden style={{ height: `${TOTAL_VH}vh` }} className="relative pointer-events-none" />;
+  return <div ref={track} aria-hidden data-part={part} style={{ height: `${TOTAL_VH}vh` }} className="relative pointer-events-none" />;
 }

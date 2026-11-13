@@ -11,7 +11,9 @@ const HighwayFilm = dynamic(() => import('@/components/film/HighwayFilm'), { ssr
 const BusInterior = dynamic(() => import('@/components/film/BusInterior'), { ssr: false });
 
 /** scroll progress → seconds of the highway film (opening 0–5 s, highway 5–30 s, bus 30–44 s) */
-const FILM_SPAN: Record<string, [number, number]> = { open: [0, 5], highway: [5, 30], bus: [30, 38.6] };
+const FILM_SPAN: Record<string, [number, number]> = { open: [0, 5], highway: [5, 30], bus: [30, 38.6], p2call: [100, 112], p2return: [120, 135], p2pump: [135, 150] };
+/** Part 2 scenes filmed on the same 3D highway */
+const P2_ROAD = new Set(['p2call', 'p2return', 'p2pump']);
 /** boarding: the first part is the door shot (film 38.6–45 s); the cut to the interior hides in the doorway's light */
 const BOARD_CUT = .5;
 
@@ -34,7 +36,7 @@ export default function WorldStage() {
 
   const id = SCENES[scene]?.id;
   const [boardIn, setBoardIn] = useState(false);
-  const world = !gl ? 'photo' : id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && !boardIn) ? 'road' : id === 'inside' || id === 'board' ? 'interior' : 'photo';
+  const world = !gl ? 'photo' : P2_ROAD.has(id ?? '') ? 'road' : id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && !boardIn) ? 'road' : id === 'inside' || id === 'board' ? 'interior' : 'photo';
 
   // which side of the doorway we are on during boarding
   useEffect(() => {
@@ -52,7 +54,13 @@ export default function WorldStage() {
       const sid = SCENES[live.sceneIndex]?.id ?? 'open', span = FILM_SPAN[sid];
       if (span) film.t = span[0] + (span[1] - span[0]) * live.local;
       else if (sid === 'board') film.t = 38.6 + (45 - 38.6) * Math.min(1, live.local / BOARD_CUT);
-      if (veil.current) veil.current.style.opacity = String(sid === 'open' ? Math.min(1, Math.max(0, 1 - (live.local - .72) / .28)) : 0);
+      const l = live.local, ramp = (a: number, b: number) => Math.min(1, Math.max(0, (l - a) / (b - a)));
+      // Part 2: in from black, out to black between places (the run between them happens in the dark)
+      const v = sid === 'open' ? Math.min(1, Math.max(0, 1 - (l - .72) / .28))
+        : sid === 'p2call' ? Math.max(1 - ramp(0, .04), ramp(.86, .98))
+        : sid === 'p2return' ? 1 - ramp(0, .08)
+        : sid === 'p2pump' ? ramp(.93, .97) : 0;
+      if (veil.current) veil.current.style.opacity = String(v);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
