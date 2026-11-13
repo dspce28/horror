@@ -32,7 +32,7 @@ export const FILMS: Film[] = [
   { title: 'The Others', year: 2001, url: wiki('The_Others_(2001_film)'),
     language: { en: 'English', hi: 'अंग्रेज़ी', gu: 'અંગ્રેજી' },
     about: { en: 'A mother and two children in a dark house, and the feeling that they are not alone.', hi: 'एक अँधेरे घर में एक माँ और दो बच्चे, और यह एहसास कि वे अकेले नहीं हैं।', gu: 'એક અંધારા ઘરમાં એક મા અને બે બાળકો, અને એવો અહેસાસ કે તેઓ એકલાં નથી.' } },
-  { title: 'The Wailing', year: 2016, url: wiki('The_Wailing_(film)'),
+  { title: 'The Wailing', year: 2016, url: wiki('The_Wailing_(2016_film)'),
     language: { en: 'Korean', hi: 'कोरियाई', gu: 'કોરિયન' },
     about: { en: 'A village policeman, a stranger in the hills, and a sickness that turns neighbours violent.', hi: 'गाँव का एक पुलिसवाला, पहाड़ों में एक अजनबी, और एक बीमारी जो पड़ोसियों को हिंसक बना देती है।', gu: 'ગામનો એક પોલીસવાળો, ટેકરીઓમાં એક અજાણ્યો, અને એક બીમારી જે પડોશીઓને હિંસક બનાવી દે છે.' } },
   { title: 'Shutter', year: 2004, url: wiki('Shutter_(2004_film)'),
