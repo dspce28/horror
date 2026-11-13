@@ -66,7 +66,7 @@ export function boardingAt(k: number): InteriorFrame {
   return {
     yaw, pitch: k < .2 ? -.06 : 0, dolly, height: -.12 + k * .12 + step, fov: k > .8 ? lerp(46, 38, smooth(range(k, .8, .95))) : 46,
     ghost: 'hair', ghostAlpha, flicker: k > .08 ? 1 : 0, moving: 0, turnSpeed: clamp(Math.abs(y1 - y0) / .006 / 140),
-    flash: 1 - smooth(range(k, 0, .1)), ghostDim: .6, driver: true,
+    flash: 1 - smooth(range(k, 0, .1)), ghostDim: .9, driver: true,
   };
 }
 function boardYaw(k: number) {
