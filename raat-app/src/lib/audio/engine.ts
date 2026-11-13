@@ -89,12 +89,28 @@ class AudioEngine {
    * Speak one line. Stops the previous line first (with a short fade), ducks the mix, places the voice
    * (behind the listener, left/right, or through a phone), and resolves with its length in seconds.
    */
-  speak(buf: AudioBuffer, o: { from?: number | 'behind'; phone?: boolean; whisper?: boolean; gain?: number } = {}): number {
+  speak(buf: AudioBuffer, o: { from?: number | 'behind'; phone?: boolean; whisper?: boolean; ghost?: boolean; gain?: number } = {}): number {
     if (!this.ok) return 0; const c = this.ctx!;
     this.hush();
     const src = c.createBufferSource(); src.buffer = buf;
     const g = c.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(o.gain ?? 1, this.now + .04);
     let n: AudioNode = src;
+    let dur = buf.duration;
+    if (o.ghost) {
+      // not a person: slowed and dragged lower, a second voice a breath behind and lower still, the highs dulled,
+      // and the whole bus echoing it back
+      src.playbackRate.value = .84; dur = buf.duration / .84;
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3600;
+      const body = c.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 420; body.gain.value = 4;
+      src.connect(lp); lp.connect(body); n = body;
+      const twin = c.createBufferSource(); twin.buffer = buf; twin.playbackRate.value = .74;
+      const tg = c.createGain(); tg.gain.value = .5; const tl = c.createBiquadFilter(); tl.type = 'lowpass'; tl.frequency.value = 1800;
+      twin.connect(tl); tl.connect(tg); tg.connect(g); twin.start(this.now + .11);
+      const echo = c.createDelay(1.5); echo.delayTime.value = .38; const fb = c.createGain(); fb.gain.value = .38;
+      const eg = c.createGain(); eg.gain.value = .55; body.connect(echo); echo.connect(fb); fb.connect(echo); echo.connect(eg); eg.connect(g);
+      const r = c.createGain(); r.gain.value = .6; g.connect(r); r.connect(this.rev);
+      dur = buf.duration / .74 + .9;
+    }
     if (o.phone) {
       // a phone line: 300–3400 Hz, a little saturation
       const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 320;
@@ -117,7 +133,7 @@ class AudioEngine {
     this.speaking = { src, g };
     this.duck(true);
     src.onended = () => { if (this.speaking?.src === src) { this.speaking = null; this.duck(false); } };
-    return buf.duration;
+    return dur;
   }
   /** stop the current line quickly (no two voices at once) */
   hush() {
@@ -263,6 +279,38 @@ class AudioEngine {
       bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 1.5; this.env(g, t, [[.01, .09 / (i + 1)], [.15, 0]]); this.env(ng, t, [[.005, .05 / (i + 1)], [.08, 0]]);
       o.connect(bp); n.connect(ng); ng.connect(bp); bp.connect(g); this.out(g, -.7, .9); o.start(t); o.stop(t + .2); n.start(t, Math.random()); n.stop(t + .12);
     });
+  }
+  /** a dog crying somewhere far down the empty road: a long rising howl that breaks into whimpers */
+  dogCry(pan = -.6) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const out = c.createGain(); out.gain.value = 1; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; out.connect(lp); this.out(lp, pan, 1.6);
+    const voice = (at: number, f0: number, f1: number, f2: number, len: number, v: number) => {
+      const o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), vib = c.createOscillator(), vg = c.createGain();
+      const f1b = c.createBiquadFilter(); f1b.type = 'bandpass'; f1b.frequency.value = 900; f1b.Q.value = 2.5;
+      o.type = 'sawtooth'; o2.type = 'sine';
+      [o, o2].forEach((x, i) => { const m = i ? 2 : 1; x.frequency.setValueAtTime(f0 * m, at); x.frequency.exponentialRampToValueAtTime(f1 * m, at + len * .35); x.frequency.linearRampToValueAtTime(f1 * 1.02 * m, at + len * .7); x.frequency.exponentialRampToValueAtTime(f2 * m, at + len); });
+      vib.frequency.value = 5.5; vg.gain.value = f1 * .018; vib.connect(vg); vg.connect(o.frequency); vg.connect(o2.frequency);
+      this.env(g, at, [[len * .2, v], [len * .75, v * .8], [len, 0]]);
+      const og = c.createGain(); og.gain.value = .35; o.connect(f1b); f1b.connect(g); o2.connect(og); og.connect(g); g.connect(out);
+      [o, o2, vib].forEach((x) => { x.start(at); x.stop(at + len + .05); });
+    };
+    voice(t, 380, 760, 520, 3.4, .05);       // the howl
+    voice(t + 3.9, 520, 640, 420, .55, .03); // whimpers
+    voice(t + 4.6, 500, 610, 400, .5, .025);
+    voice(t + 5.35, 480, 560, 360, .8, .02);
+  }
+  /** knuckles on the bus window, from outside: three slow knocks on glass */
+  windowTap(pan = -.55, n = 3) {
+    if (!this.ok) return; const c = this.ctx!;
+    for (let i = 0; i < n; i++) {
+      const t = this.now + i * .62 + (i === n - 1 ? .25 : 0);
+      const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(1350, t); o.frequency.exponentialRampToValueAtTime(980, t + .09);
+      this.env(g, t, [[.002, .16], [.12, 0]]); o.connect(g); this.out(g, pan, .5); o.start(t); o.stop(t + .15);
+      const nz = this.src(), bp = c.createBiquadFilter(), ng = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 3;
+      this.env(ng, t, [[.001, .22], [.035, 0]]); nz.connect(bp); bp.connect(ng); this.out(ng, pan, .5); nz.start(t, Math.random()); nz.stop(t + .06);
+      const th = c.createOscillator(), tg = c.createGain(); th.frequency.setValueAtTime(180, t); th.frequency.exponentialRampToValueAtTime(90, t + .06);
+      this.env(tg, t, [[.002, .2], [.08, 0]]); th.connect(tg); this.out(tg, pan, .3); th.start(t); th.stop(t + .1);
+    }
   }
   brake() {
     if (!this.ok) return; const c = this.ctx!, t = this.now;

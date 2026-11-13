@@ -94,10 +94,10 @@ function Teaser({ onBack }: { onBack: () => void }) {
     const at = [1200, 4200, 7400, 8600, 10200];
     const ids = at.map((ms, i) => window.setTimeout(() => {
       setStep(i + 1);
-      if (i === 0) audio.setInsects(.25);
-      if (i === 3) { audio.setInsects(0); audio.crunch(); if (!safe) audio.thump(.35, 60); }
+      if (i === 0) audio.dogCry(-.5);
+      if (i === 3) { audio.crunch(); if (!safe) audio.thump(.35, 60); }
     }, ms));
-    return () => { ids.forEach(window.clearTimeout); audio.setInsects(0); };
+    return () => { ids.forEach(window.clearTimeout); };
   }, []);
   return (
     <div className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center text-center">

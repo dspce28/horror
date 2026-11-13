@@ -146,12 +146,12 @@ function Shadow() {
       // her silhouette, blurred into a cast shadow (drawn once)
       const img = new Image(); img.src = '/raat/cutouts/her-look.webp';
       if (!img.complete) { m.visible = false; img.onload = () => {}; return; }
-      const c = document.createElement('canvas'); c.width = 256; c.height = Math.round(256 / .561); const g = c.getContext('2d')!;
+      const c = document.createElement('canvas'); c.width = 256; c.height = Math.round(256 / .33); const g = c.getContext('2d')!;
       g.filter = 'blur(10px) brightness(0)'; g.drawImage(img, 12, 12, c.width - 24, c.height - 24);
       soft.current = new THREE.CanvasTexture(c); mat.map = soft.current; mat.needsUpdate = true;
     }
     const h = sh[2] * PLANE_H;
-    m.scale.set(h * .561, h, 1);
+    m.scale.set(h * .33, h, 1);
     m.position.set((sh[0] - .5) * PLANE_W + Math.sin(state.clock.elapsedTime * .4) * .08, (.5 - sh[1]) * PLANE_H, DEPTH_SCALE * .5);
     mat.opacity = amt * .5;
   });

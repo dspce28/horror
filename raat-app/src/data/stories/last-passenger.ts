@@ -39,7 +39,7 @@ export const SCENES: SceneDef[] = [
     // black: night ambience, a breath, a low rumble; one line
     id: 'open', vh: 120, label: 'sc_warning',
     cues: [{ at: .14, who: 'big', k: 'o1' }],
-    events: [{ at: .02, id: 'night' }, { at: .5, id: 'breath-far' }],
+    events: [{ at: .02, id: 'night' }, { at: .3, id: 'dog-cry' }, { at: .5, id: 'breath-far' }],
   },
   {
     id: 'highway', vh: 300, label: 'sc_highway',
@@ -50,14 +50,14 @@ export const SCENES: SceneDef[] = [
       { at: .79, who: 'you', k: 'h5' }, { at: .86, who: 'nar', k: 'h8' }, { at: .94, who: 'big', k: 'h9' },
     ],
     events: [
-      { at: .02, id: 'bike-ride' }, { at: .17, id: 'ping' }, { at: .27, id: 'bark' }, { at: .38, id: 'bike-sputter' }, { at: .5, id: 'bike-stop' },
-      { at: .73, id: 'ping' }, { at: .86, id: 'engine-far' }, { at: .3, id: 'hum-far' }, { at: .56, id: 'subliminal-upside' },
+      { at: .02, id: 'bike-ride' }, { at: .17, id: 'ping' }, { at: .27, id: 'dog-cry' }, { at: .38, id: 'bike-sputter' }, { at: .5, id: 'bike-stop' },
+      { at: .73, id: 'ping' }, { at: .62, id: 'dog-cry' }, { at: .86, id: 'engine-far' }, { at: .3, id: 'hum-far' }, { at: .56, id: 'subliminal-upside' },
     ],
   },
   {
     id: 'bus', vh: 240, label: 'sc_bus',
     cues: [{ at: .04, who: 'nar', k: 'b1' }, { at: .3, who: 'you', k: 'b2' }, { at: .78, who: 'nar', k: 'bd1' }],
-    events: [{ at: .4, id: 'brake' }, { at: .54, id: 'stop' }],
+    events: [{ at: .12, id: 'dog-cry' }, { at: .22, id: 'horn' }, { at: .4, id: 'brake' }, { at: .54, id: 'stop' }],
   },
   {
     // boarding: the door opens, the driver asks, the visitor climbs in; the cut hides in the doorway's light
@@ -65,7 +65,7 @@ export const SCENES: SceneDef[] = [
     cues: [
       { at: .05, who: 'driver', k: 'b3', voice: 'normal', from: .3 }, { at: .13, who: 'you', k: 'b4' }, { at: .2, who: 'driver', k: 'b5', voice: 'normal', from: .3 },
       { at: .28, who: 'you', k: 'b6' }, { at: .35, who: 'driver', k: 'b7', voice: 'normal', from: .3 }, { at: .43, who: 'nar', k: 'b8' },
-      { at: .58, who: 'nar', k: 'bd5' }, { at: .81, who: 'nar', k: 'bd3' }, { at: .9, who: 'nar', k: 'bd2' },
+      { at: .58, who: 'nar', k: 'bd5' }, { at: .68, who: 'her', k: 'i_name', direct: true, voice: 'whisper', from: 'behind' }, { at: .81, who: 'nar', k: 'bd3' }, { at: .9, who: 'nar', k: 'bd2' },
     ],
     events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .6, id: 'steps-metal' }, { at: .9, id: 'door-close' }],
   },
@@ -109,7 +109,7 @@ export const SCENES: SceneDef[] = [
     ],
     events: [
       { at: .04, id: 'lights-die' }, { at: .14, id: 'engine-cut' }, { at: .44, id: 'seat-spring' }, { at: .24, id: 'driver-turn' }, { at: .43, id: 'heartbeat' },
-      { at: .62, id: 'fabric' }, { at: .81, id: 'jumpscare' }, { at: .9, id: 'lights-back' }, { at: .58, id: 'bangles' }, { at: .68, id: 'hum-close' },
+      { at: .62, id: 'fabric' }, { at: .81, id: 'jumpscare' }, { at: .9, id: 'lights-back' }, { at: .58, id: 'bangles' }, { at: .68, id: 'hum-close' }, { at: .525, id: 'window-tap' }, { at: .565, id: 'window-tap' }, { at: .62, id: 'window-tap' },
     ],
   },
   {
@@ -117,12 +117,12 @@ export const SCENES: SceneDef[] = [
     id: 'leave', vh: 360, label: 'sc_leave',
     cues: [
       { at: .03, who: 'nar', k: 'l1' }, { at: .12, who: 'nar', k: 'l2' }, { at: .21, who: 'nar', k: 'l3' }, { at: .31, who: 'nar', k: 'l4' },
-      { at: .41, who: 'nar', k: 'l5' }, { at: .5, who: 'nar', k: 'l6' }, { at: .58, who: 'nar', k: 'l7' },
+      { at: .41, who: 'nar', k: 'l5' }, { at: .455, who: 'her', k: 'i_name', direct: true, voice: 'whisper', from: 'behind' }, { at: .5, who: 'nar', k: 'l6' }, { at: .58, who: 'nar', k: 'l7' },
       { at: .66, who: 'nar', k: 'l8' }, { at: .78, who: 'nar', k: 'l9' }, { at: .9, who: 'nar', k: 'l10' },
     ],
     events: [
       { at: .03, id: 'bus-slow' }, { at: .31, id: 'door-open' }, { at: .41, id: 'steps-metal' }, { at: .5, id: 'door-close' },
-      { at: .58, id: 'bus-away' }, { at: .9, id: 'silence' }, { at: .18, id: 'bangles' },
+      { at: .58, id: 'bus-away' }, { at: .74, id: 'horn-far' }, { at: .9, id: 'silence' }, { at: .18, id: 'bangles' },
     ],
   },
   {

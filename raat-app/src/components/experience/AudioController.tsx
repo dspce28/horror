@@ -19,14 +19,18 @@ export default function AudioController() {
     const off = events.on((id) => {
       const s = store.get();
       switch (id) {
-        case 'night': audio.setInsects(.5); break;
+        case 'night': break;                                                    // wind only: a lonely, empty road
+        case 'dog-cry': audio.dogCry(Math.random() < .5 ? -.7 : .6); break;
+        case 'horn': audio.horn(.9); break;                                      // the bus, before it is seen
+        case 'horn-far': audio.horn(.3); break;                                  // the bus, from inside the fog
+        case 'window-tap': if (!s.safe) audio.windowTap(-.55); else audio.windowTap(-.55, 1); break;
         case 'breath-far': audio.breath(); break;
         case 'ping': audio.ping(); buzzPhone([60, 80, 60]); break;
         case 'bark': audio.bark(); break;
         case 'bike-ride': audio.setBike(1, .6); break;
         case 'bike-sputter': audio.bikeSputter(); break;
         case 'bike-stop': audio.bikeStop(); audio.hushAll(3); break;          // then a few seconds of silence
-        case 'engine-far': audio.setInsects(.25); break;
+        case 'engine-far': break;
         case 'brake': audio.brake(); live.shake = .9; film.shake = 1.2; break;
         case 'stop': live.shake = .7; film.shake = .7; audio.thump(.4, 70); break;
         case 'door-open': audio.door(); break;
@@ -55,7 +59,7 @@ export default function AudioController() {
         case 'lights-back': audio.lightsBack(); break;
         case 'bus-slow': audio.brake(); break;
         case 'bus-away': break;                                                  // the engine fades with the fog (soundAt)
-        case 'silence': audio.hushAll(4); audio.setInsects(0); break;
+        case 'silence': audio.hushAll(4); break;
         case 'reveal-next': audio.thump(.4, 50); break;
         case 'burn': audio.burn(); break;
         case 'vibrate': audio.vibrate(2); buzzPhone([200, 100, 200]); break;
@@ -65,7 +69,7 @@ export default function AudioController() {
     });
 
     // a voiced line is spoken when the visitor reaches it (scrolling forward); upcoming lines are fetched early
-    let lastCue = '', lastScene = -1, nextThunder = 0, nextRattle = 0;
+    let lastCue = '', lastScene = -1;
     const offCue = store.subscribe(() => {
       const st = store.get(); const key = st.cueKey;
       if (key === lastCue) return;
@@ -86,31 +90,21 @@ export default function AudioController() {
       if (i !== lastScene) { lastScene = i; [i, i + 1].forEach((j) => SCENES[j] && preload(SCENES[j].cues.map((c) => c.k))); }
       const w = soundAt(id, t);
       const s = store.get();
-      audio.setEngine(s.game ? w.engine * .4 : w.engine, w.rpm);
+      // before boarding: the empty road (soft wind, the bus arriving). After the door shuts: only the horror theme and
+      // single effects (no rain, no wind, no engine drone, no tube hum, no rattle)
+      const before = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55);
+      audio.setEngine(before && id !== 'open' ? w.engine * .7 : 0, w.rpm);
       audio.dread(w.dread);
-      const inBus = ['board', 'inside', 'driver', 'reveal', 'leave'].includes(id) && !(id === 'board' && t < .55) && !(id === 'leave' && t > .41);
-      audio.setBuzz(inBus && w.lights ? .5 * Math.min(1, live.flicker) : 0);
+      audio.setBuzz(0);
       audio.setBike(id === 'highway' && t < .5 ? 1 : 0, .6);
-      audio.setInsects(id === 'open' || (id === 'highway' && (t < .38 || t > .5)) ? .45 : id === 'leave' && t > .41 && t < .9 ? .2 : id === 'end' ? 0 : 0);
+      audio.setInsects(0);
+      audio.setRain(0);
       const heart = (id === 'driver' && t > .7) || (id === 'reveal' && t > .4 && t < .9) ? 90 : id === 'inside' && t > .6 ? 70 : 0;
       audio.setHeart(s.game ? 0 : heart);
-      // the horror theme stays under the whole story, low; everything else (rain, wind, thunder, effects) sits above it
+      // the horror theme stays under the whole story, low; the effects sit above it
       const call = s.call !== 'IDLE' && s.call !== 'DONE';
       audio.themeLevel(s.game ? .07 : call ? .06 : .12);
-      const now = performance.now();
-      // inside the moving bus: the glass rattles in its frame now and then
-      if (inBus && w.engine > .2 && !s.game && now > nextRattle) { if (nextRattle > 0) audio.rattle(.6, Math.random() * 1.6 - .8); nextRattle = now + 5000 + Math.random() * 9000; }
-      // thunder now and then: often outside, rarely inside the bus, never during a game or the call
-      const outside = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end';
-      if (!s.game && !call && now > nextThunder) {
-        // lightning only lights the open road; the ticket and the call stay dark (thunder is still heard)
-        const sky = id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41);
-        if (nextThunder > 0) { audio.thunder(outside ? 1 : .55); if (sky) live.flash = .45; }
-        nextThunder = now + (outside ? 14000 + Math.random() * 16000 : 30000 + Math.random() * 30000);
-      }
-      const silent = (id === 'reveal' && t > .14 && t < .9) || (id === 'leave' && t > .9);
-      audio.bedLevel(silent ? .2 : 1, silent ? .4 : 1);
-      audio.setRain(id === 'open' ? .5 : id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end' ? 1 : inBus ? .6 : 0);
+      audio.bedLevel(before ? .75 : 0, before ? 1 : 2.5);
       if (i < sceneIndex('reveal')) audio.restoreMusic();
       const c = store.get().call; if (c !== 'IDLE' && c !== 'DONE') audio.themeLevel(0);
     }, 100);

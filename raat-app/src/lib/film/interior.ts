@@ -96,8 +96,8 @@ function interiorYawOnly(t: number) {
 /** where each ghost cut-out stands, in metres from the camera (camera faces -z) */
 export const GHOSTS: Record<Exclude<GhostPose, 'none'>, { url: string; aspect: number; h: number; pos: [number, number, number] }> = {
   hair: { url: 'her-hair', aspect: .672, h: .82, pos: [.06, -.5, -10.2] },
-  behind: { url: 'her-behind', aspect: .433, h: 1.32, pos: [-.78, -1.05, -2.5] },
-  look: { url: 'her-look', aspect: .561, h: 1.7, pos: [.08, -1.18, -2.3] },
+  behind: { url: 'her-behind', aspect: .483, h: 1.34, pos: [-.78, -1.05, -2.5] },
+  look: { url: 'her-look', aspect: .33, h: 1.68, pos: [.08, -1.2, -2.4] },
   // standing in the aisle, barefoot: far down the bus, then a few rows away with her feet just off the floor
   aisleFar: { url: 'her-aisle-far', aspect: .302, h: 1.62, pos: [.02, -1.28, -9.4] },
   aisleNear: { url: 'her-aisle-near', aspect: .324, h: 1.64, pos: [.04, -1.2, -4.3] },

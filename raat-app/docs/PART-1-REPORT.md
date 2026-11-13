@@ -49,6 +49,12 @@ Onboarding gained a third choice (Neither / कोई नहीं / એકે�
 - The visitor's name is spoken **inside the whole sentence** (the full sentence is generated), not stitched.
 - The browser asks once whether a provider exists. With none, it never requests clips and the subtitles carry every line; a provider failure or a slow network (8 s timeout) also falls back to subtitles. The story never waits on audio.
 
+## 3b. Sound pass (latest)
+- **No rain, no thunder, no insects.** Before the visitor boards: a soft wind and a dog crying far down the road (open, highway ×2, as the bus arrives), the bike, the bus's horn before it is seen, its brakes.
+- **After the door shuts:** no wind, engine drone, tube hum or window rattle. Only the horror theme (low) and single effects: knocks on the glass while she is outside the window (reveal), bangles, breaths, seat, heartbeat, and the horn once more, far away inside the fog, as the bus vanishes.
+- **Her calling {N}'s name has a voice without any account:** the server generates it (eSpeak-NG's whispering female voice, slow and low, in the script the name is written in: Latin, Devanagari or Gujarati). The browser then makes it a ghost: slowed, a second lower voice a breath behind, an echo and the bus's reverb. Heard three times: as {N} boards, from right behind {N} inside, and as {N} gets off. Preview: `docs/name-voice-preview.mp3`. A real provider key (§7) replaces it with a better voice automatically.
+- Two old-style Kokila cut-outs inside the bus (the standing figure and the seated one, also used in the windscreen reflection and the opening) were replaced with cut-outs from the new photos.
+
 ## 4. Files (this part)
 New: `app/api/voice/route.ts`, `lib/audio/voice.ts`, `lib/audio/lines.ts`, `lib/replay.ts`, `data/recommendations.ts`, `components/ui/EndScreen.tsx`, `components/ui/FinalSequence.tsx`, `docs/PART-1-REPORT.md`.
 Changed: `data/stories/last-passenger.ts`, `data/translations/{en,hi,gu,index}.ts`, `lib/audio/engine.ts`, `components/experience/AudioController.tsx`, `components/ui/IncomingCall.tsx`, `components/ui/Hud.tsx`, `components/ui/PhoneNotification.tsx`, `components/scenes/TicketScene.tsx`, `components/scenes/PhotoWorld.tsx`, `lib/three/shaders.ts`, `lib/animation/director.ts`, `lib/animation/stageState.ts`, `lib/gender.ts`, `lib/store.ts`, `components/experience/{Entry,Experience,WorldStage,FourthWall}.tsx`, `components/prototype/Prototype.tsx`, `app/globals.css`.

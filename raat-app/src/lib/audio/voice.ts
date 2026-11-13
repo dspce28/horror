@@ -24,10 +24,12 @@ function url(k: Key): string {
 }
 
 let probing: Promise<boolean> | null = null;
+/** the server can always say her calling the name (its own voice, no account needed) */
+let nameVoice = false;
 /** ask the server once whether any voice provider is configured */
 function probe(): Promise<boolean> {
   if (available !== null) return Promise.resolve(available);
-  if (!probing) probing = fetch('/api/voice', { cache: 'no-store' }).then((r) => r.json()).then((j: { available?: boolean }) => (available = !!j.available)).catch(() => (available = false));
+  if (!probing) probing = fetch('/api/voice', { cache: 'no-store' }).then((r) => r.json()).then((j: { available?: boolean; name?: boolean }) => { nameVoice = !!j.name; return (available = !!j.available); }).catch(() => (available = false));
   return probing;
 }
 export const voicesAvailable = () => available;
@@ -43,20 +45,20 @@ async function load(k: Key): Promise<AudioBuffer | null> {
   if (!audio.ok) return null;
   const lang = store.get().lang, who = VOICED[k]?.who;
   if (who && (await recordedLines()).has(`${k}-${lang}`)) return loadUrl(`/audio/voices/${who}/${k}-${lang}.mp3`);
-  if (!(await probe())) return null;
-  return loadUrl(url(k));
+  if (!(await probe()) && !(k === 'i_name' && nameVoice)) return null;
+  return loadUrl(url(k), k);
 }
-function loadUrl(u: string): Promise<AudioBuffer | null> {
+function loadUrl(u: string, k?: Key): Promise<AudioBuffer | null> {
   let p = cache.get(u);
   if (!p) {
     p = (async () => {
       const ctl = new AbortController(); const timer = window.setTimeout(() => ctl.abort(), 8000); // a slow network must not hold the story
       try {
         const r = await fetch(u, { signal: ctl.signal });
-        if (r.status === 503) { available = false; return null; } // provider failed: subtitles from here on
+        if (r.status === 503) { if (k !== 'i_name') available = false; return null; } // provider failed: subtitles from here on
         if (!r.ok) return null;
         const buf = await audio.ctx!.decodeAudioData(await r.arrayBuffer());
-        available = true; return buf;
+        if (k !== 'i_name') available = true; return buf;
       } catch { return null; } finally { window.clearTimeout(timer); }
     })();
     cache.set(u, p);
@@ -76,8 +78,9 @@ export async function say(k: Key, o: SayOpts = {}): Promise<number> {
   const line = VOICED[k]; if (!line) return 0;
   last = { k, o };
   const buf = await load(k);
-  if (!buf) return k === 'i_name' ? speakName() : 0;
-  return audio.speak(buf, { from: o.from, phone: o.phone ?? line.style === 'phone', whisper: line.style === 'whisper', gain: line.style === 'whisper' ? 1.15 : 1 });
+  if (!buf) return 0;
+  // her calling the name: a ghost, slowed, doubled and echoing
+  return audio.speak(buf, { from: o.from, phone: o.phone ?? line.style === 'phone', whisper: line.style === 'whisper', ghost: k === 'i_name', gain: k === 'i_name' ? 1.5 : line.style === 'whisper' ? 1.15 : 1 });
 }
 
 /** play the last line again (the replay button) */
@@ -90,26 +93,4 @@ export function resetVoices() { cache.clear(); last = null; }
 export async function sayAndWait(k: Key, o: SayOpts = {}, readMs = 2600): Promise<void> {
   const d = await say(k, o);
   await new Promise((r) => window.setTimeout(r, d > 0 ? d * 1000 + 250 : readMs));
-}
-
-/**
- * With no voice provider, her calling the visitor's name still has a voice: the browser's own speech, slowed and
- * lowered toward a whisper, with the music ducked under it. Only for the name (a full sentence in a browser voice
- * sounds robotic). Gujarati devices often have no Gujarati voice, so it falls back to Hindi or Indian English.
- */
-function speakName(): number {
-  const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined;
-  const s = store.get(); const name = cleanName(s.name);
-  if (!synth || !name || audio.muted) return 0;
-  const want = s.lang === 'gu' ? ['gu-IN', 'hi-IN', 'en-IN'] : s.lang === 'hi' ? ['hi-IN', 'en-IN'] : ['en-IN', 'en-GB', 'en-US'];
-  const voices = synth.getVoices();
-  const pick = want.map((l) => voices.filter((v) => v.lang.replace('_', '-').toLowerCase().startsWith(l.toLowerCase()))).find((list) => list.length);
-  const female = pick?.find((v) => /female|woman|swara|neerja|heera|kalpana|lekha|veena|zira|samantha|karen/i.test(v.name)) ?? pick?.[0];
-  const u = new SpeechSynthesisUtterance(`${name}…`);
-  if (female) { u.voice = female; u.lang = female.lang; } else u.lang = want[0];
-  u.rate = .62; u.pitch = .55; u.volume = Math.min(1, audio.volume * audio.voiceVolume + .15);
-  audio.duck(true);
-  u.onend = u.onerror = () => audio.duck(false);
-  synth.cancel(); synth.speak(u);
-  return 1.6; // about how long a whispered name takes
 }

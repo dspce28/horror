@@ -56,13 +56,27 @@ async function azure(text: string, lang: Lang, who: Who, style: Style): Promise<
   return r.ok ? r.arrayBuffer() : null;
 }
 
+/**
+ * Her calling the visitor's name, with no account needed: eSpeak-NG's whispering female voice, slow and low,
+ * generated here on the server. The browser then makes it a ghost (slowed, doubled, echoing). The voice follows
+ * the script the name is written in (Devanagari, Gujarati or Latin), so the name is pronounced, not spelled.
+ */
+async function espeakName(name: string): Promise<ArrayBuffer | null> {
+  const { default: ESpeakNg } = await import('espeak-ng');
+  const v = /[\u0A80-\u0AFF]/.test(name) ? 'gu' : /[\u0900-\u097F]/.test(name) ? 'hi' : 'en';
+  const es = await ESpeakNg({ arguments: ['-v', `${v}+whisperf`, '-s', '78', '-p', '18', '-a', '190', '-g', '12', '-w', '/out.wav', `${name}...`] });
+  const wav: Uint8Array = es.FS.readFile('/out.wav');
+  return wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer;
+}
+
 const activeProvider = () => (process.env.ELEVENLABS_API_KEY && process.env.ELEVENLABS_VOICE_KOKILA ? 'elevenlabs' : process.env.AZURE_SPEECH_KEY && process.env.AZURE_SPEECH_REGION ? 'azure' : null);
 
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   // no line asked for: just say whether voices are available (the browser asks this once, so a site without a
   // provider never shows failed requests)
-  if (!q.get('k')) return Response.json({ available: !!activeProvider(), provider: activeProvider() }, { headers: { 'Cache-Control': 'no-store' } });
+  // `name`: her calling the visitor's name always has a voice (eSpeak-NG on this server, no account needed)
+  if (!q.get('k')) return Response.json({ available: !!activeProvider(), provider: activeProvider(), name: true }, { headers: { 'Cache-Control': 'no-store' } });
   const k = q.get('k') as Key | null, lang = q.get('l') as Lang | null, g = q.get('g') as Gender | null;
   const line = k ? VOICED[k] : undefined;
   if (!k || !line || !lang || !(lang in LOCALES) || !g || !['m', 'f', 'n'].includes(g)) {
@@ -72,10 +86,11 @@ export async function GET(req: Request) {
   const text = translate(lang, k, { name, gender: g }).replace(/…/g, '...');
   const hasName = text.includes(name);
 
-  let audio: ArrayBuffer | null = null, provider = 'none';
+  let audio: ArrayBuffer | null = null, provider = 'none', type = 'audio/mpeg';
   try {
     if (process.env.ELEVENLABS_API_KEY) { provider = 'elevenlabs'; audio = await elevenlabs(text, line.who, line.style); }
     else if (process.env.AZURE_SPEECH_KEY) { provider = 'azure'; audio = await azure(text, lang, line.who, line.style); }
+    else if (k === 'i_name') { provider = 'espeak'; audio = await espeakName(name); type = 'audio/wav'; }
   } catch { audio = null; }
 
   if (!audio) {
@@ -84,7 +99,7 @@ export async function GET(req: Request) {
   }
   return new Response(audio, {
     headers: {
-      'Content-Type': 'audio/mpeg',
+      'Content-Type': type,
       'Cache-Control': hasName ? 'private, max-age=86400' : 'public, max-age=86400, s-maxage=31536000, immutable',
     },
   });
