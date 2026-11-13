@@ -38,7 +38,7 @@ export const en = {
   sc_bus: 'The bus',
   sc_board: 'Boarding',
   bd1: 'The engine idles. The rain hisses on the hot metal.',
-  bd2: 'The door folds shut behind {N}.',
+  bd2: 'Behind {N}, the door folds shut.',
   bd3: 'Far ahead, the driver. He does not turn around.',
   bd4: 'And right at the back…',
   sc_inside: 'Last passenger',
@@ -72,14 +72,14 @@ export const en = {
 
   // inside
   i1: 'Red seats. Tube lights buzzing. Every seat empty.',
-  i2: 'Almost every seat. At the very back, a woman in an off-white sari. Hair over her face. She does not move.',
-  i3: '{N} sits in the middle. Not too close to her.',
+  i2: 'At the very back, the last seat. Empty. But the cushion is pressed down, as if someone just got up.',
+  i3: '{N} sits in the middle, facing the front.',
   i4: 'The engine catches. The bus pulls away.',
-  i5: 'In the dark window, {N} can see her reflection. Her face is turned this way.',
+  i5: 'In the dark window, a reflection: a woman in an off-white sari, sitting at the back.',
   i6: 'Nobody else is on this bus.',
   i7: 'Don\'t look behind you…',
-  i8: '{N} turns anyway. The back seat is empty.',
-  i9: 'The lights stutter. Somewhere in the dark, a seat creaks.',
+  i8: '{N} turns anyway. At the far end of the aisle, a woman. Too far to see her face.',
+  i9: 'The lights stutter. When they steady, she is closer.',
   i10: 'I\'m right here…',
 
   // game 1
@@ -251,7 +251,7 @@ export const en = {
   l9: 'Its lights soften. Its engine fades.',
   l10: 'Then nothing. Just the road. Just {N}.',
   k1: 'In {N}\'s pocket, something that wasn\'t there before.',
-  tk_date: 'Date',
+  tk_date: 'Date of journey',
   tk_seat_k: 'Seat',
   tk_seat_v: 'LAST',
   c1: 'The road is silent. Not even the insects.',
@@ -280,6 +280,8 @@ export const en = {
   a_dialogue: 'Voices',
   a_music: 'Music and atmosphere',
   a_audio: 'Sound settings',
+  i9b: 'She lifts her head. Slowly.',
+  bd5: '{N} walks down the aisle. The bus smells of rain and old diesel.',
 } as const;
 
 export type Key = keyof typeof en;

@@ -492,6 +492,32 @@ class AudioEngine {
     n.connect(bp); bp.connect(g); this.env(g, t, [[.005, .5], [.05, .1], [.09, .35], [.25, 0]]); this.out(g, 0, .1); n.start(t, Math.random()); n.stop(t + .3);
     this.thump(.3, 90);
   }
+
+  /** an old seat's springs taking a weight that isn't there */
+  seatSpring(pan = 0) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    [0, .18, .42].forEach((dt, i) => {
+      const o = c.createOscillator(), g = c.createGain(), bp = c.createBiquadFilter(); o.type = 'sawtooth';
+      o.frequency.setValueAtTime(190 - i * 25, t + dt); o.frequency.exponentialRampToValueAtTime(120 - i * 15, t + dt + .35);
+      bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 6;
+      o.connect(bp); bp.connect(g); this.env(g, t + dt, [[.02, .09 - i * .02], [.35, 0]]); this.out(g, pan, .35); o.start(t + dt); o.stop(t + dt + .4);
+    });
+    this.creak(.3, pan);
+  }
+  /** a tube light stuttering: the buzz cuts out with a click, twice */
+  stutter() {
+    if (!this.ok) return;
+    [0, 160, 330].forEach((ms, i) => window.setTimeout(() => { this.setBuzz(i % 2 ? .6 : 0); this.thump(.08, 900); }, ms));
+    window.setTimeout(() => this.setBuzz(.5), 900);
+  }
+  /** loose window glass rattling in its frame as the bus hits the road */
+  rattle(v = .5, pan = 0) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 3;
+    n.connect(bp); bp.connect(g);
+    const pts: [number, number][] = []; for (let i = 0; i < 9; i++) { pts.push([i * .045, .1 * v], [i * .045 + .02, 0]); }
+    this.env(g, t, pts); this.out(g, pan, .2); n.start(t, Math.random()); n.stop(t + .5);
+  }
 }
 
 export const audio = new AudioEngine();

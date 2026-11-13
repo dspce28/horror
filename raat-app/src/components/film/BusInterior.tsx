@@ -115,6 +115,29 @@ function Ghost({ small }: { small: boolean }) {
   );
 }
 
+/** Her reflection in the windscreen while {N} faces the front: mirrored, cold, faint. Behind {N}, the seat is empty. */
+function WindowReflection({ small }: { small: boolean }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(.55, .66, .8), opacity: 0, side: THREE.DoubleSide }), []);
+  useEffect(() => () => mat.dispose(), [mat]);
+  useFrame((state) => {
+    const m = ref.current; if (!m) return;
+    const tx = texture(`/raat/cutouts/her-behind${small ? '-m' : ''}.webp`);
+    if (tx && mat.map !== tx) { mat.map = tx; mat.needsUpdate = true; }
+    const a = now.f.reflect;
+    m.visible = !!tx && a > .01;
+    // rain running down the glass breaks the reflection up a little
+    mat.opacity = a * (.5 + Math.sin(state.clock.elapsedTime * 1.7) * .05) * Math.min(1, now.flick + .1);
+  });
+  // in the dark windscreen ahead (facing the cabin, +z), the glass shows what is behind {N}: her, on the back seat
+  const h = .62, w = h * GHOSTS.behind.aspect;
+  return (
+    <mesh ref={ref} material={mat} position={[.62, .22, 2.4]} rotation-y={Math.PI} scale={[-1, 1, 1]} renderOrder={6}>
+      <planeGeometry args={[w, h]} />
+    </mesh>
+  );
+}
+
 /** The driver in his seat, seen from behind. He never turns round while you board. */
 function Driver({ small }: { small: boolean }) {
   const ref = useRef<THREE.Mesh>(null);
@@ -168,11 +191,12 @@ function Director({ reduced, progress }: { reduced: boolean; progress: () => { m
     if (st.n === 90) { if (st.sum / st.n > 1 / 38 && st.level < 2) { st.level++; setDpr(st.level === 1 ? 1 : .75); } st.n = 0; st.sum = 0; }
     const p = progress(), t = p.t, f = p.mode === 'board' ? boardingAt(t) : interiorAt(t, live.lookBacks), ms = performance.now();
     now.f = f;
-    // tube lights: occasional dips, chaos at the end
+    // tube lights
     let fl = 1;
     if (f.flicker) {
-      if (ms > st.next) { st.dip = ms + 40 + Math.random() * (f.flicker === 2 ? 220 : 110); st.next = ms + (f.flicker === 2 ? 120 + Math.random() * 500 : 1600 + Math.random() * 3800); }
-      if (ms < st.dip) fl = f.flicker === 2 ? Math.random() * .3 : .3 + Math.random() * .3;
+      // real tube lights: mostly steady, a two- or three-dip stutter every 7–16 s; dying lights stutter often
+      if (ms > st.next) { const burst = f.flicker === 2 ? 1 : (Math.random() < .5 ? 2 : 3); st.dip = ms + 50 + Math.random() * 90 + (burst - 1) * 140; st.next = ms + (f.flicker === 2 ? 500 + Math.random() * 1400 : 7000 + Math.random() * 9000); }
+      if (ms < st.dip) fl = Math.floor((st.dip - ms) / 70) % 2 === 0 ? (f.flicker === 2 ? .12 + Math.random() * .2 : .45 + Math.random() * .2) : .92;
     }
     if (reduced) fl = Math.max(.7, fl);
     now.flick = fl * (p.mode === 'inside' && t > .965 ? 0 : 1); live.flicker = fl;
@@ -206,6 +230,7 @@ export default function BusInterior({ small, reduced, progress }: { small: boole
       <Relief name="inside-empty" yaw={0} small={small} />
       <Relief name="cabin" yaw={Math.PI} small={small} />
       <Ghost small={small} />
+      <WindowReflection small={small} />
       <Driver small={small} />
       <PassingLights />
       <Dust count={small ? 150 : 400} />

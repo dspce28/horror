@@ -65,23 +65,23 @@ export const SCENES: SceneDef[] = [
     cues: [
       { at: .05, who: 'driver', k: 'b3', voice: 'normal', from: .3 }, { at: .13, who: 'you', k: 'b4' }, { at: .2, who: 'driver', k: 'b5', voice: 'normal', from: .3 },
       { at: .28, who: 'you', k: 'b6' }, { at: .35, who: 'driver', k: 'b7', voice: 'normal', from: .3 }, { at: .43, who: 'nar', k: 'b8' },
-      { at: .58, who: 'nar', k: 'bd2' }, { at: .81, who: 'nar', k: 'bd3' }, { at: .9, who: 'nar', k: 'bd4' },
+      { at: .58, who: 'nar', k: 'bd5' }, { at: .81, who: 'nar', k: 'bd3' }, { at: .9, who: 'nar', k: 'bd2' },
     ],
-    events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .555, id: 'door-close' }, { at: .93, id: 'creak-back' }],
+    events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .6, id: 'steps-metal' }, { at: .9, id: 'door-close' }],
   },
   {
-    // the last passenger: she looks like anyone else, until she says {N}'s name
+    // the last passenger, revealed a little at a time: an empty seat, a reflection, her voice, a silhouette, closer
     id: 'inside', vh: 380, label: 'sc_inside',
     cues: [
       { at: .03, who: 'nar', k: 'i1' }, { at: .12, who: 'nar', k: 'i2' }, { at: .22, who: 'nar', k: 'i3' },
       { at: .31, who: 'nar', k: 'i4' }, { at: .4, who: 'nar', k: 'i5' },
       { at: .5, who: 'her', k: 'i_name', direct: true, voice: 'whisper', from: 'behind' }, { at: .58, who: 'nar', k: 'i6' },
-      { at: .67, who: 'her', k: 'i7', direct: true, voice: 'whisper', from: 'behind' }, { at: .76, who: 'nar', k: 'i8' },
-      { at: .85, who: 'nar', k: 'i9' }, { at: .93, who: 'her', k: 'i10', behind: true, direct: true, voice: 'whisper', from: -.6 },
+      { at: .66, who: 'her', k: 'i7', direct: true, voice: 'whisper', from: 'behind' }, { at: .76, who: 'nar', k: 'i8' },
+      { at: .84, who: 'nar', k: 'i9' }, { at: .9, who: 'nar', k: 'i9b' }, { at: .95, who: 'her', k: 'i10', behind: true, direct: true, voice: 'whisper', from: .6 },
     ],
     events: [
-      { at: .31, id: 'engine-start' }, { at: .4, id: 'fabric' }, { at: .48, id: 'hush' }, { at: .62, id: 'breath-close' },
-      { at: .76, id: 'teleport' }, { at: .85, id: 'flicker-out' }, { at: .96, id: 'blackout' },
+      { at: .12, id: 'seat-spring' }, { at: .31, id: 'engine-start' }, { at: .4, id: 'fabric' }, { at: .48, id: 'hush' }, { at: .62, id: 'breath-close' },
+      { at: .72, id: 'creak-back' }, { at: .835, id: 'stutter' }, { at: .9, id: 'fabric' }, { at: .97, id: 'blackout' },
     ],
     gameAfter: ['hunt'],
   },
@@ -94,7 +94,7 @@ export const SCENES: SceneDef[] = [
       { at: .6, who: 'driver', k: 'd7', voice: 'normal', from: .2 }, { at: .7, who: 'driver', k: 'fw_watch', direct: true, voice: 'normal' },
       { at: .8, who: 'nar', k: 'd8' }, { at: .9, who: 'nar', k: 'd9' },
     ],
-    events: [{ at: .22, id: 'creak-metal' }, { at: .49, id: 'breath-close' }, { at: .7, id: 'stare' }],
+    events: [{ at: .22, id: 'creak-metal' }, { at: .27, id: 'mirror' }, { at: .49, id: 'breath-close' }, { at: .7, id: 'stare' }, { at: .9, id: 'breath-close' }],
     gameAfter: ['photo', 'cabin'],
   },
   {
@@ -107,7 +107,7 @@ export const SCENES: SceneDef[] = [
       { at: .72, who: 'her', k: 'r8', voice: 'close', from: 'behind' }, { at: .81, who: 'nar', k: 'r9' }, { at: .9, who: 'nar', k: 'r10' },
     ],
     events: [
-      { at: .04, id: 'lights-die' }, { at: .14, id: 'engine-cut' }, { at: .24, id: 'driver-turn' }, { at: .43, id: 'heartbeat' },
+      { at: .04, id: 'lights-die' }, { at: .14, id: 'engine-cut' }, { at: .44, id: 'seat-spring' }, { at: .24, id: 'driver-turn' }, { at: .43, id: 'heartbeat' },
       { at: .62, id: 'fabric' }, { at: .81, id: 'jumpscare' }, { at: .9, id: 'lights-back' },
     ],
   },

@@ -20,6 +20,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .3 }, uTime: { value: 0 }, uDissolve: { value: role === 'cur' ? 1 : 0 },
       uFade: { value: 1 }, uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
       uLife: { value: 0 }, uHeadA: { value: new THREE.Vector4() }, uHeadB: { value: new THREE.Vector4() }, uBodyA: { value: new THREE.Vector4() }, uBodyB: { value: new THREE.Vector4() }, uHairA: { value: new THREE.Vector4() }, uRowsOut: { value: 0 }, uVanish: { value: 0 },
+      uHeadNudge: { value: new THREE.Vector2() }, uGrip: { value: 0 }, uGripAt: { value: new THREE.Vector4() }, uPress: { value: 0 }, uPressAt: { value: new THREE.Vector4() },
     },
   }), [role]);
   useEffect(() => () => mat.dispose(), [mat]);
@@ -42,6 +43,10 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     u.uLife.value = store.get().reduced ? 0 : l.amp;
     u.uRowsOut.value = role === 'cur' ? o.frame.rowsOut : 0;
     u.uVanish.value = role === 'cur' ? o.frame.vanish : 0;
+    const cur = role === 'cur';
+    u.uHeadNudge.value.set(cur ? o.frame.nudge[0] : 0, cur ? o.frame.nudge[1] : 0);
+    u.uGrip.value = cur ? o.frame.grip : 0; u.uGripAt.value.set(...l.grip);
+    u.uPress.value = cur ? o.frame.press : 0; u.uPressAt.value.set(...l.press);
     u.uHeadA.value.set(...l.headA); u.uHeadB.value.set(...l.headB); u.uBodyA.value.set(...l.bodyA); u.uBodyB.value.set(...l.bodyB); u.uHairA.value.set(...l.hair);
   });
 
@@ -98,6 +103,54 @@ function Reflection() {
   return <mesh ref={ref} material={mat} renderOrder={3}><planeGeometry args={[1, 1]} /></mesh>;
 }
 
+/** The rear-view mirror: while Ramesh looks into it, her eyes are in it. */
+function Mirror() {
+  const ref = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false, opacity: 0 }), []);
+  const tex = useRef<THREE.Texture | null>(null);
+  useEffect(() => () => { mat.dispose(); tex.current?.dispose(); }, [mat]);
+  useFrame((state) => {
+    const o = stage.out, m = ref.current; if (!o || !m) return;
+    const mirror = lifeFor(o.cur).mirror, amt = o.frame.mirrorAmt;
+    // load her face as soon as a picture with a mirror is on screen, so it is ready when he looks
+    const src = mirror[2] > 0 ? texture('/raat/scenes/her-face.webp') : null;
+    m.visible = amt > .01 && mirror[2] > 0 && !!src?.image;
+    if (!m.visible || !src) return;
+    if (!tex.current) { const t = src.clone(); t.repeat.set(.42, .2); t.offset.set(.29, .52); t.needsUpdate = true; tex.current = t; mat.map = t; mat.needsUpdate = true; } // her eyes
+    m.scale.set(mirror[2] * PLANE_W, mirror[3] * PLANE_H, 1);
+    m.position.set((mirror[0] - .5) * PLANE_W, (.5 - mirror[1]) * PLANE_H, DEPTH_SCALE * .25);
+    mat.opacity = amt * (.95 + Math.sin(state.clock.elapsedTime * 3) * .05) * Math.min(1, o.light + .3);
+  });
+  return <mesh ref={ref} material={mat} renderOrder={3}><planeGeometry args={[1, 1]} /></mesh>;
+}
+
+/** A shadow falling across the picture from behind {N}: soft, dark, and the camera does not turn to it. */
+function Shadow() {
+  const ref = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false, color: 0x000000, opacity: 0 }), []);
+  const soft = useRef<THREE.Texture | null>(null);
+  useEffect(() => () => { mat.dispose(); soft.current?.dispose(); }, [mat]);
+  useFrame((state) => {
+    const o = stage.out, m = ref.current; if (!o || !m) return;
+    const sh = o.frame.shadow, amt = o.frame.shadowAmt;
+    m.visible = !!sh && amt > .01;
+    if (!sh || !m.visible) return;
+    if (!soft.current) {
+      // her silhouette, blurred into a cast shadow (drawn once)
+      const img = new Image(); img.src = '/raat/cutouts/her-look.webp';
+      if (!img.complete) { m.visible = false; img.onload = () => {}; return; }
+      const c = document.createElement('canvas'); c.width = 256; c.height = Math.round(256 / .561); const g = c.getContext('2d')!;
+      g.filter = 'blur(10px) brightness(0)'; g.drawImage(img, 12, 12, c.width - 24, c.height - 24);
+      soft.current = new THREE.CanvasTexture(c); mat.map = soft.current; mat.needsUpdate = true;
+    }
+    const h = sh[2] * PLANE_H;
+    m.scale.set(h * .561, h, 1);
+    m.position.set((sh[0] - .5) * PLANE_W + Math.sin(state.clock.elapsedTime * .4) * .08, (.5 - sh[1]) * PLANE_H, DEPTH_SCALE * .5);
+    mat.opacity = amt * .5;
+  });
+  return <mesh ref={ref} material={mat} renderOrder={3}><planeGeometry args={[1, 1]} /></mesh>;
+}
+
 /** Dust hanging in the air between the camera and the picture: real 3D parallax. */
 function Dust({ count }: { count: number }) {
   const geo = useMemo(() => {
@@ -134,6 +187,8 @@ export default function PhotoWorld({ small }: { small: boolean }) {
       <PhotoSurface role="cur" segments={seg} />
       <Headlight />
       <Reflection />
+      <Mirror />
+      <Shadow />
       <Dust count={small ? 220 : 600} />
     </>
   );

@@ -48,6 +48,14 @@ export interface Shot {
   lightTo?: number;
   /** the headlight glow fades out across the shot instead of growing */
   glowFade?: boolean;
+  /** Ramesh glances at his mirror (head offset in image units), holds, then looks away fast; her eyes show in the mirror */
+  glance?: [number, number];
+  /** hands tighten on the wheel across the shot */
+  grip?: boolean;
+  /** the empty seat's cushion sinks across the shot */
+  press?: boolean;
+  /** a shadow falls across the picture from behind {N}: where (0–1 of the image) and how tall */
+  shadow?: [number, number, number];
 }
 
 const SHOTS: Partial<Record<SceneId, Shot[]>> = {
@@ -85,20 +93,21 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
   // Ramesh's warning: mostly his back; he never turns. In the windscreen, a woman behind {N}
   driver: [
     { at: 0, img: 'driver-back', focus: [.7, .42], zoom: [1, 1.05], flicker: 1, rain: .3 },
-    { at: .2, img: 'driver-back', focus: [.74, .4], zoom: [1.12, 1.16], flicker: 1, rain: .3, dofAt: [.74, .33] },     // his hands tighten
+    // his hands tighten; his eyes go to the mirror; something is in it; he looks away fast. "Don't look at her."
+    { at: .2, img: 'driver-back', focus: [.6, .32], zoom: [1.1, 1.13], flicker: 1, rain: .3, dofAt: [.6, .25], grip: true, glance: [-.016, -.006] },
     { at: .38, img: 'her-behind', focus: [.53, .42], zoom: [1.06, 1.1], flicker: 1, dof: 1.2 },                       // "Why? Who is she?" — {N} glances back
     { at: .47, img: 'driver-back', focus: [.55, .36], zoom: [1.04, 1.08], flicker: 1, rain: .3, reflection: [.4, .3, .34] },
-    { at: .58, img: 'driver-back', focus: [.74, .4], zoom: [1.16, 1.19], flicker: 1, rain: .3, dofAt: [.74, .33] },
+    { at: .58, img: 'driver-back', focus: [.74, .4], zoom: [1.16, 1.19], flicker: 1, rain: .3, dofAt: [.74, .33], grip: true },
     { at: .69, img: 'driver-back', focus: [.6, .38], zoom: [1.2, 1.24], light: .6, rain: .3 },
     { at: .78, img: 'driver-back', focus: [.25, .14], zoom: [1.35, 1.4], flicker: 1, rain: .3 },                      // the mirror, the photograph
-    { at: .88, img: 'cabin', focus: [.55, .78], zoom: [1.15, 1.2], flicker: 1, rain: .3 },                            // the dashboard, the drawer
+    { at: .88, img: 'cabin', focus: [.55, .7], zoom: [1.12, 1.16], flicker: 1, rain: .3, shadow: [.66, .52, .95] },  // a shadow behind {N}
   ],
   // the reveal: lights die row by row, the engine goes silent, he turns, she comes
   reveal: [
     { at: 0, img: 'inside-empty', focus: [.5, .48], zoom: [1.04, 1.1], flicker: 1, shake: .2, rowsOut: true },
     { at: .13, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.08], light: .55, rain: .5 },
     { at: .23, img: 'driver-turn', focus: [.55, .34], zoom: [1.05, 1.18], flicker: 1 },
-    { at: .42, img: 'inside-her', focus: [.56, .56], zoom: [1.1, 1.16], light: .7, flicker: 1, dofAt: [.3, .75] },   // the seat beside {N}, pressed down
+    { at: .42, img: 'inside-her', focus: [.4, .66], zoom: [1.1, 1.14], light: .7, flicker: 1, dofAt: [.17, .9], press: true }, // the seat beside {N} sinks
     { at: .52, img: 'her-hair', focus: [.5, .42], zoom: [1.05, 1.12], flicker: 1 },
     { at: .61, img: 'her-look', focus: [.48, .32], zoom: [1.1, 1.24], flicker: 2, shake: .15 },
     { at: .71, img: 'her-face', focus: [.5, .42], zoom: [1.02, 1.08], light: .75, flicker: 1, dof: .6 },
@@ -112,7 +121,8 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: .3, img: 'bus-side', focus: [.2, .56], zoom: [1.6, 1.5], rain: .5, light: .9 },                            // the door, from the road
     { at: .56, img: 'bus-front', focus: [.5, .56], zoom: [1.18, 1.14], rain: .6, glow: [.5, .62] },
     { at: .64, img: 'bus-front', focus: [.5, .55], zoom: [1.14, 1.08], rain: .6, glow: [.5, .62], glowFade: true, vanish: true, lightTo: .55, glide: true },
-    { at: .9, img: 'road', focus: [.46, .55], zoom: [1.04, 1.06], rain: .5, fog: 1, light: .7 },
+    { at: .84, img: 'road', focus: [.47, .56], zoom: [1.05, 1.06], rain: .5, fog: 1, light: .65, glow: [.47, .55], glowFade: true },  // one light left, then not
+    { at: .93, img: 'road', focus: [.46, .55], zoom: [1.06, 1.07], rain: .5, fog: 1, light: .65, glide: true },                         // hold on the empty road
   ],
   ticket: [{ at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] }],
   // the empty road; the call happens on top of it
@@ -133,6 +143,7 @@ export interface Frame {
   /** which shot this is (a new value = a cut), and whether to glide into it instead */
   shot: string; glide: boolean;
   rowsOut: number; reflection: [number, number, number] | null; reflectAmt: number; vanish: number;
+  nudge: [number, number]; mirrorAmt: number; grip: number; press: number; shadow: [number, number, number] | null; shadowAmt: number;
   light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean; fog: number; dof: number;
 }
 
@@ -150,11 +161,23 @@ export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Fra
     img: s.img, prev: i > 0 ? list[i - 1].img : null, mix,
     x: focus[0], y: focus[1], zoom,
     fx: (s.dofAt ?? focus)[0], fy: (s.dofAt ?? focus)[1], shot: `${scene}:${i}`, glide: !!s.glide,
-    rowsOut: s.rowsOut ? range(t, s.at, s.at + (end - s.at) * .85) : 0, vanish: s.vanish ? smooth(range(t, s.at, s.at + (end - s.at) * .9)) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
+    rowsOut: s.rowsOut ? range(t, s.at, s.at + (end - s.at) * .85) : 0, vanish: s.vanish ? smooth(range(t, s.at, s.at + (end - s.at) * .9)) : 0,
+    ...glanceAt(s, t, end),
+    grip: s.grip ? smooth(range(t, s.at + (end - s.at) * .2, s.at + (end - s.at) * .45)) * (.85 + .15 * Math.sin(t * 900)) : 0,
+    press: s.press ? smooth(range(t, s.at + (end - s.at) * .15, s.at + (end - s.at) * .75)) : 0,
+    shadow: s.shadow ?? null, shadowAmt: s.shadow ? smooth(range(t, s.at, s.at + (end - s.at) * .5)) * (1 - smooth(range(t, end - (end - s.at) * .2, end))) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
     light: s.lightTo != null ? lerp(s.light ?? 1, s.lightTo, k) : s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
     glow: s.glow ?? null, glowAmt: s.glow ? (s.glowFade ? 1 - k : k) : 0, warm: !!s.warm,
     fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.dofAt ? 1.35 : s.bySpeaker ? 1.2 : .75),
   };
+}
+
+/** look at the mirror (slowly), see something, look away (fast) */
+function glanceAt(s: Shot, t: number, end: number): { nudge: [number, number]; mirrorAmt: number } {
+  if (!s.glance) return { nudge: [0, 0], mirrorAmt: 0 };
+  const L = end - s.at, look = smooth(range(t, s.at + L * .08, s.at + L * .32)), away = range(t, s.at + L * .7, s.at + L * .76);
+  const k = look * (1 - away);
+  return { nudge: [s.glance[0] * k, s.glance[1] * k], mirrorAmt: range(t, s.at + L * .3, s.at + L * .38) * (1 - away) };
 }
 
 export function imageFor(id: ImgId, gender: Gender): string | null {

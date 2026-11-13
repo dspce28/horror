@@ -19,37 +19,45 @@ export interface InteriorFrame {
   flash: number;        // the doorway's light, fading as the eyes adjust
   ghostDim: number;     // 1 = seen plainly, lower = only a silhouette
   driver: boolean;      // the driver's cut-out sits in his seat
+  reflect: number;      // her reflection in the side window, 0–1 (the seat itself stays empty)
 }
 
 const turn = (t: number, a: number, b: number, from: number, to: number) => lerp(from, to, smooth(range(t, a, b)));
 // a whip pan: the camera holds, then the whole turn happens in the middle third (motion blur hides the in-between)
 const whip = (t: number, a: number, b: number, from: number, to: number) => turn(t, a + (b - a) * .35, b - (b - a) * .35, from, to);
 
+/**
+ * The last passenger, revealed a little at a time (scene progress t 0–1):
+ *   .00 walking in, facing the back: the last seat is empty, its cushion pressed down
+ *   .30 sit, face the front
+ *   .38 in the dark side window: her reflection, sitting at the back (the seat behind is still empty)
+ *   .50 her whisper, {N}'s name, from behind · .67 "Don't look behind you…"
+ *   .72 a slow turn back: at the far end of the aisle, a silhouette
+ *   .84 the lights stutter; when they steady she is closer (a seat away) · .90 she lifts her head (standing)
+ *   .92 a whisper behind the right ear
+ */
 export function interiorAt(t: number, lookBacks: number): InteriorFrame {
-  // yaw keyframes: a slow turn back is the scariest part, a fast one is panic
   let yaw = 0;
-  yaw = turn(t, .3, .37, 0, Math.PI);                    // sit down, face the front
-  if (t > .58) yaw = turn(t, .58, .65, Math.PI, Math.PI * 2);   // ...slowly turn back
-  if (t > .69) yaw = turn(t, .69, .715, Math.PI * 2, Math.PI * 3); // whip to the driver
-  if (t > .745) yaw = turn(t, .745, .775, Math.PI * 3, Math.PI * 4); // and back to her
-  if (t > .92) yaw = Math.PI * 4 + turn(t, .92, .935, 0, -.75);   // a whisper behind your right ear
+  yaw = turn(t, .3, .37, 0, Math.PI);                                  // sit down, face the front
+  if (t > .72) yaw = turn(t, .72, .8, Math.PI, Math.PI * 2);           // ...and turn back, slowly
+  if (t > .92) yaw = Math.PI * 2 + turn(t, .92, .935, 0, -.75);        // a whisper behind your right ear
 
   const sit = smooth(range(t, .3, .37));
   const dolly = t < .3 ? lerp(.6, .75, smooth(range(t, 0, .22))) : lerp(.75, 0, sit);
-  const fov = t < .3 ? lerp(46, 34, smooth(range(t, .1, .24))) : t > .745 && t < .85 ? lerp(46, 38, smooth(range(t, .76, .84))) : 46;
+  const fov = t < .3 ? lerp(46, 40, smooth(range(t, .1, .24))) : t > .9 ? lerp(46, 38, smooth(range(t, .9, .98))) : 46;
 
-  let ghost: GhostPose = 'none', ghostAlpha = 0;
-  if (t >= .11 && t < .3) { ghost = 'hair'; ghostAlpha = clamp(range(t, .11, .14)); }
-  else if (t >= .3 && t < .6) { ghost = 'hair'; ghostAlpha = 1; }
-  else if (t >= .6 && t < .745) { ghost = 'behind'; ghostAlpha = 1; }
-  else if (t >= .745 && t < .85) { ghost = 'look'; ghostAlpha = 1; }
+  let ghost: GhostPose = 'none', ghostAlpha = 0, ghostDim = 1;
+  if (t >= .79 && t < .84) { ghost = 'hair'; ghostAlpha = smooth(range(t, .79, .81)); ghostDim = .95; }   // a far silhouette
+  else if (t >= .855 && t < .9) { ghost = 'behind'; ghostAlpha = 1; ghostDim = .8; }                   // closer, after the stutter
+  else if (t >= .9) { ghost = 'look'; ghostAlpha = smooth(range(t, .9, .93)); }                      // standing, lifting her head
   void lookBacks;
+  const reflect = smooth(range(t, .38, .43)) * (1 - smooth(range(t, .57, .62)));
 
-  const flicker: 0 | 1 | 2 = t > .84 && t < .93 ? 2 : t > .05 ? 1 : 0;
-  // turning speed: how fast yaw changes per unit of progress, mapped to 0–1
+  // mostly steady lights; the stutter that brings her closer; then failing lights
+  const flicker: 0 | 1 | 2 = t > .835 && t < .86 ? 2 : t > .05 ? 1 : 0;
   const k = .003, y2 = interiorYawOnly(t + k), y1 = interiorYawOnly(t - k);
   const turnSpeed = clamp(Math.abs(y2 - y1) / (2 * k) / 140);
-  return { yaw, pitch: t > .745 && t < .85 ? .05 : 0, dolly, height: -sit * .32, fov, ghost, ghostAlpha, flicker, moving: smooth(range(t, .31, .42)), turnSpeed, flash: 0, ghostDim: 1, driver: true };
+  return { yaw, pitch: t > .9 ? .04 : 0, dolly, height: -sit * .32, fov, ghost, ghostAlpha, flicker, moving: smooth(range(t, .31, .42)), turnSpeed, flash: 0, ghostDim, driver: true, reflect };
 }
 
 /**
@@ -63,12 +71,12 @@ export function boardingAt(k: number): InteriorFrame {
   const yaw = boardYaw(k);
   const dolly = k < .45 ? 0 : k < .62 ? lerp(0, .42, smooth(range(k, .45, .62))) : k < .77 ? .42 : lerp(.42, .6, smooth(range(k, .77, .92)));
   const step = k < .2 ? Math.max(0, Math.sin(k * Math.PI * 14)) * .03 : 0;
-  const ghostAlpha = smooth(range(k, .8, .92));
+  const ghostAlpha = 0; // nobody at the back yet: the inside scene starts with her empty seat
   const y1 = boardYaw(k + .003), y0 = boardYaw(k - .003);
   return {
     yaw, pitch: k < .2 ? -.06 : 0, dolly, height: -.12 + k * .12 + step, fov: k > .8 ? lerp(46, 38, smooth(range(k, .8, .95))) : 46,
     ghost: 'hair', ghostAlpha, flicker: k > .08 ? 1 : 0, moving: 0, turnSpeed: clamp(Math.abs(y1 - y0) / .006 / 140),
-    flash: 1 - smooth(range(k, 0, .1)), ghostDim: .9, driver: true,
+    flash: 1 - smooth(range(k, 0, .1)), ghostDim: .9, driver: true, reflect: 0,
   };
 }
 function boardYaw(k: number) {
@@ -81,9 +89,7 @@ function boardYaw(k: number) {
 
 function interiorYawOnly(t: number) {
   let yaw = turn(t, .3, .37, 0, Math.PI);
-  if (t > .58) yaw = turn(t, .58, .65, Math.PI, Math.PI * 2);
-  if (t > .69) yaw = turn(t, .69, .715, Math.PI * 2, Math.PI * 3);
-  if (t > .745) yaw = turn(t, .745, .775, Math.PI * 3, Math.PI * 4);
+  if (t > .72) yaw = turn(t, .72, .8, Math.PI, Math.PI * 2);
   return yaw;
 }
 

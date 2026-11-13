@@ -34,6 +34,11 @@ uniform vec4 uHeadA, uHeadB;   // head ellipses: cx, cy, rx, ry (rx = 0: nobody 
 uniform vec4 uBodyA, uBodyB;   // torso boxes: x0, y0, x1, y1
 uniform vec4 uHairA;           // ellipse around loose hair
 uniform float uVanish;         // fog swallowing the picture, far things first: 0..1
+uniform vec2 uHeadNudge;       // a scripted turn of the main head (Ramesh glancing at his mirror), image units
+uniform float uGrip;           // hands tightening, 0..1
+uniform vec4 uGripAt;          // ellipse around the hands
+uniform float uPress;          // a seat cushion sinking under nobody, 0..1
+uniform vec4 uPressAt;         // box around the cushion
 uniform float uRowsOut;        // lights dying row by row, from the back of the bus (far) to the camera (near): 0..1
 varying vec2 vUv;
 varying float vD;
@@ -67,6 +72,14 @@ void main() {
       d += hm * (vec2(fbm(iu * vec2(5., 9.) + vec2(uTime * .13, uTime * .31)), fbm(iu * vec2(7., 4.) + uTime * .19)) - .5) * .009;
     }
     uv -= vec2(d.x, -d.y) * uLife;
+  }
+  {
+    vec2 iu = vec2(vUv.x, 1. - vUv.y);
+    vec2 e = vec2(0.);
+    e += ell(iu, uHeadA) * uHeadNudge;                                            // the head turns
+    float gw = ell(iu, uGripAt); e += (iu - uGripAt.xy) * uGrip * .05 * gw;       // the grip closes in
+    float pw = box(iu, uPressAt); e.y += pw * uPress * .02 * (1. - (iu.y - uPressAt.y) / max(.01, uPressAt.w - uPressAt.y)); // the cushion sinks
+    uv -= vec2(e.x, -e.y);
   }
   // depth of field: blur by distance from the depth at the focus point
   float fd = texture2D(uDepth, uFocus).r;
@@ -135,17 +148,17 @@ varying vec2 vUv;
 ${NOISE}
 void main() {
   vec2 uv = vUv, d = uv - .5;
-  float k = .05 + uSpeed * .15 + uGlitch * .12;
+  float k = .05 + uSpeed * .15;
   uv = .5 + d * (1. - k * .5 + k * dot(d, d) * 2.);
-  float band = floor(uv.y * 42. + floor(uTime * 24.));
-  float g = step(1. - uGlitch * .55, hash(vec2(band, floor(uTime * 30.))));
-  uv.x += g * (hash(vec2(band, 7.)) - .5) * .12 * uGlitch;
-  uv.x += (noise(vec2(uv.y * 8., uTime * 2.)) - .5) * .002 * (1. - uReduced);
-  vec2 split = (uv - .5) * 2. * (uSpeed * 11. + uGlitch * 18. + 1.2) / uRes;
+  uv.x += (noise(vec2(uv.y * 8., uTime * 2.)) - .5) * .0015 * (1. - uReduced);
+  // a hint of lens fringing, stronger only with fast camera motion (no digital RGB splitting)
+  vec2 split = (uv - .5) * 2. * (uSpeed * 8. + 1.) / uRes;
   vec3 c = vec3(texture2D(tScene, uv + split).r, texture2D(tScene, uv).g, texture2D(tScene, uv - split).b);
-  c *= 1. - .05 * (.5 + .5 * sin(vUv.y * uRes.y * 1.6)) * (1. - uReduced * .7);
-  c += (hash(vUv * uRes + fract(uTime) * 91.) - .5) * .07;
-  c *= smoothstep(1.05, .35, length(d * vec2(1.1, 1.25)));
+  // a supernatural moment reads as the light failing: exposure drops in stutters and recovers, the edges close in
+  float stutter = .55 + .45 * step(.45, hash(vec2(floor(uTime * 16.), 3.)));
+  c *= 1. - uGlitch * stutter * .72;
+  c += (hash(vUv * uRes + fract(uTime) * 91.) - .5) * .05;
+  c *= smoothstep(1.05 - uGlitch * .2, .35, length(d * vec2(1.1, 1.25)));
   if (uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) c = vec3(0.);
   gl_FragColor = vec4(c, 1.);
 }`;

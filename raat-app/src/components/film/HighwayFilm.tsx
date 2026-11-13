@@ -299,7 +299,7 @@ function FilmCamera({ reduced }: { reduced: boolean }) {
     if (perf.n === 90) { if (perf.sum / perf.n > 1 / 38 && perf.level < 2) { perf.level++; setDpr(perf.level === 1 ? 1 : .75); } perf.n = 0; perf.sum = 0; }
     const t = film.t, portrait = size.width < size.height;
     const shot = t >= DOOR_SHOT.from ? 'door' : 'road';
-    if (shot !== perf.lastShot) { film.glitch = Math.max(film.glitch, .8); perf.lastShot = shot; }
+    if (shot !== perf.lastShot) { film.glitch = Math.max(film.glitch, .35); perf.lastShot = shot; } // the cut to the door hides in a short dip of light
     film.glitch = Math.max(0, film.glitch - Math.min(delta, .05) * 2.4);
     film.shake = Math.max(0, film.shake - Math.min(delta, .05) * 1.5);
     const sh = reduced ? 0 : film.shake * .06;

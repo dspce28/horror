@@ -35,6 +35,9 @@ export default function AudioController() {
         case 'creak-back': audio.creak(.4, .8); break;
         case 'engine-start': audio.thump(.35, 60); break;
         case 'fabric': audio.fabric(-.4); break;
+        case 'seat-spring': audio.seatSpring(.2); break;
+        case 'mirror': audio.breath(); audio.creak(.15, -.2); break; // he inhales; the seat shifts under him
+        case 'stutter': audio.stutter(); live.flash = 0; break;
         case 'hush': audio.hushAll(2.2); break;                                 // silence before her voice
         case 'breath-close': audio.breathClose(); break;
         case 'teleport': audio.creak(.45, .6); break;
@@ -59,7 +62,7 @@ export default function AudioController() {
     });
 
     // a voiced line is spoken when the visitor reaches it (scrolling forward); upcoming lines are fetched early
-    let lastCue = '', lastScene = -1, nextThunder = 0;
+    let lastCue = '', lastScene = -1, nextThunder = 0, nextRattle = 0;
     const offCue = store.subscribe(() => {
       const st = store.get(); const key = st.cueKey;
       if (key === lastCue) return;
@@ -91,9 +94,11 @@ export default function AudioController() {
       // the horror theme stays under the whole story, low; everything else (rain, wind, thunder, effects) sits above it
       const call = s.call !== 'IDLE' && s.call !== 'DONE';
       audio.themeLevel(s.game ? .07 : call ? .06 : .12);
+      const now = performance.now();
+      // inside the moving bus: the glass rattles in its frame now and then
+      if (inBus && w.engine > .2 && !s.game && now > nextRattle) { if (nextRattle > 0) audio.rattle(.6, Math.random() * 1.6 - .8); nextRattle = now + 5000 + Math.random() * 9000; }
       // thunder now and then: often outside, rarely inside the bus, never during a game or the call
       const outside = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end';
-      const now = performance.now();
       if (!s.game && !call && now > nextThunder) {
         if (nextThunder > 0) { audio.thunder(outside ? 1 : .55); if (outside) live.flash = .7; }
         nextThunder = now + (outside ? 14000 + Math.random() * 16000 : 30000 + Math.random() * 30000);

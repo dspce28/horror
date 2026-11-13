@@ -19,7 +19,7 @@ export interface StageOut {
 }
 
 let cur: string | null = null, prev: string | null = null, cutAt = 0;
-let dipUntil = 0, nextDip = 0, nextRandom = 0, glitch = 0, speed = 0;
+let dipUntil = 0, nextDip = 0, glitch = 0, speed = 0;
 let wired = false;
 // the camera eases toward each frame's framing and focus; a cut snaps it
 const cam = { x: .5, y: .5, zoom: 1, fx: .5, fy: .5, shot: '' };
@@ -34,7 +34,7 @@ export function tick(realNow: number, dt: number): StageOut {
   const cue = cueAt(sc, live.local);
   const f = live.override ? frameAt(live.override.scene, live.override.t, null) : frameAt(sc.id, live.local, cue ? cue.who : null);
   const name = imageFor(f.img, visualGender(s.gender, s.name));
-  if (name !== cur) { prev = cur; cur = name; cutAt = now; glitch = Math.max(glitch, f.flicker ? .9 : .45); }
+  if (name !== cur) { prev = cur; cur = name; cutAt = now; if (f.flicker === 2) glitch = Math.max(glitch, .3); } // cuts are clean; only failing lights dip
   const snap = !cam.shot || (f.shot !== cam.shot && !f.glide) || s.reduced;
   const k = snap ? 1 : 1 - Math.exp(-dt * (f.glide ? 1.6 : 4));
   cam.x += (f.x - cam.x) * k; cam.y += (f.y - cam.y) * k; cam.zoom += (f.zoom - cam.zoom) * k;
@@ -45,9 +45,13 @@ export function tick(realNow: number, dt: number): StageOut {
 
   let fl = 1;
   if (f.flicker) {
-    if (now > nextDip) { dipUntil = now + 40 + Math.random() * (f.flicker === 2 ? 220 : 120); nextDip = now + (f.flicker === 2 ? 150 + Math.random() * 600 : 1500 + Math.random() * 3500); }
-    if (now < dipUntil) fl = f.flicker === 2 ? Math.random() * .35 : .35 + Math.random() * .25;
-    if (now > nextRandom) { nextRandom = now + 4000 + Math.random() * 7000; if (Math.random() < (f.flicker === 2 ? .8 : .35)) glitch = Math.max(glitch, .5); }
+    // real tube lights: mostly steady; now and then a stutter (two or three quick dips); dying lights stutter often
+    if (now > nextDip) {
+      const burst = f.flicker === 2 ? 1 : (Math.random() < .5 ? 2 : 3);
+      dipUntil = now + 50 + Math.random() * 90 + (burst - 1) * 140;
+      nextDip = now + (f.flicker === 2 ? 600 + Math.random() * 1600 : 7000 + Math.random() * 9000);
+    }
+    if (now < dipUntil) fl = (Math.floor((dipUntil - now) / 70) % 2 === 0) ? (f.flicker === 2 ? .15 + Math.random() * .2 : .45 + Math.random() * .2) : .92;
   }
   if (s.reduced) fl = Math.max(.7, fl);
   live.flicker = fl;
