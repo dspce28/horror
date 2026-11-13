@@ -237,3 +237,36 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .note-reflect { position: absolute; inset: 0; background: url(/raat/scenes/her-face.webp) 50% 38% / 120% auto no-repeat; filter: grayscale(.6) contrast(1.2) brightness(.9); mix-blend-mode: screen; opacity: 0; transform: scaleX(-1); animation: noteReflect 2.6s ease-in-out 1s both; pointer-events: none; }
 @keyframes noteReflect { 0% { opacity: 0 } 45% { opacity: .38 } 60% { opacity: .38 } 100% { opacity: 0 } }
 @media (prefers-reduced-motion: reduce) { .note-reflect { display: none; } }
+
+/* END OF PART ONE */
+.end-screen { -webkit-tap-highlight-color: transparent; }
+.end-line { opacity: 0; animation: endIn 1.6s ease forwards; }
+@keyframes endIn { from { opacity: 0; transform: translateY(6px); filter: blur(3px) } to { opacity: 1; transform: none; filter: none } }
+.end-opt { display: flex; align-items: center; justify-content: center; gap: .6rem; min-height: 3.1rem; padding: .7rem 1rem; border: 1px solid rgba(182,169,154,.22); color: #D4C8B5; font-size: .82rem; letter-spacing: .08em; transition: border-color .3s, background .3s; }
+.end-opt:hover, .end-opt:focus-visible { border-color: rgba(179,38,47,.8); background: rgba(114,25,31,.18); }
+.end-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid rgba(182,169,154,.12); }
+.end-link { flex: none; display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; padding: 0 .9rem; border: 1px solid rgba(182,169,154,.22); color: #D4C8B5; font-size: .78rem; }
+.end-link:hover, .end-link:focus-visible { border-color: rgba(179,38,47,.8); }
+.teaser-scene.cut { display: none; }
+@media (prefers-reduced-motion: reduce) { .end-line { animation-duration: .01s; } }
+
+/* the final apparition */
+.fin { position: fixed; inset: 0; z-index: 55; pointer-events: none; }
+.fin-phone { position: absolute; left: 50%; top: 50%; width: min(80vw, 300px); aspect-ratio: 9 / 17; transform: translate(-50%, -50%); border-radius: 38px; border: 1px solid rgba(182,169,154,.14); background: #050506; box-shadow: 0 0 0 6px #0c0c0e, 0 40px 120px rgba(0,0,0,.9); padding: 3.2rem 1rem; text-align: center; overflow: hidden; transition: transform 1.4s cubic-bezier(.5,0,.2,1), opacity 1.4s ease; }
+.fin-phone.drop { transform: translate(-50%, 70%) rotate(-8deg); opacity: 0; }
+.fin-reflect { position: absolute; inset: 0; background: url(/raat/scenes/her-face.webp) 50% 38% / 190% auto no-repeat; filter: grayscale(.7) contrast(1.15) brightness(.85); mix-blend-mode: screen; opacity: 0; transform: scaleX(-1); animation: finReflect 2.6s ease-in .4s forwards; }
+@keyframes finReflect { to { opacity: .42 } }
+.fin-shadow { position: absolute; inset: 0; background: linear-gradient(100deg, transparent 0%, rgba(0,0,0,.85) 45%, transparent 75%); background-size: 260% 100%; animation: finShadow 2.4s ease-in-out forwards; }
+@keyframes finShadow { from { background-position: 120% 0 } to { background-position: -40% 0 } }
+.fin-hair { position: absolute; left: -6vw; top: -10vh; height: 120vh; aspect-ratio: .55; background: url(/raat/cutouts/her-hair.webp) 50% 0 / cover no-repeat; filter: brightness(.35) blur(2px); opacity: 0; animation: finHair 3s ease-out forwards, finSway 4s ease-in-out infinite alternate; }
+@keyframes finHair { to { opacity: .8; transform: translateX(4vw) } }
+@keyframes finSway { from { rotate: -1.2deg } to { rotate: 1.5deg } }
+.fin-face { position: absolute; inset: -14%; background: url(/raat/scenes/her-face.webp) 50% 36% / cover no-repeat; filter: contrast(1.25) brightness(.9) saturate(.75); animation: finFace .35s steps(1) forwards, ksShake .45s 2; }
+@keyframes finFace { from { opacity: 0 } to { opacity: 1 } }
+.fin.safe .fin-face { animation: finFaceSoft 2.6s ease forwards; transform: scale(1.04); }
+@keyframes finFaceSoft { from { opacity: 0; transform: scale(1.12) } to { opacity: 1; transform: scale(1.04) } }
+.fin-black { position: absolute; inset: 0; background: #000; }
+.fin-sub { position: absolute; left: 0; right: 0; bottom: 14%; padding: 0 1.5rem; text-align: center; font-family: var(--font-display), serif; font-style: italic; font-size: clamp(1.1rem, 3vw, 1.6rem); color: rgba(240,230,214,.75); animation: lineIn 1.2s ease both; }
+.lang-hi .fin-sub { font-family: var(--font-deva-serif), serif; font-style: normal; }
+.lang-gu .fin-sub { font-family: var(--font-guj-serif), serif; font-style: normal; }
+@media (prefers-reduced-motion: reduce) { .fin-face { animation: finFaceSoft 1.6s ease forwards; } .fin-hair { animation: finHair 2s ease-out forwards; } }

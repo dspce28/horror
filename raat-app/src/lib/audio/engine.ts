@@ -1,6 +1,12 @@
 'use client';
-// Every sound is synthesised with the Web Audio API, so there are no licensing questions.
-// Nothing plays until the visitor clicks "Enter the darkness".
+// The audio director. Effects and atmosphere are synthesised with the Web Audio API (no licensing questions);
+// character voices are audio files (see lib/audio/voice.ts). Nothing plays until the visitor presses Begin.
+//
+// Buses:  ambience (bed, rain, engine, tube hum, insects) ─┐
+//         music (theme) ─────────────────────────────────┼─ mood (music & atmosphere volume) ─ duck ─┐
+//         one-shot effects ───────────────────────────────────────────────────────────────────────┼─ master ─ compressor ─ out
+//         dialogue (voice volume) ─────────────────────────────────────────────────────────────────┘
+// When a character speaks, `duck` lowers music and atmosphere and brings them back slowly afterwards.
 
 type Pt = [number, number];
 
@@ -19,8 +25,18 @@ class AudioEngine {
   private heartTimer = 0;
   private heartRate = 0;
   private ringTimer = 0;
-  private comedyTimer = 0;
   private themeGain: GainNode | null = null;
+  amb!: GainNode;
+  private mood!: GainNode;
+  private duckG!: GainNode;
+  dlg!: GainNode;
+  moodVolume = 1;
+  voiceVolume = 1;
+  /** the line being spoken right now (one at a time, never two voices over each other) */
+  private speaking: { src: AudioBufferSourceNode; g: GainNode } | null = null;
+  private insects: { out: GainNode } | null = null;
+  private bike: { out: GainNode; o: OscillatorNode; lp: BiquadFilterNode } | null = null;
+  private line: { out: GainNode } | null = null;
 
   init() {
     if (this.ctx) { if (this.ctx.state === 'suspended') void this.ctx.resume(); return; }
@@ -32,7 +48,11 @@ class AudioEngine {
     this.master.gain.value = this.muted ? 0 : this.volume;
     const comp = c.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
     this.master.connect(comp); comp.connect(c.destination);
-    this.music = c.createGain(); this.music.gain.value = 1; this.music.connect(this.master);
+    this.duckG = c.createGain(); this.duckG.connect(this.master);
+    this.mood = c.createGain(); this.mood.gain.value = this.moodVolume; this.mood.connect(this.duckG);
+    this.music = c.createGain(); this.music.gain.value = 1; this.music.connect(this.mood);
+    this.amb = c.createGain(); this.amb.connect(this.mood);
+    this.dlg = c.createGain(); this.dlg.gain.value = this.voiceVolume; this.dlg.connect(this.master);
     const len = c.sampleRate * 2; this.noise = c.createBuffer(1, len, c.sampleRate);
     const d = this.noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     const irLen = Math.floor(c.sampleRate * 3), ir = c.createBuffer(2, irLen, c.sampleRate);
@@ -55,11 +75,61 @@ class AudioEngine {
 
   setVolume(v: number) { this.volume = v; if (this.ok && !this.muted) this.master.gain.setTargetAtTime(v, this.now, .05); }
   setMuted(m: boolean) { this.muted = m; if (this.ok) this.master.gain.setTargetAtTime(m ? 0 : this.volume, this.now, .05); }
+  /** music and atmosphere, 0–1 */
+  setMoodVolume(v: number) { this.moodVolume = v; if (this.ok) this.mood.gain.setTargetAtTime(v, this.now, .05); }
+  /** character voices, 0–1 */
+  setVoiceVolume(v: number) { this.voiceVolume = v; if (this.ok) this.dlg.gain.setTargetAtTime(v, this.now, .05); }
+  /** lower music and atmosphere under a spoken line; bring them back slowly afterwards */
+  duck(on: boolean) { if (this.ok) this.duckG.gain.setTargetAtTime(on ? .32 : 1, this.now, on ? .12 : .9); }
+
+  /* ---------- voices ---------- */
+  /**
+   * Speak one line. Stops the previous line first (with a short fade), ducks the mix, places the voice
+   * (behind the listener, left/right, or through a phone), and resolves with its length in seconds.
+   */
+  speak(buf: AudioBuffer, o: { from?: number | 'behind'; phone?: boolean; whisper?: boolean; gain?: number } = {}): number {
+    if (!this.ok) return 0; const c = this.ctx!;
+    this.hush();
+    const src = c.createBufferSource(); src.buffer = buf;
+    const g = c.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(o.gain ?? 1, this.now + .04);
+    let n: AudioNode = src;
+    if (o.phone) {
+      // a phone line: 300–3400 Hz, a little saturation
+      const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 320;
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3300;
+      const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 1700; pk.gain.value = 5;
+      const ws = c.createWaveShaper(); const cv = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; cv[i] = Math.tanh(x * 1.8); } ws.curve = cv;
+      n.connect(hp); hp.connect(lp); lp.connect(pk); pk.connect(ws); n = ws;
+    }
+    n.connect(g);
+    if (o.from === 'behind' && c.createPanner) {
+      // just behind the listener's shoulder (the listener faces -z; +z is behind)
+      const p = c.createPanner(); p.panningModel = 'HRTF'; p.distanceModel = 'inverse'; p.refDistance = .3;
+      p.positionX.value = .22; p.positionY.value = .05; p.positionZ.value = .45; g.connect(p); p.connect(this.dlg);
+    } else if (typeof o.from === 'number' && c.createStereoPanner) {
+      const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, o.from)); g.connect(p); p.connect(this.dlg);
+    } else g.connect(this.dlg);
+    // a whisper gets a touch of the bus around it; a phone voice and a close voice stay dry
+    if (o.whisper && !o.phone) { const w = c.createGain(); w.gain.value = .12; g.connect(w); w.connect(this.rev); }
+    src.start();
+    this.speaking = { src, g };
+    this.duck(true);
+    src.onended = () => { if (this.speaking?.src === src) { this.speaking = null; this.duck(false); } };
+    return buf.duration;
+  }
+  /** stop the current line quickly (no two voices at once) */
+  hush() {
+    const sp = this.speaking; if (!sp || !this.ok) return;
+    sp.g.gain.cancelScheduledValues(this.now); sp.g.gain.setTargetAtTime(0, this.now, .04);
+    try { sp.src.stop(this.now + .15); } catch { /* already stopped */ }
+    this.speaking = null; this.duck(false);
+  }
+  get isSpeaking() { return !!this.speaking; }
 
   /* ---------- continuous layers ---------- */
   startBed() {
     if (!this.ok || this.bed) return; const c = this.ctx!;
-    const out = c.createGain(); out.gain.value = 0; out.gain.setTargetAtTime(1, c.currentTime, 2); out.connect(this.music);
+    const out = c.createGain(); out.gain.value = 0; out.gain.setTargetAtTime(1, c.currentTime, 2); out.connect(this.amb);
     const wind = (f: number, q: number, amt: number, rate: number) => {
       const w = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q; g.gain.value = amt;
       const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = rate; lg.gain.value = amt * .9; l.connect(lg); lg.connect(g.gain);
@@ -80,7 +150,7 @@ class AudioEngine {
     if (!this.ok) return; const c = this.ctx!;
     if (!this.engine) {
       if (level <= 0) return;
-      const out = c.createGain(); out.gain.value = 0; out.connect(this.master);
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
       const o = c.createOscillator(), o2 = c.createOscillator(); o.type = 'sawtooth'; o2.type = 'square';
       const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 260; lp.Q.value = 2;
       const g2 = c.createGain(); g2.gain.value = .35;
@@ -100,7 +170,7 @@ class AudioEngine {
     if (!this.ok) return; const c = this.ctx!;
     if (!this.buzz) {
       if (level <= 0) return;
-      const out = c.createGain(); out.gain.value = 0; out.connect(this.master);
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
       const o = c.createOscillator(); o.type = 'square'; o.frequency.value = 100;
       const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1200; bp.Q.value = 1;
       const g = c.createGain(); g.gain.value = .02; o.connect(bp); bp.connect(g); g.connect(out); o.start();
@@ -145,25 +215,6 @@ class AudioEngine {
   restoreMusic() { if (this.ok) this.music.gain.setTargetAtTime(1, this.now, 1); }
 
   /** a cheerful dhol-and-harmonium loop for the twist */
-  startComedy() {
-    if (!this.ok || this.comedyTimer) return;
-    const c = this.ctx!; const bar = 1.6; let t0 = c.currentTime + .05;
-    const notes = [67, 69, 71, 72, 71, 69, 67, 64];
-    const play = () => {
-      for (let i = 0; i < 8; i++) {
-        const at = t0 + i * bar / 8;
-        if (i % 2 === 0) this.drum(at, i % 4 === 0 ? 70 : 110, i % 4 === 0 ? .45 : .25);
-        const o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();
-        o.type = 'sawtooth'; o2.type = 'sawtooth'; const f = 440 * Math.pow(2, (notes[i] - 69) / 12); o.frequency.value = f; o2.frequency.value = f * 1.004;
-        lp.type = 'lowpass'; lp.frequency.value = 1800; this.env(g, at, [[.02, .05], [bar / 8 - .03, .035], [bar / 8, 0]]);
-        o.connect(lp); o2.connect(lp); lp.connect(g); this.out(g, .1, .15); o.start(at); o2.start(at); o.stop(at + bar / 8 + .05); o2.stop(at + bar / 8 + .05);
-      }
-      t0 += bar;
-      this.comedyTimer = window.setTimeout(play, Math.max(0, (t0 - c.currentTime - .4) * 1000));
-    };
-    play();
-  }
-  stopComedy() { window.clearTimeout(this.comedyTimer); this.comedyTimer = 0; }
   private drum(at: number, f: number, v: number) {
     const c = this.ctx!, o = c.createOscillator(), g = c.createGain();
     o.frequency.setValueAtTime(f * 1.6, at); o.frequency.exponentialRampToValueAtTime(f, at + .08);
@@ -252,13 +303,7 @@ class AudioEngine {
     for (let i = 0; i < 8; i++) g.gain.setValueAtTime(Math.random() * .25, t + i * .07); g.gain.setValueAtTime(0, t + .6); n.connect(bp); bp.connect(g); g.connect(this.master); n.start(t); n.stop(t + .65);
   }
   /** a woman's low laugh: pulses of a voiced vowel falling in pitch */
-  laugh() {
-    if (!this.ok) return; const c = this.ctx!; let t = this.now + .05;
-    const o = c.createOscillator(); o.type = 'sawtooth'; const g = c.createGain(); g.gain.value = 0;
-    ([[700, 1], [1200, .5], [2600, .2]] as Pt[]).forEach(([f, a]) => { const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 8; const ag = c.createGain(); ag.gain.value = a * 2.5; o.connect(bp); bp.connect(ag); ag.connect(g); });
-    for (let i = 0; i < 7; i++) { const f = 330 - i * 14; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05, t + .04); g.gain.linearRampToValueAtTime(0, t + .17); t += .2 + i * .015; }
-    this.out(g, .4, 1); o.start(); o.stop(t + .2);
-  }
+
   burn() {
     if (!this.ok) return; const c = this.ctx!, t0 = this.now;
     const n = this.src(), lp = c.createBiquadFilter(), g = c.createGain(); lp.type = 'lowpass'; lp.frequency.value = 700; this.env(g, t0, [[.6, .18], [3, .12], [4, 0]]); n.connect(lp); lp.connect(g); this.out(g, 0, .2); n.start(t0); n.stop(t0 + 4.1);
@@ -314,7 +359,7 @@ class AudioEngine {
     if (!this.ok) return; const c = this.ctx!;
     if (!this.rainNode) {
       if (level <= 0) return;
-      const out = c.createGain(); out.gain.value = 0; out.connect(this.master);
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
       const n = this.src(), hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900; lp.type = 'lowpass'; lp.frequency.value = 6000;
       const g = c.createGain(); g.gain.value = .07; n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out); n.start();
       this.rainNode = { out };
@@ -335,6 +380,106 @@ class AudioEngine {
   chime() {
     if (!this.ok) return; const c = this.ctx!, t = this.now;
     [523, 659, 784, 1046].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'triangle'; o.frequency.value = f; this.env(g, t + i * .09, [[.01, .08], [.6, 0]]); o.connect(g); this.out(g, 0, .4); o.start(t + i * .09); o.stop(t + i * .09 + .7); });
+  }
+
+  /* ---------- Part 1: night, the motorbike, her ---------- */
+  /** night insects: soft, irregular chirps on the ambience bus, 0 stops */
+  setInsects(level: number) {
+    if (!this.ok) return; const c = this.ctx!;
+    if (!this.insects) {
+      if (level <= 0) return;
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
+      [4300, 5200, 3700].forEach((f, i) => {
+        const o = c.createOscillator(); o.frequency.value = f;
+        const am = c.createOscillator(); am.type = 'square'; am.frequency.value = 22 + i * 7;      // the chirp rate
+        const amg = c.createGain(); amg.gain.value = .5; am.connect(amg);
+        const g = c.createGain(); g.gain.value = 0; amg.connect(g.gain);
+        const sw = c.createOscillator(); sw.frequency.value = .13 + i * .07;                       // swells in and out
+        const swg = c.createGain(); swg.gain.value = .004; sw.connect(swg); swg.connect(g.gain);
+        o.connect(g); this.out(g, (i - 1) * .7, .2, out); o.start(); am.start(); sw.start();
+      });
+      this.insects = { out };
+    }
+    this.insects.out.gain.setTargetAtTime(level, this.now, .8);
+  }
+  /** a small motorbike engine, 0 stops */
+  setBike(level: number, rpm = .6) {
+    if (!this.ok) return; const c = this.ctx!;
+    if (!this.bike) {
+      if (level <= 0) return;
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
+      const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 48;
+      const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; lp.Q.value = 3;
+      const n = this.src(), nb = c.createBiquadFilter(), ng = c.createGain(); nb.type = 'bandpass'; nb.frequency.value = 300; ng.gain.value = .2;
+      o.connect(lp); n.connect(nb); nb.connect(ng); ng.connect(lp); lp.connect(out); o.start(); n.start();
+      this.bike = { out, o, lp };
+    }
+    this.bike.out.gain.setTargetAtTime(level * .12, this.now, .25);
+    this.bike.o.frequency.setTargetAtTime(38 + rpm * 40, this.now, .3); this.bike.lp.frequency.setTargetAtTime(400 + rpm * 900, this.now, .3);
+  }
+  /** the bike coughs: the engine stumbles a few times */
+  bikeSputter() {
+    if (!this.bike) return; const b = this.bike, t = this.now;
+    [0, .32, .5, .95, 1.2].forEach((dt, i) => {
+      b.out.gain.setValueAtTime(i % 2 ? .1 : .015, t + dt);
+      b.o.frequency.setValueAtTime(i % 2 ? 62 : 30, t + dt);
+    });
+    window.setTimeout(() => this.thump(.25, 60), 400);
+  }
+  /** the bike dies, then silence */
+  bikeStop() {
+    if (!this.bike) return; const b = this.bike, t = this.now;
+    b.o.frequency.setTargetAtTime(18, t, .5); b.out.gain.setTargetAtTime(0, t + .3, .35);
+    window.setTimeout(() => this.thump(.18, 50), 900);
+  }
+  /** sari fabric moving somewhere close */
+  fabric(pan = -.3) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .7;
+    n.connect(bp); bp.connect(g); this.env(g, t, [[.25, .05], [.6, .02], [1.1, .045], [1.6, 0]]); this.out(g, pan, .15); n.start(t, Math.random()); n.stop(t + 1.7);
+  }
+  /** a breath right behind the listener's ear */
+  breathClose() {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = .6;
+    n.connect(bp); bp.connect(g); this.env(g, t, [[.5, .06], [1.3, 0], [1.6, 0], [2.3, .045], [3.1, 0]]);
+    if (c.createPanner) { const p = c.createPanner(); p.panningModel = 'HRTF'; p.positionX.value = -.2; p.positionZ.value = .35; g.connect(p); p.connect(this.master); }
+    else this.out(g, -.3, 0);
+    n.start(t, Math.random()); n.stop(t + 3.2);
+  }
+  /** everything drops away for a moment (the silence before something) */
+  hushAll(seconds = 2.5) {
+    if (!this.ok) return; const g = this.duckG.gain, t = this.now;
+    g.cancelScheduledValues(t); g.setTargetAtTime(.04, t, .08); g.setTargetAtTime(1, t + seconds, 1.2);
+  }
+  /** the bus engine cuts out at once */
+  engineCut() { if (this.engine) { this.engine.out.gain.cancelScheduledValues(this.now); this.engine.out.gain.setTargetAtTime(0, this.now, .03); } this.setBuzz(0); }
+  /** the tube lights come back on */
+  lightsBack() { this.thump(.3, 140); window.setTimeout(() => this.setBuzz(.5), 120); }
+  /** the call connects / ends */
+  callConnect() { this.tone([[0, 480], [.16, 620]], .05); }
+  callEnd() { this.tone([[0, 620], [.18, 480], [.36, 400]], .05); }
+  private tone(seq: [number, number][], v: number) {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    seq.forEach(([dt, f]) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = f; o.connect(g); this.env(g, t + dt, [[.01, v], [.13, v], [.15, 0]]); this.out(g, 0, 0); o.start(t + dt); o.stop(t + dt + .16); });
+  }
+  /** faint line noise while a call is open, 0 stops */
+  setLine(level: number) {
+    if (!this.ok) return; const c = this.ctx!;
+    if (!this.line) {
+      if (level <= 0) return;
+      const out = c.createGain(); out.gain.value = 0; out.connect(this.dlg);
+      const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = .5; g.gain.value = .012;
+      n.connect(bp); bp.connect(g); g.connect(out); n.start(); this.line = { out };
+    }
+    this.line.out.gain.setTargetAtTime(level, this.now, .2);
+  }
+  /** something small breaks underfoot (the teaser) */
+  crunch() {
+    if (!this.ok) return; const c = this.ctx!, t = this.now;
+    const n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 1.4;
+    n.connect(bp); bp.connect(g); this.env(g, t, [[.005, .5], [.05, .1], [.09, .35], [.25, 0]]); this.out(g, 0, .1); n.start(t, Math.random()); n.stop(t + .3);
+    this.thump(.3, 90);
   }
 }
 

@@ -1,4 +1,5 @@
 'use client';
+import { visualGender } from '@/lib/gender';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -115,7 +116,7 @@ export default function Prototype() {
 
   return (
     <main className={`lang-${lang} relative h-[100svh] overflow-hidden bg-ink text-bone`}>
-      {phase !== 'start' && <HighwayFilm gender={gender} small={small} reduced={reduced} />}
+      {phase !== 'start' && <HighwayFilm gender={visualGender(gender, store.get().name)} small={small} reduced={reduced} />}
       {/* opening black: grain and drifting fog, then it opens onto the road */}
       {phase !== 'start' && <div className="pointer-events-none fixed inset-0 bg-ink" style={{ opacity: Math.max(blackIn, blackOut) }}><AtmosphereCanvas red={false} density={.8} /></div>}
       <div className="fx-grain" aria-hidden />

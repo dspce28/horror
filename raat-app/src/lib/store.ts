@@ -4,7 +4,7 @@ import type { Gender, Lang } from '@/data/translations';
 import type { GameId } from '@/data/stories/last-passenger';
 
 export type GameResult = 'win' | 'lose' | 'skip';
-export type CallState = 'IDLE' | 'CALL_1' | 'DECLINED_1' | 'CALL_2' | 'DECLINED_2' | 'CALL_3' | 'DECLINED_3' | 'KOKILA_JUMPSCARE' | 'FORCED_CALL' | 'ANSWERED' | 'FINAL_CONVERSATION' | 'DONE';
+export type CallState = 'IDLE' | 'CALL_1' | 'DECLINED_1' | 'CALL_2' | 'DECLINED_2' | 'CALL_3' | 'DECLINED_3' | 'KOKILA_JUMPSCARE' | 'FORCED_CALL' | 'ANSWERED' | 'FINAL_CONVERSATION' | 'APPARITION' | 'WHISPER' | 'DONE';
 export type Quality = 'high' | 'low';
 
 export interface State {

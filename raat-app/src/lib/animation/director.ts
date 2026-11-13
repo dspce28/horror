@@ -42,6 +42,12 @@ export interface Shot {
   rowsOut?: boolean;
   /** a reflection of her in the glass: where (0–1 of the image) and how tall */
   reflection?: [number, number, number];
+  /** fog swallows the picture across this shot, far things first (the bus disappearing) */
+  vanish?: boolean;
+  /** brightness at the end of the shot (fades from `light`) */
+  lightTo?: number;
+  /** the headlight glow fades out across the shot instead of growing */
+  glowFade?: boolean;
 }
 
 const SHOTS: Partial<Record<SceneId, Shot[]>> = {
@@ -76,51 +82,41 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: .92, img: 'black', focus: [.5, .5], zoom: [1, 1] },
   ],
   // no big zooms: framing changes by cutting and by slow drifts; the people move on their own (life.ts)
+  // Ramesh's warning: mostly his back; he never turns. In the windscreen, a woman behind {N}
   driver: [
-    { at: 0, img: 'driver-back', focus: [.74, .4], zoom: [1, 1.04], flicker: 1, rain: .3 },
-    { at: .1, img: 'driver-back', focus: [.6, .36], zoom: [1.06, 1.1], flicker: 1, rain: .3, reflection: [.4, .3, .34], glide: true },
-    { at: .22, img: 'driver-turn', focus: [.58, .32], zoom: [1.05, 1.18], flicker: 1 },
-    { at: .41, img: 'driver-turn', focus: [.62, .36], zoom: [1.18, 1.22], flicker: 1, dofAt: [.5, .3] },
-    // "You mean… you are…" — {N} glances back: she is still in her seat, a little closer
-    { at: .645, img: 'her-behind', focus: [.53, .45], zoom: [1.12, 1.16], flicker: 1, dof: 1.2 },
-    { at: .7, img: 'driver-turn', focus: [.52, .32], zoom: [1.3, 1.34], light: .4 },
-    { at: .76, img: 'driver-turn', focus: [.5, .3], zoom: [1.42, 1.46], light: .45 },
-    { at: .84, img: 'her-look', focus: [.48, .4], zoom: [1.02, 1.1], flicker: 1 },
+    { at: 0, img: 'driver-back', focus: [.7, .42], zoom: [1, 1.05], flicker: 1, rain: .3 },
+    { at: .2, img: 'driver-back', focus: [.74, .4], zoom: [1.12, 1.16], flicker: 1, rain: .3, dofAt: [.74, .33] },     // his hands tighten
+    { at: .38, img: 'her-behind', focus: [.53, .42], zoom: [1.06, 1.1], flicker: 1, dof: 1.2 },                       // "Why? Who is she?" — {N} glances back
+    { at: .47, img: 'driver-back', focus: [.55, .36], zoom: [1.04, 1.08], flicker: 1, rain: .3, reflection: [.4, .3, .34] },
+    { at: .58, img: 'driver-back', focus: [.74, .4], zoom: [1.16, 1.19], flicker: 1, rain: .3, dofAt: [.74, .33] },
+    { at: .69, img: 'driver-back', focus: [.6, .38], zoom: [1.2, 1.24], light: .6, rain: .3 },
+    { at: .78, img: 'driver-back', focus: [.25, .14], zoom: [1.35, 1.4], flicker: 1, rain: .3 },                      // the mirror, the photograph
+    { at: .88, img: 'cabin', focus: [.55, .78], zoom: [1.15, 1.2], flicker: 1, rain: .3 },                            // the dashboard, the drawer
   ],
-  encounter: [
+  // the reveal: lights die row by row, the engine goes silent, he turns, she comes
+  reveal: [
     { at: 0, img: 'inside-empty', focus: [.5, .48], zoom: [1.04, 1.1], flicker: 1, shake: .2, rowsOut: true },
-    { at: .14, img: 'her-look', focus: [.48, .32], zoom: [1.15, 1.3], flicker: 2, shake: .2 },
-    { at: .28, img: 'her-lunge', focus: [.5, .38], zoom: [1, 1.1], flicker: 2, shake: .4 },
-    // Ramesh, weary: "not now, Kokila"
-    { at: .38, img: 'driver-turn', focus: [.55, .34], zoom: [1.2, 1.24], flicker: 1 },
-    { at: .46, img: 'her-lunge', focus: [.52, .34], zoom: [1.12, 1.16], flicker: 2, shake: .2 },
-    { at: .55, img: 'her-lunge', focus: [.5, .4], zoom: [1.02, 1.05], flicker: 2, shake: .5, dofAt: [.25, .7] },
-    { at: .64, img: 'her-lunge', focus: [.53, .3], zoom: [1.25, 1.28], flicker: 2 },
-    // "Ramesh. Explain it." — he looks away
-    { at: .83, img: 'driver-turn', focus: [.6, .36], zoom: [1.15, 1.18], light: .5 },
-    { at: .93, img: 'her-lunge', focus: [.5, .4], zoom: [1.1, 1.12], light: .35 },
+    { at: .13, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.08], light: .55, rain: .5 },
+    { at: .23, img: 'driver-turn', focus: [.55, .34], zoom: [1.05, 1.18], flicker: 1 },
+    { at: .42, img: 'inside-her', focus: [.56, .56], zoom: [1.1, 1.16], light: .7, flicker: 1, dofAt: [.3, .75] },   // the seat beside {N}, pressed down
+    { at: .52, img: 'her-hair', focus: [.5, .42], zoom: [1.05, 1.12], flicker: 1 },
+    { at: .61, img: 'her-look', focus: [.48, .32], zoom: [1.1, 1.24], flicker: 2, shake: .15 },
+    { at: .71, img: 'her-face', focus: [.5, .42], zoom: [1.02, 1.08], light: .75, flicker: 1, dof: .6 },
+    { at: .8, img: 'her-lunge', focus: [.5, .38], zoom: [1.02, 1.08], flicker: 2, shake: .4 },
+    { at: .89, img: 'her-behind', focus: [.53, .42], zoom: [1.12, 1.14], flicker: 1 },                                // lights back: she is in her seat
   ],
-  // the twist: the same lit bus, but staged like a scene: two-shots, close-ups, reactions, over the shoulder
-  twist: [
-    { at: 0, img: 'twist', focus: [.5, .42], zoom: [1.04, 1.08], warm: true },
-    { at: .12, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.58], warm: true, dofAt: [.73, .36] },            // Ramesh doesn't look up
-    { at: .19, img: 'twist', focus: [.42, .34], zoom: [1.42, 1.45], warm: true, dofAt: [.32, .22] },           // over his shoulder, at her
-    { at: .26, img: 'twist', focus: [.7, .4], zoom: [1.5, 1.52], warm: true, dofAt: [.73, .36] },              // "we're dead"
-    { at: .32, img: 'twist', focus: [.33, .27], zoom: [1.68, 1.72], warm: true },                              // "so? book online!"
-    { at: .38, img: 'twist', focus: [.5, .42], zoom: [1.02, 1.04], warm: true },                               // {N}: "you're not here to kill me?"
-    { at: .44, img: 'twist', focus: [.42, .34], zoom: [1.42, 1.44], warm: true, dofAt: [.32, .22] },
-    { at: .5, img: 'twist', focus: [.33, .25], zoom: [1.78, 1.84], warm: true },                              // she really looks at you
-    { at: .6, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.57], warm: true, dofAt: [.73, .36] },             // Ramesh: he knows what's coming
-    { at: .645, img: 'twist', focus: [.33, .27], zoom: [1.66, 1.7], warm: true },                              // she smiles
-    { at: .69, img: 'twist', focus: [.45, .36], zoom: [1.3, 1.32], warm: true, dofAt: [.32, .22] },
-    { at: .725, img: 'twist', focus: [.45, .36], zoom: [1.32, 1.34], warm: true, dofAt: [.73, .36], glide: true },          // rack focus: "Ramesh, look"
-    { at: .78, img: 'black', focus: [.5, .5], zoom: [1, 1] },
-    { at: .83, img: 'twist', focus: [.5, .42], zoom: [1.06, 1.08], warm: true },
-    { at: .865, img: 'twist', focus: [.71, .4], zoom: [1.55, 1.57], warm: true, dofAt: [.73, .36] },          // Ramesh shrugs at "horoscopes"
-    { at: .895, img: 'twist', focus: [.33, .27], zoom: [1.66, 1.7], warm: true },
-    { at: .94, img: 'twist', focus: [.5, .42], zoom: [1.04, 1.06], warm: true, shake: .3 },
-    { at: .965, img: 'twist', focus: [.33, .25], zoom: [1.8, 1.86], warm: true, light: .85 },                  // "I'll call you."
+  // the bus stops; {N} gets off; the fog takes the bus
+  leave: [
+    { at: 0, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.1], flicker: 1, rain: .4 },
+    { at: .19, img: 'her-behind', focus: [.53, .38], zoom: [1.2, 1.3], flicker: 1, dof: 1.1 },                        // she is looking straight at {N}
+    { at: .3, img: 'bus-side', focus: [.84, .55], zoom: [1.6, 1.5], rain: .5, light: .9 },                            // the door, from the road
+    { at: .56, img: 'bus-front', focus: [.5, .56], zoom: [1.18, 1.14], rain: .6, glow: [.5, .62] },
+    { at: .64, img: 'bus-front', focus: [.5, .55], zoom: [1.14, 1.08], rain: .6, glow: [.5, .62], glowFade: true, vanish: true, lightTo: .55, glide: true },
+    { at: .9, img: 'road', focus: [.46, .55], zoom: [1.04, 1.06], rain: .5, fog: 1, light: .7 },
   ],
+  ticket: [{ at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] }],
+  // the empty road; the call happens on top of it
+  end: [{ at: 0, img: 'road', focus: [.46, .55], zoom: [1.06, 1.1], rain: .4, fog: 1, light: .5 }],
 };
 
 const SPEAKER_FOCUS: Partial<Record<Speaker, { focus: [number, number]; zoom: number }>> = {
@@ -136,7 +132,7 @@ export interface Frame {
   fx: number; fy: number;
   /** which shot this is (a new value = a cut), and whether to glide into it instead */
   shot: string; glide: boolean;
-  rowsOut: number; reflection: [number, number, number] | null; reflectAmt: number;
+  rowsOut: number; reflection: [number, number, number] | null; reflectAmt: number; vanish: number;
   light: number; flicker: 0 | 1 | 2; shake: number; rain: number; glow: [number, number] | null; glowAmt: number; warm: boolean; fog: number; dof: number;
 }
 
@@ -154,9 +150,9 @@ export function frameAt(scene: SceneId, t: number, speaker: Speaker | null): Fra
     img: s.img, prev: i > 0 ? list[i - 1].img : null, mix,
     x: focus[0], y: focus[1], zoom,
     fx: (s.dofAt ?? focus)[0], fy: (s.dofAt ?? focus)[1], shot: `${scene}:${i}`, glide: !!s.glide,
-    rowsOut: s.rowsOut ? range(t, s.at, s.at + (end - s.at) * .85) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
-    light: s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
-    glow: s.glow ?? null, glowAmt: s.glow ? k : 0, warm: !!s.warm,
+    rowsOut: s.rowsOut ? range(t, s.at, s.at + (end - s.at) * .85) : 0, vanish: s.vanish ? smooth(range(t, s.at, s.at + (end - s.at) * .9)) : 0, reflection: s.reflection ?? null, reflectAmt: s.reflection ? smooth(range(t, s.at, s.at + (end - s.at) * .4)) * (1 - smooth(range(t, end - (end - s.at) * .25, end))) : 0,
+    light: s.lightTo != null ? lerp(s.light ?? 1, s.lightTo, k) : s.light ?? 1, flicker: s.flicker ?? 0, shake: s.shake ?? 0, rain: s.rain ?? 0,
+    glow: s.glow ?? null, glowAmt: s.glow ? (s.glowFade ? 1 - k : k) : 0, warm: !!s.warm,
     fog: s.fog ?? (s.rain ? .85 : .3), dof: s.dof ?? (s.dofAt ? 1.35 : s.bySpeaker ? 1.2 : .75),
   };
 }
@@ -176,8 +172,8 @@ export function soundAt(scene: SceneId, t: number) {
     case 'board': s.engine = .32; s.rpm = .2; s.dread = .4; break; // idling at the door
     case 'inside': { const go = range(t, .31, .45); s.engine = .35 + go * .2; s.rpm = .25 + go * .3; s.dread = .4 + t * .35; break; }
     case 'driver': s.engine = .5; s.rpm = .5; s.dread = .6 + t * .2; s.lights = !(t > .59 && t < .84); break;
-    case 'encounter': s.engine = t > .93 ? .3 : .55; s.rpm = .55; s.dread = 1; break;
-    case 'twist': { const stop = range(t, .7, .77); s.engine = .3 - stop * .2; s.rpm = .3 - stop * .2; s.dread = 0; break; }
+    case 'reveal': s.engine = t > .14 && t < .9 ? 0 : .5; s.rpm = .5; s.dread = 1; s.lights = !(t > .04 && t < .9); break; // the engine cuts out; the bus keeps moving
+    case 'leave': { const slow = range(t, 0, .31), away = range(t, .58, .9); s.engine = (.5 - slow * .2) * (1 - away); s.rpm = .45 - slow * .25; s.dread = .5 * (1 - away); break; }
     default: s.dread = 0; break;
   }
   return s;

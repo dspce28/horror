@@ -19,7 +19,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
       uMap: { value: null }, uDepth: { value: null }, uHasMap: { value: 0 }, uHasDepth: { value: 0 }, uDepthScale: { value: DEPTH_SCALE },
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .3 }, uTime: { value: 0 }, uDissolve: { value: role === 'cur' ? 1 : 0 },
       uFade: { value: 1 }, uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
-      uLife: { value: 0 }, uHeadA: { value: new THREE.Vector4() }, uHeadB: { value: new THREE.Vector4() }, uBodyA: { value: new THREE.Vector4() }, uBodyB: { value: new THREE.Vector4() }, uHairA: { value: new THREE.Vector4() }, uRowsOut: { value: 0 },
+      uLife: { value: 0 }, uHeadA: { value: new THREE.Vector4() }, uHeadB: { value: new THREE.Vector4() }, uBodyA: { value: new THREE.Vector4() }, uBodyB: { value: new THREE.Vector4() }, uHairA: { value: new THREE.Vector4() }, uRowsOut: { value: 0 }, uVanish: { value: 0 },
     },
   }), [role]);
   useEffect(() => () => mat.dispose(), [mat]);
@@ -41,6 +41,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     const l = lifeFor(name);
     u.uLife.value = store.get().reduced ? 0 : l.amp;
     u.uRowsOut.value = role === 'cur' ? o.frame.rowsOut : 0;
+    u.uVanish.value = role === 'cur' ? o.frame.vanish : 0;
     u.uHeadA.value.set(...l.headA); u.uHeadB.value.set(...l.headB); u.uBodyA.value.set(...l.bodyA); u.uBodyB.value.set(...l.bodyB); u.uHairA.value.set(...l.hair);
   });
 

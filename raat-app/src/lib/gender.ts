@@ -21,3 +21,9 @@ export function guessGender(name: string): Gender {
   if (/[ai]$/.test(n) && n.length > 3) return 'f';
   return 'm';
 }
+
+/** Which protagonist photograph to show. Neutral grammar still needs one of the two people on screen: follow the name. */
+export function visualGender(gender: Gender, name: string): 'm' | 'f' {
+  if (gender !== 'n') return gender;
+  return guessGender(name) === 'f' ? 'f' : 'm';
+}

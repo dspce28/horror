@@ -31,8 +31,6 @@ export default function PhoneNotification() {
   if (!shown || game) return null;
   return (
     <div className="phone-note" role="status" key={shown.id}>
-      {/* in the dark glass, for a moment, a face that is not yours */}
-      {shown.k === 'n2' && <div className="note-reflect" aria-hidden />}
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[.18em] text-ash/70">
         <span className="inline-block h-2 w-2 rounded-full bg-blood" aria-hidden /> {shown.from} <span className="ml-auto normal-case tracking-normal">{t('note_now')}</span>
       </div>

@@ -121,7 +121,7 @@ export default function Entry() {
                   className="w-full rounded-xl border border-ash/20 bg-black/40 px-3 py-2.5 text-base text-bone outline-none placeholder:text-ash/40 focus:border-blood" />
                 <div className="flex items-center gap-2 text-xs text-ash" role="radiogroup" aria-label={t('g_label')}>
                   <span>{t('g_label')}</span>
-                  {(['m', 'f'] as const).map((g) => <button key={g} type="button" role="radio" aria-checked={gender === g} onClick={() => { chosen.current = true; store.set({ gender: g }); }} className={`chip ${gender === g ? 'chip-on' : ''}`}>{t(g === 'm' ? 'g_m' : 'g_f')}</button>)}
+                  {(['m', 'f', 'n'] as const).map((g) => <button key={g} type="button" role="radio" aria-checked={gender === g} onClick={() => { chosen.current = true; store.set({ gender: g }); }} className={`chip ${gender === g ? 'chip-on' : ''}`}>{t(g === 'm' ? 'g_m' : g === 'f' ? 'g_f' : 'g_n')}</button>)}
                 </div>
                 <button type="button" onClick={board} className="enter-btn w-full">{t('enter')}</button>
               </div>

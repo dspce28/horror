@@ -12,7 +12,7 @@ export default function FourthWall() {
     const onVis = () => {
       const s = store.get(); if (!s.entered) return;
       if (document.hidden) document.title = translate(s.lang, 'fw_tab', vars());
-      else { document.title = base; if (['highway', 'bus', 'board', 'inside', 'driver', 'encounter', 'twist'].includes(SCENES[s.sceneIndex]?.id)) store.set({ notice: { id: Date.now(), k: 'fw_back', from: 'unknown' } }); }
+      else { document.title = base; if (['highway', 'bus', 'board', 'inside', 'driver', 'reveal', 'leave'].includes(SCENES[s.sceneIndex]?.id)) store.set({ notice: { id: Date.now(), k: 'fw_back', from: 'unknown' } }); }
     };
     document.addEventListener('visibilitychange', onVis);
 
@@ -22,7 +22,7 @@ export default function FourthWall() {
       if (!s.entered || s.game || (s.call !== 'IDLE' && s.call !== 'DONE') || document.hidden) { still = 0; return; }
       if (Math.abs(live.p - last) > .0005) { last = live.p; still = 0; return; }
       still += 1;
-      if (still === 16 && nudges < 2 && ['bus', 'board', 'inside', 'driver', 'encounter'].includes(SCENES[s.sceneIndex]?.id)) { nudges++; store.set({ notice: { id: Date.now(), k: 'fw_idle', from: 'unknown' } }); }
+      if (still === 16 && nudges < 2 && ['bus', 'board', 'inside', 'driver', 'reveal'].includes(SCENES[s.sceneIndex]?.id)) { nudges++; store.set({ notice: { id: Date.now(), k: 'fw_idle', from: 'unknown' } }); }
     }, 1000);
     return () => { document.removeEventListener('visibilitychange', onVis); window.clearInterval(id); document.title = base; };
   }, []);

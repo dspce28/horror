@@ -97,7 +97,8 @@ export default function TicketScene() {
 
   if (!active) return null;
   const passenger = (name.trim() || t('default_name')).toUpperCase();
-  const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_dest'), t('tk_dest_v')], [t('tk_status'), t('tk_status_v')], [t('tk_return'), t('tk_return_v')], [t('tk_fare'), t('tk_fare_v')]];
+  // the ticket in {N}'s pocket: their name, the night of the crash, the last seat, and one passenger too many
+  const rows: [string, string][] = [[t('tk_pass'), passenger], [t('tk_date'), '12-05-1999'], [t('tk_dest'), t('tk_dest_v')], [t('tk_seat_k'), t('tk_seat_v')], [t('tk_fare'), t('tk_fare_v')]];
   const set = (i: number) => (el: HTMLElement | null) => { lines.current[i] = el; };
   return (
     <div className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-4" style={{ perspective: '1000px' }} aria-label={t('sc_ticket')} role="img">
@@ -105,7 +106,7 @@ export default function TicketScene() {
         <canvas ref={ref} className="h-auto w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.8)]" />
         <div className="ticket-text" lang={lang}>
           <p ref={set(0)} className="tk-head" style={{ left: '32.9%', top: '17%' }}>{t('tk_head')}</p>
-          <p ref={set(1)} className="tk-sub" style={{ left: '32.9%', top: '24%' }}>{storyTime('start', lang)} · {t('tk_seat')} · No. 001313</p>
+          <p ref={set(1)} className="tk-sub" style={{ left: '32.9%', top: '24%' }}>{storyTime('start', lang)} · No. 001313</p>
           {rows.map(([k, v], i) => (
             <p key={k} ref={set(2 + i)} className="tk-row" style={{ left: '32.9%', top: `${32 + i * 8.6}%` }}>
               <span className="tk-k">{k}</span><span className="tk-v">{v}</span>

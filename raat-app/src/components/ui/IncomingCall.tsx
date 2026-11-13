@@ -7,11 +7,11 @@ import { audio } from '@/lib/audio/engine';
 import { save, storyTime } from '@/lib/session';
 import { scroll } from '@/lib/scroll';
 import { ghostFace } from '@/components/fx/Overlays';
-import { translate } from '@/data/translations';
+import { say, sayAndWait } from '@/lib/audio/voice';
 import KokilaScare from './KokilaScare';
 
 const RINGING: CallState[] = ['CALL_1', 'CALL_2', 'CALL_3', 'FORCED_CALL'];
-const ACTIVE: CallState[] = ['CALL_1', 'DECLINED_1', 'CALL_2', 'DECLINED_2', 'CALL_3', 'DECLINED_3', 'KOKILA_JUMPSCARE', 'FORCED_CALL', 'ANSWERED', 'FINAL_CONVERSATION'];
+const ACTIVE: CallState[] = ['CALL_1', 'DECLINED_1', 'CALL_2', 'DECLINED_2', 'CALL_3', 'DECLINED_3', 'KOKILA_JUMPSCARE', 'FORCED_CALL', 'ANSWERED', 'FINAL_CONVERSATION', 'APPARITION', 'WHISPER'];
 
 function go(call: CallState, extra: Partial<ReturnType<typeof store.get>> = {}) { store.set({ call, ...extra }); save(); }
 
@@ -29,6 +29,7 @@ export default function IncomingCall() {
   const lang = useStore((s) => s.lang);
   const gender = useStore((s) => s.gender);
   const [secs, setSecs] = useState(0);
+  const [shown, setShown] = useState(0); // which of her two lines is on screen
   const answerBtn = useRef<HTMLButtonElement>(null);
 
   // while the call is on, the page can't be scrolled away from it
@@ -52,13 +53,28 @@ export default function IncomingCall() {
       return () => window.clearTimeout(id);
     }
     if (call === 'DECLINED_3') { const id = window.setTimeout(() => go('KOKILA_JUMPSCARE'), 120); return () => window.clearTimeout(id); }
-    if (call === 'KOKILA_JUMPSCARE') { const id = window.setTimeout(() => go('FORCED_CALL'), safe ? 3800 : 3900); return () => window.clearTimeout(id); }
-    if (call === 'ANSWERED') { audio.whisper(0, .7); const id = window.setTimeout(() => go('FINAL_CONVERSATION'), 1300); return () => window.clearTimeout(id); }
+    if (call === 'KOKILA_JUMPSCARE') {
+      // black, then her, right behind: "Pick up."
+      const v = window.setTimeout(() => { void say('call_scare', { from: 'behind' }); }, safe ? 1300 : 950);
+      const id = window.setTimeout(() => go('FORCED_CALL'), safe ? 3800 : 3900);
+      return () => { window.clearTimeout(v); window.clearTimeout(id); };
+    }
+    if (call === 'ANSWERED') { audio.callConnect(); const id = window.setTimeout(() => go('FINAL_CONVERSATION'), 1300); return () => window.clearTimeout(id); }
     if (call === 'FINAL_CONVERSATION') {
-      setSecs(0);
+      // silence; breathing; her two lines through the phone, with room between them; then the line goes dead
+      let alive = true; const wait = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
+      setSecs(0); setShown(0);
       const tick = window.setInterval(() => setSecs((x) => x + 1), 1000);
-      const end = window.setTimeout(() => { audio.laugh(); window.setTimeout(() => { go('DONE'); store.set({ finished: true }); }, 1800); }, 8000);
-      return () => { window.clearInterval(tick); window.clearTimeout(end); };
+      audio.setLine(1);
+      void (async () => {
+        await wait(1800); if (!alive) return; audio.breath();
+        await wait(1500); if (!alive) return; setShown(1); await sayAndWait('call_line1', { phone: true }, 3400);
+        if (!alive) return; await wait(2000);
+        if (!alive) return; setShown(2); await sayAndWait('call_line2', { phone: true }, 4800);
+        if (!alive) return; await wait(1300);
+        audio.setLine(0); audio.callEnd(); go('APPARITION');
+      })();
+      return () => { alive = false; window.clearInterval(tick); audio.setLine(0); };
     }
   }, [call, safe]);
 
@@ -99,9 +115,8 @@ export default function IncomingCall() {
         <p className="mt-4 font-display text-3xl tracking-[.15em] text-bone">{t('call_name')}</p>
         {call === 'FINAL_CONVERSATION' && (
           <div className="mt-6 space-y-3" aria-live="polite">
-            <p className="font-guj text-xl text-bone" lang="gu">{translate('gu', 'call_line', { name: '', gender })}</p>
-            {lang !== 'gu' && <p className="text-sm text-ash">{t('call_line')}</p>}
-            {secs >= 3 && <p className="text-sm text-bone" style={{ animation: 'lineIn .6s ease both' }}>{t('call_fin2')}</p>}
+            {shown >= 1 && <p className="font-display text-xl text-bone" style={{ animation: 'lineIn .8s ease both' }}>{t('call_line1')}</p>}
+            {shown >= 2 && <p className="font-display text-xl text-bone" style={{ animation: 'lineIn .8s ease both' }}>{t('call_line2')}</p>}
           </div>
         )}
         {ringing && (

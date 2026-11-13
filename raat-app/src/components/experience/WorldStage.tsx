@@ -1,7 +1,8 @@
 'use client';
+import { visualGender } from '@/lib/gender';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
-import { live, useStore } from '@/lib/store';
+import { live, store, useStore } from '@/lib/store';
 import { film } from '@/lib/film/clock';
 import { SCENES } from '@/data/stories/last-passenger';
 import PhotoStage from './PhotoStage';
@@ -61,7 +62,7 @@ export default function WorldStage() {
   if (gl === null) return null;
   return (
     <div className="fixed inset-0 overflow-hidden bg-black" aria-hidden>
-      {world === 'road' && <HighwayFilm gender={gender} small={small} reduced={reduced} />}
+      {world === 'road' && <HighwayFilm gender={visualGender(gender, store.get().name)} small={small} reduced={reduced} />}
       {world === 'interior' && <BusInterior small={small} reduced={reduced} progress={() => SCENES[live.sceneIndex]?.id === 'board' ? { mode: 'board', t: Math.max(0, (live.local - BOARD_CUT) / (1 - BOARD_CUT)) } : { mode: 'inside', t: live.local }} />}
       {world === 'photo' && <PhotoStage />}
       {world === 'road' && <div ref={veil} className="pointer-events-none absolute inset-0 bg-ink" />}

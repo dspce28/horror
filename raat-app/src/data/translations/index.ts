@@ -3,7 +3,8 @@ import { hi } from './hi';
 import { gu } from './gu';
 
 export type Lang = 'en' | 'hi' | 'gu';
-export type Gender = 'm' | 'f';
+/** grammatical gender of the visitor: masculine, feminine, or neutral (respectful plural in Hindi/Gujarati, 'they' in English) */
+export type Gender = 'm' | 'f' | 'n';
 export type { Key };
 
 export const LANGS: { id: Lang; label: string; short: string }[] = [
@@ -27,7 +28,8 @@ export interface Vars {
 export function translate(lang: Lang, key: Key, v: Vars): string {
   const raw = DICTS[lang][key] ?? en[key];
   return raw
-    .replace(/\[([^\]|]*)\|([^\]]*)\]/g, (_, m: string, f: string) => (v.gender === 'f' ? f : m))
+    // [masculine|feminine|neutral]; a line with two forms uses the masculine one for neutral
+    .replace(/\[([^\]|]*)\|([^\]|]*)(?:\|([^\]]*))?\]/g, (_, m: string, f: string, n?: string) => (v.gender === 'f' ? f : v.gender === 'n' ? (n ?? m) : m))
     .replace(/\{N\}/g, v.name)
     .replace(/\{TIME\}/g, v.time ?? '')
     .replace(/\{START\}/g, v.start ?? v.time ?? '')

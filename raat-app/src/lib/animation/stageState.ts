@@ -4,6 +4,7 @@
 import { SCENES, cueAt } from '@/data/stories/last-passenger';
 import { frameAt, imageFor, type Frame } from './director';
 import { events, live, store } from '@/lib/store';
+import { visualGender } from '@/lib/gender';
 
 export const sceneUrl = (name: string, small: boolean, kind: '' | 'depth' = '') =>
   kind === 'depth' ? `/raat/scenes/${name}-d.webp` : `/raat/scenes/${name}${small ? '-m' : ''}.webp`;
@@ -32,7 +33,7 @@ export function tick(realNow: number, dt: number): StageOut {
   const sc = SCENES[live.sceneIndex];
   const cue = cueAt(sc, live.local);
   const f = live.override ? frameAt(live.override.scene, live.override.t, null) : frameAt(sc.id, live.local, cue ? cue.who : null);
-  const name = imageFor(f.img, s.gender);
+  const name = imageFor(f.img, visualGender(s.gender, s.name));
   if (name !== cur) { prev = cur; cur = name; cutAt = now; glitch = Math.max(glitch, f.flicker ? .9 : .45); }
   const snap = !cam.shot || (f.shot !== cam.shot && !f.glide) || s.reduced;
   const k = snap ? 1 : 1 - Math.exp(-dt * (f.glide ? 1.6 : 4));

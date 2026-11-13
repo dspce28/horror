@@ -33,6 +33,7 @@ uniform float uLife;
 uniform vec4 uHeadA, uHeadB;   // head ellipses: cx, cy, rx, ry (rx = 0: nobody there)
 uniform vec4 uBodyA, uBodyB;   // torso boxes: x0, y0, x1, y1
 uniform vec4 uHairA;           // ellipse around loose hair
+uniform float uVanish;         // fog swallowing the picture, far things first: 0..1
 uniform float uRowsOut;        // lights dying row by row, from the back of the bus (far) to the camera (near): 0..1
 varying vec2 vUv;
 varying float vD;
@@ -71,6 +72,13 @@ void main() {
   float fd = texture2D(uDepth, uFocus).r;
   float blur = smoothstep(.2, .6, abs(vD - fd)) * uDof;
   vec3 c = texture2D(uMap, uv, blur).rgb;
+  if (uVanish > 0.) {
+    // the fog thickens and takes the picture from the far end toward the camera; what is near goes last
+    float fogN = fbm(vUv * vec2(4., 6.) + vec2(uTime * .05, uTime * .02));
+    float front = uVanish * 1.35 - (1. - vD) * .35;
+    float take = smoothstep(.0, .55, front + (fogN - .5) * .25);
+    c = mix(c, uFogColor * (1.05 + fogN * .6), clamp(take, 0., 1.));
+  }
   if (uRowsOut > 0.) {
     // five rows of tube lights; each row goes out with a stutter as the front reaches its depth
     float rows = floor(uRowsOut * 5.99) / 5.;

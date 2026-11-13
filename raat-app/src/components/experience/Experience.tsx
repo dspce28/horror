@@ -15,7 +15,8 @@ import AtmosphereCanvas from '@/components/fx/AtmosphereCanvas';
 import Hud from '@/components/ui/Hud';
 import StoryText from '@/components/ui/StoryText';
 import PhoneNotification from '@/components/ui/PhoneNotification';
-import EndingCard from '@/components/ui/EndingCard';
+import EndScreen from '@/components/ui/EndScreen';
+import FinalSequence from '@/components/ui/FinalSequence';
 import IncomingCall from '@/components/ui/IncomingCall';
 import { restoreSession } from '@/lib/session';
 import TicketScene from '@/components/scenes/TicketScene';
@@ -37,8 +38,8 @@ export default function Experience() {
     const nav = navigator as Navigator & { deviceMemory?: number };
     const small = window.innerWidth < 760 || window.matchMedia('(pointer: coarse)').matches;
     const weak = (navigator.hardwareConcurrency || 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
-    let saved: Lang | null = null, name = '', gender: 'm' | 'f' | null = null;
-    try { saved = localStorage.getItem('raat-lang') as Lang | null; name = localStorage.getItem('raat-name') ?? ''; gender = localStorage.getItem('raat-gender') as 'm' | 'f' | null; } catch { /* private mode */ }
+    let saved: Lang | null = null, name = '', gender: 'm' | 'f' | 'n' | null = null;
+    try { saved = localStorage.getItem('raat-lang') as Lang | null; name = localStorage.getItem('raat-name') ?? ''; gender = localStorage.getItem('raat-gender') as 'm' | 'f' | 'n' | null; } catch { /* private mode */ }
     const guess: Lang = /^gu/i.test(navigator.language) ? 'gu' : /^hi/i.test(navigator.language) ? 'hi' : 'en';
     store.set({ reduced, quality: small || weak ? 'low' : 'high', lang: saved ?? guess, name, gender: gender ?? guessGender(name) });
     restoreSession();
@@ -74,7 +75,8 @@ export default function Experience() {
           <StoryText />
           <PhoneNotification />
           <IncomingCall />
-          <EndingCard />
+          <FinalSequence />
+          <EndScreen />
         </>
       )}
       <Overlays />

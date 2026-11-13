@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { MessageCircle, RotateCcw, SlidersHorizontal, Volume2, VolumeX } from 'lucide-react';
 import { LANGS } from '@/data/translations';
 import { SCENES } from '@/data/stories/last-passenger';
 import { live, store, useStore } from '@/lib/store';
 import { useT } from '@/hooks/useT';
 import { audio } from '@/lib/audio/engine';
-import { scroll } from '@/lib/scroll';
-import { beginSession, clearSession } from '@/lib/session';
+import { replayStory } from '@/lib/replay';
+import { replay as replayLine } from '@/lib/audio/voice';
 
 /** Minimal chrome: logo, language, sound, volume, restart, and a quiet progress rail. */
 export default function Hud() {
@@ -20,11 +20,14 @@ export default function Hud() {
   const [vol, setVol] = useState(false);
 
   const toggle = () => { audio.init(); const m = !muted; audio.setMuted(m); store.set({ muted: m }); };
-  const restart = () => {
-    store.set({ results: {}, callAccepted: null, callOpen: false, finished: false, game: null, call: 'IDLE', declines: 0, sessionStart: null });
-    clearSession(); beginSession(); live.lookBacks = 0; // a new journey starts a new story clock
-    scroll.lock(false); scroll.toProgress(0);
-  };
+  const restart = () => replayStory();
+  const [voiceVol, setVoiceVol] = useState(1), [moodVol, setMoodVol] = useState(1);
+  const slider = (label: string, v: number, set: (x: number) => void) => (
+    <label className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-[.18em] text-ash">
+      <span>{label}</span>
+      <input type="range" min={0} max={1} step={.05} value={v} aria-label={label} onChange={(e) => set(Number(e.target.value))} className="w-28 accent-[#72191F]" />
+    </label>
+  );
 
   return (
     <>
@@ -37,17 +40,23 @@ export default function Hud() {
                 className={`h-8 min-w-8 rounded-full px-2 text-xs transition ${lang === l.id ? 'bg-bone/90 text-ink' : 'text-ash hover:text-bone'}`}>{l.short}</button>
             ))}
           </div>
-          <div className="relative" onMouseLeave={() => setVol(false)}>
-            <button type="button" onClick={toggle} onMouseEnter={() => setVol(true)} onFocus={() => setVol(true)}
-              aria-label={muted ? t('a_sound_off') : t('a_sound_on')} aria-pressed={!muted} className="hud-btn">
-              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
-            <div className={`absolute right-0 top-10 rounded-full border border-ash/15 bg-black/70 px-3 py-2 backdrop-blur transition ${vol ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
-              <input type="range" min={0} max={1} step={.05} value={volume} aria-label={t('a_volume')}
-                onChange={(e) => { const v = Number(e.target.value); audio.init(); audio.setVolume(v); store.set({ volume: v, muted: v === 0 }); audio.setMuted(v === 0); }}
-                className="w-28 accent-[#72191F]" />
-            </div>
+          <button type="button" onClick={toggle} aria-label={muted ? t('a_sound_off') : t('a_sound_on')} aria-pressed={!muted} className="hud-btn">
+            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
+          {/* sound settings: a tap opens it (no hover needed on phones) */}
+          <div className="relative">
+            <button type="button" onClick={() => setVol((o) => !o)} aria-expanded={vol} aria-label={t('a_audio')} className="hud-btn"><SlidersHorizontal size={15} /></button>
+            {vol && (
+              <div className="absolute right-0 top-11 z-40 flex w-64 flex-col gap-3 rounded-2xl border border-ash/15 bg-black/85 p-4 backdrop-blur" role="group" aria-label={t('a_audio')}>
+                {slider(t('a_volume'), volume, (v) => { audio.init(); audio.setVolume(v); store.set({ volume: v, muted: v === 0 }); audio.setMuted(v === 0); })}
+                {slider(t('a_dialogue'), voiceVol, (v) => { setVoiceVol(v); audio.setVoiceVolume(v); })}
+                {slider(t('a_music'), moodVol, (v) => { setMoodVol(v); audio.setMoodVolume(v); })}
+              </div>
+            )}
           </div>
+          {entered && (
+            <button type="button" onClick={() => replayLine()} aria-label={t('a_replay_line')} className="hud-btn"><MessageCircle size={15} /></button>
+          )}
           {entered && (
             <button type="button" onClick={restart} aria-label={t('a_restart')} className="hud-btn"><RotateCcw size={15} /></button>
           )}
