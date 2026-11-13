@@ -2,7 +2,7 @@
 // The camera sits at the origin: looking down -z is the back of the bus, +z is the driver's cabin.
 import { clamp, lerp, range, smooth } from '@/lib/animation/director';
 
-export type GhostPose = 'none' | 'hair' | 'behind' | 'look';
+export type GhostPose = 'none' | 'hair' | 'behind' | 'look' | 'aisleFar' | 'aisleNear';
 export type InteriorMode = 'board' | 'inside';
 
 export interface InteriorFrame {
@@ -47,8 +47,8 @@ export function interiorAt(t: number, lookBacks: number): InteriorFrame {
   const fov = t < .3 ? lerp(46, 40, smooth(range(t, .1, .24))) : t > .9 ? lerp(46, 38, smooth(range(t, .9, .98))) : 46;
 
   let ghost: GhostPose = 'none', ghostAlpha = 0, ghostDim = 1;
-  if (t >= .79 && t < .84) { ghost = 'hair'; ghostAlpha = smooth(range(t, .79, .81)); ghostDim = .95; }   // a far silhouette
-  else if (t >= .855 && t < .9) { ghost = 'behind'; ghostAlpha = 1; ghostDim = .8; }                   // closer, after the stutter
+  if (t >= .79 && t < .84) { ghost = 'aisleFar'; ghostAlpha = smooth(range(t, .79, .81)); ghostDim = .85; }   // standing at the far end of the aisle
+  else if (t >= .855 && t < .9) { ghost = 'aisleNear'; ghostAlpha = 1; ghostDim = .9; }                     // after the stutter: a few rows away
   else if (t >= .9) { ghost = 'look'; ghostAlpha = smooth(range(t, .9, .93)); }                      // standing, lifting her head
   void lookBacks;
   const reflect = smooth(range(t, .38, .43)) * (1 - smooth(range(t, .57, .62)));
@@ -98,4 +98,7 @@ export const GHOSTS: Record<Exclude<GhostPose, 'none'>, { url: string; aspect: n
   hair: { url: 'her-hair', aspect: .672, h: .82, pos: [.06, -.5, -10.2] },
   behind: { url: 'her-behind', aspect: .433, h: 1.32, pos: [-.78, -1.05, -2.5] },
   look: { url: 'her-look', aspect: .561, h: 1.7, pos: [.08, -1.18, -2.3] },
+  // standing in the aisle, barefoot: far down the bus, then a few rows away with her feet just off the floor
+  aisleFar: { url: 'her-aisle-far', aspect: .302, h: 1.62, pos: [.02, -1.28, -9.4] },
+  aisleNear: { url: 'her-aisle-near', aspect: .324, h: 1.64, pos: [.04, -1.2, -4.3] },
 };

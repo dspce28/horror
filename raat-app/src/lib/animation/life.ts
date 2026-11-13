@@ -21,6 +21,11 @@ export const LIFE: Record<string, Life> = {
   'her-lunge': { headA: [.53, .28, .1, .2], bodyA: [.3, .45, .75, 1], hair: [.46, .45, .34, .5], amp: .9, eyes: [.506, .315, .575, .283], eyeR: [.014, .02], her: true },
   'her-behind': { headA: [.53, .31, .05, .1], bodyA: [.44, .38, .62, .9], hair: [.53, .42, .08, .2], eyes: [.522, .343, .535, .343], eyeR: [.005, .007], her: true },
   'her-hair': { headA: [.5, .37, .05, .1], bodyA: [.42, .46, .58, .95], hair: [.5, .45, .07, .2], her: true },
+  'her-front': { headA: [.53, .28, .07, .16], bodyA: [.38, .5, .7, 1], hair: [.53, .4, .15, .45], eyes: [.505, .255, .56, .255], eyeR: [.012, .012], her: true },
+  'her-backseat': { headA: [.52, .37, .04, .08], hair: [.52, .45, .07, .18], her: true },
+  'her-seated': { headA: [.53, .2, .04, .07], bodyA: [.43, .28, .62, .95], hair: [.53, .3, .07, .22], her: true },
+  'her-window': { headA: [.6, .48, .1, .2], hair: [.62, .45, .2, .4], amp: .6, her: true },
+  'her-upside': { hair: [.83, .4, .1, .35], amp: .5, her: true },
   'her-face': { headA: [.5, .4, .2, .38], hair: [.5, .45, .45, .55], amp: .6, eyes: [.4225, .327, .5725, .316], eyeR: [.03, .045], her: true },
 };
 

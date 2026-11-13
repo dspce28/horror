@@ -7,13 +7,14 @@ import { events, store } from '@/lib/store';
  * Never in no-jump-scare mode or with reduced motion.
  */
 export default function SubliminalFlash() {
-  const [on, setOn] = useState(0);
+  const [img, setImg] = useState<string | null>(null);
   useEffect(() => events.on((id) => {
-    if (id !== 'subliminal') return;
+    // 'subliminal' = her face; 'subliminal-upside' / 'subliminal-window' = the other glimpses
+    if (!id.startsWith('subliminal')) return;
     const s = store.get(); if (s.safe || s.reduced) return;
-    setOn(Date.now());
-    window.setTimeout(() => setOn(0), 70);
+    setImg(id === 'subliminal-upside' ? 'her-upside' : id === 'subliminal-window' ? 'her-window' : 'her-face');
+    window.setTimeout(() => setImg(null), 70);
   }), []);
-  if (!on) return null;
-  return <div className="subliminal" aria-hidden />;
+  if (!img) return null;
+  return <div className="subliminal" style={{ backgroundImage: `url(/raat/scenes/${img}.webp)` }} aria-hidden />;
 }

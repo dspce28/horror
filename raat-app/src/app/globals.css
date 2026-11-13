@@ -202,7 +202,7 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 
 /* Kokila, too close */
 .kokila-scare { position: fixed; inset: 0; z-index: 70; background: #000; overflow: hidden; pointer-events: none; animation: ksIn .25s steps(1) forwards; }
-.kokila-scare .ks-face { position: absolute; inset: -12%; background: url(/raat/scenes/her-face.webp) 49% 30% / cover no-repeat; filter: contrast(1.35) brightness(.95) saturate(.8); animation: ksFace .9s cubic-bezier(.1,.9,.2,1) .9s both, ksShake .5s .9s 2; opacity: 0; }
+.kokila-scare .ks-face { position: absolute; inset: -12%; background: url(/raat/scenes/her-front.webp) 53% 24% / cover no-repeat; filter: contrast(1.35) brightness(.95) saturate(.8); animation: ksFace .9s cubic-bezier(.1,.9,.2,1) .9s both, ksShake .5s .9s 2; opacity: 0; }
 .kokila-scare .ks-hair { position: absolute; inset: 0; background: radial-gradient(ellipse 45% 70% at 50% 40%, transparent 60%, rgba(0,0,0,.9)); animation: ksHair 3s ease-in-out .9s infinite alternate; }
 .kokila-scare .ks-line { position: absolute; left: 0; right: 0; bottom: 12%; padding: 0 1.5rem; text-align: center; font-family: var(--font-display), serif; font-size: clamp(1.4rem, 4vw, 2.6rem); color: #f0e6d6; text-shadow: 0 2px 20px #000; animation: lineIn .6s ease 1.5s both; }
 .lang-hi .kokila-scare .ks-line { font-family: var(--font-deva-serif), serif; }
@@ -271,4 +271,4 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .lang-gu .fin-sub { font-family: var(--font-guj-serif), serif; font-style: normal; }
 @media (prefers-reduced-motion: reduce) { .fin-face { animation: finFaceSoft 1.6s ease forwards; } .fin-hair { animation: finHair 2s ease-out forwards; } }
 /* her face, for two or three frames */
-.subliminal { position: fixed; inset: 0; z-index: 48; pointer-events: none; background: url(/raat/scenes/her-face.webp) 50% 40% / cover no-repeat; opacity: .34; filter: grayscale(.4) contrast(1.3) brightness(.8); mix-blend-mode: screen; }
+.subliminal { position: fixed; inset: 0; z-index: 48; pointer-events: none; background: 50% 40% / cover no-repeat; opacity: .34; filter: grayscale(.4) contrast(1.3) brightness(.8); mix-blend-mode: screen; }

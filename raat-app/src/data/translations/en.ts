@@ -179,7 +179,7 @@ export const en = {
   r4: 'I told you not to look.',
   r5: 'In the window, {N} is alone. But the seat beside {N} is pressed down, as if someone is sitting in it.',
   r6: 'Every night… someone gets on.',
-  r7: 'She is in the aisle now. Her feet don\'t touch the floor.',
+  r7: 'In the window beside {N}, her face. Upside down. Watching.',
   r8: 'Stay with me.',
   r9: 'Closer.',
   r10: 'Then, all at once, the lights come back. She is in her seat at the back, as if she never moved.',

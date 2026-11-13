@@ -51,7 +51,7 @@ export const SCENES: SceneDef[] = [
     ],
     events: [
       { at: .02, id: 'bike-ride' }, { at: .17, id: 'ping' }, { at: .27, id: 'bark' }, { at: .38, id: 'bike-sputter' }, { at: .5, id: 'bike-stop' },
-      { at: .73, id: 'ping' }, { at: .86, id: 'engine-far' }, { at: .3, id: 'hum-far' }, { at: .56, id: 'subliminal' },
+      { at: .73, id: 'ping' }, { at: .86, id: 'engine-far' }, { at: .3, id: 'hum-far' }, { at: .56, id: 'subliminal-upside' },
     ],
   },
   {
@@ -129,7 +129,7 @@ export const SCENES: SceneDef[] = [
     // in {N}'s pocket: a ticket that wasn't there before
     id: 'ticket', vh: 240, label: 'sc_ticket',
     cues: [{ at: .02, who: 'nar', k: 'k1' }],
-    events: [{ at: .5, id: 'reveal-next' }, { at: .72, id: 'burn' }, { at: .3, id: 'subliminal' }],
+    events: [{ at: .5, id: 'reveal-next' }, { at: .72, id: 'burn' }, { at: .3, id: 'subliminal-window' }],
   },
   {
     // the road, the phone. The rest (the call, her, the whisper, the end) is a timed sequence: see FinalCall

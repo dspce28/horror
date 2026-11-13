@@ -10,7 +10,8 @@ export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export type ImgId =
   | 'hero' | 'road' | 'stop' | 'bus-far' | 'bus-front' | 'inside-her' | 'inside-empty' | 'her-hair' | 'cabin' | 'cabin-crack'
-  | 'her-behind' | 'her-look' | 'driver-back' | 'driver-turn' | 'her-lunge' | 'her-face' | 'twist' | 'bus-side' | 'black';
+  | 'her-behind' | 'her-look' | 'driver-back' | 'driver-turn' | 'her-lunge' | 'her-face' | 'twist' | 'bus-side' | 'black'
+  | 'her-window' | 'her-upside' | 'her-front' | 'her-backseat' | 'her-seated';
 
 export interface Shot {
   /** scene-local progress where this shot starts */
@@ -95,7 +96,7 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: 0, img: 'driver-back', focus: [.7, .42], zoom: [1, 1.05], flicker: 1, rain: .3 },
     // his hands tighten; his eyes go to the mirror; something is in it; he looks away fast. "Don't look at her."
     { at: .2, img: 'driver-back', focus: [.6, .32], zoom: [1.1, 1.13], flicker: 1, rain: .3, dofAt: [.6, .25], grip: true, glance: [-.016, -.006] },
-    { at: .38, img: 'her-behind', focus: [.53, .42], zoom: [1.06, 1.1], flicker: 1, dof: 1.2 },                       // "Why? Who is she?" — {N} glances back
+    { at: .38, img: 'her-backseat', focus: [.52, .42], zoom: [1.08, 1.12], flicker: 1, dof: 1.2 },                    // "Why? Who is she?" — {N} glances back: she is watching over the seats
     { at: .47, img: 'driver-back', focus: [.55, .36], zoom: [1.04, 1.08], flicker: 1, rain: .3, reflection: [.4, .3, .34] },
     { at: .58, img: 'driver-back', focus: [.74, .4], zoom: [1.16, 1.19], flicker: 1, rain: .3, dofAt: [.74, .33], grip: true },
     { at: .69, img: 'driver-back', focus: [.6, .38], zoom: [1.2, 1.24], light: .6, rain: .3 },
@@ -108,16 +109,16 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: .13, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.08], light: .55, rain: .5 },
     { at: .23, img: 'driver-turn', focus: [.55, .34], zoom: [1.05, 1.18], flicker: 1 },
     { at: .42, img: 'inside-her', focus: [.4, .66], zoom: [1.1, 1.14], light: .7, flicker: 1, dofAt: [.17, .9], press: true }, // the seat beside {N} sinks
-    { at: .52, img: 'her-hair', focus: [.5, .42], zoom: [1.05, 1.12], flicker: 1 },
-    { at: .61, img: 'her-look', focus: [.48, .32], zoom: [1.1, 1.24], flicker: 2, shake: .15 },
-    { at: .71, img: 'her-face', focus: [.5, .42], zoom: [1.02, 1.08], light: .75, flicker: 1, dof: .6 },
+    { at: .52, img: 'her-window', focus: [.58, .5], zoom: [1.04, 1.1], flicker: 1, rain: .4 },                          // outside the window: her face and hand on the glass
+    { at: .61, img: 'her-upside', focus: [.78, .55], zoom: [1.1, 1.16], flicker: 1, rain: .4 },                          // in the window beside {N}: her face, upside down
+    { at: .71, img: 'her-front', focus: [.53, .35], zoom: [1.04, 1.1], light: .85, flicker: 1, dof: .9 },                 // over the seat back, right in front: "Stay with me."
     { at: .8, img: 'her-lunge', focus: [.5, .38], zoom: [1.02, 1.08], flicker: 2, shake: .4 },
-    { at: .89, img: 'her-behind', focus: [.53, .42], zoom: [1.12, 1.14], flicker: 1 },                                // lights back: she is in her seat
+    { at: .89, img: 'her-backseat', focus: [.52, .42], zoom: [1.1, 1.12], flicker: 1 },                                   // lights back: in her seat at the back, watching
   ],
   // the bus stops; {N} gets off; the fog takes the bus
   leave: [
     { at: 0, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.1], flicker: 1, rain: .4 },
-    { at: .19, img: 'her-behind', focus: [.53, .38], zoom: [1.2, 1.3], flicker: 1, dof: 1.1 },                        // she is looking straight at {N}
+    { at: .19, img: 'her-seated', focus: [.53, .35], zoom: [1.12, 1.2], flicker: 1, dof: 1.1 },                        // she is looking straight at {N}
     { at: .3, img: 'bus-side', focus: [.2, .56], zoom: [1.6, 1.5], rain: .5, light: .9 },                            // the door, from the road
     { at: .56, img: 'bus-front', focus: [.5, .56], zoom: [1.18, 1.14], rain: .6, glow: [.5, .62] },
     { at: .64, img: 'bus-front', focus: [.5, .55], zoom: [1.14, 1.08], rain: .6, glow: [.5, .62], glowFade: true, vanish: true, lightTo: .55, glide: true },
