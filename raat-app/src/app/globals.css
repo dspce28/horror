@@ -270,3 +270,5 @@ body { margin: 0; font-family: var(--font-body), Inter, system-ui, sans-serif; o
 .lang-hi .fin-sub { font-family: var(--font-deva-serif), serif; font-style: normal; }
 .lang-gu .fin-sub { font-family: var(--font-guj-serif), serif; font-style: normal; }
 @media (prefers-reduced-motion: reduce) { .fin-face { animation: finFaceSoft 1.6s ease forwards; } .fin-hair { animation: finHair 2s ease-out forwards; } }
+/* her face, for two or three frames */
+.subliminal { position: fixed; inset: 0; z-index: 48; pointer-events: none; background: url(/raat/scenes/her-face.webp) 50% 40% / cover no-repeat; opacity: .34; filter: grayscale(.4) contrast(1.3) brightness(.8); mix-blend-mode: screen; }

@@ -67,7 +67,7 @@ export default function IncomingCall() {
       const tick = window.setInterval(() => setSecs((x) => x + 1), 1000);
       audio.setLine(1);
       void (async () => {
-        await wait(1800); if (!alive) return; audio.breath();
+        await wait(1800); if (!alive) return; audio.breath(); audio.hum(.35, true, 0); // her tune, faint, down the line
         await wait(1500); if (!alive) return; setShown(1); await sayAndWait('call_line1', { phone: true }, 3400);
         if (!alive) return; await wait(2000);
         if (!alive) return; setShown(2); await sayAndWait('call_line2', { phone: true }, 4800);

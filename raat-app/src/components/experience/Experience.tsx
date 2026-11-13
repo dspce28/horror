@@ -17,6 +17,7 @@ import StoryText from '@/components/ui/StoryText';
 import PhoneNotification from '@/components/ui/PhoneNotification';
 import EndScreen from '@/components/ui/EndScreen';
 import FinalSequence from '@/components/ui/FinalSequence';
+import SubliminalFlash from '@/components/ui/SubliminalFlash';
 import IncomingCall from '@/components/ui/IncomingCall';
 import { restoreSession } from '@/lib/session';
 import TicketScene from '@/components/scenes/TicketScene';
@@ -76,6 +77,7 @@ export default function Experience() {
           <PhoneNotification />
           <IncomingCall />
           <FinalSequence />
+          <SubliminalFlash />
           <EndScreen />
         </>
       )}

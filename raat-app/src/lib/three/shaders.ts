@@ -39,6 +39,10 @@ uniform float uGrip;           // hands tightening, 0..1
 uniform vec4 uGripAt;          // ellipse around the hands
 uniform float uPress;          // a seat cushion sinking under nobody, 0..1
 uniform vec4 uPressAt;         // box around the cushion
+uniform float uLifeTime;       // the clock life motion runs on: smooth for people, stepped for her (it moves wrong)
+uniform vec4 uEyes;            // her two eyes in this picture: x1, y1, x2, y2 (0 = none)
+uniform vec2 uEyeR;            // eye radius
+uniform float uEyeGlow;        // how much her eyes keep catching light as the light around her dies
 uniform float uRowsOut;        // lights dying row by row, from the back of the bus (far) to the camera (near): 0..1
 varying vec2 vUv;
 varying float vD;
@@ -47,7 +51,7 @@ float ell(vec2 p, vec4 e) { return e.z <= 0. ? 0. : 1. - smoothstep(.55, 1., len
 float box(vec2 p, vec4 b) { if (b.z <= b.x) return 0.; vec2 m = min(p - b.xy, b.zw - p); return smoothstep(0., .04, min(m.x, m.y)); }
 // small, slow, never in sync: a head that drifts and nods, a chest that breathes, hair that moves in the air
 vec2 lifeOffset(vec2 iu, float ph) {
-  float t = uTime;
+  float t = uLifeTime;
   vec2 d = vec2(0.);
   float br = sin(t * 1.25 + ph);                                   // breath, about 12 a minute
   float hA = ell(iu, uHeadA), hB = ell(iu, uHeadB + vec4(0.));
@@ -122,6 +126,14 @@ void main() {
     c += vec3(1., .7, .38) * spill * uDoorOpen * .45;
   }
   c *= uLight;
+  if (uEyeGlow > 0. && uEyes.x > 0.) {
+    // her eyes: a wet sheen and a hard catchlight in each, still there when everything else has gone dark
+    vec2 iu = vec2(vUv.x, 1. - vUv.y);
+    vec2 r = max(uEyeR, vec2(.002));
+    float e1 = 1. - smoothstep(.4, 1., length((iu - uEyes.xy) / r)), e2 = 1. - smoothstep(.4, 1., length((iu - uEyes.zw) / r));
+    float k1 = 1. - smoothstep(0., .28, length((iu - uEyes.xy - r * vec2(-.25, -.3)) / r)), k2 = 1. - smoothstep(0., .28, length((iu - uEyes.zw - r * vec2(-.25, -.3)) / r));
+    c += vec3(.72, .78, .84) * (max(e1, e2) * .14 + max(k1, k2) * .9) * uEyeGlow;
+  }
   c = mix(c, c * vec3(1.08, .97, .82), uWarm);
   // the doorway's light fills the frame: the cut to the interior hides inside it
   c = mix(c, vec3(.86, .66, .42) * (.8 + .35 * (1. - length(vUv - .5))), uFill * .82); // the doorway fills the frame with warm cabin light, not white

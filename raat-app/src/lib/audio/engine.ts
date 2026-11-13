@@ -518,6 +518,44 @@ class AudioEngine {
     const pts: [number, number][] = []; for (let i = 0; i < 9; i++) { pts.push([i * .045, .1 * v], [i * .045 + .02, 0]); }
     this.env(g, t, pts); this.out(g, pan, .2); n.start(t, Math.random()); n.stop(t + .5);
   }
+
+  /* ---------- Kokila's signature: her bangles, her tune ---------- */
+  /** glass bangles (choodi) clinking as she moves; often heard when nothing is seen */
+  bangles(v = .5, pan = -.4) {
+    if (!this.ok) return; const c = this.ctx!, t0 = this.now;
+    const n = 3 + Math.floor(Math.random() * 3);
+    let t = t0;
+    for (let i = 0; i < n; i++) {
+      t += .05 + Math.random() * .16;
+      // glass rings at a few inharmonic partials and dies fast
+      [2760, 4130, 5390, 7020].forEach((f, j) => {
+        const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = f * (1 + (Math.random() - .5) * .03);
+        const a = v * .05 / (j + 1);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(a, t + .002); g.gain.exponentialRampToValueAtTime(.0001, t + .18 + Math.random() * .25);
+        o.connect(g); this.out(g, pan + (Math.random() - .5) * .3, .45); o.start(t); o.stop(t + .5);
+      });
+    }
+  }
+  /** her tune: three or four low hummed notes, a lullaby that isn't one. far = distant and drowned in reverb */
+  hum(v = .5, far = false, pan = 0) {
+    if (!this.ok) return; const c = this.ctx!, t0 = this.now + .05;
+    const notes = [220, 261.63, 246.94, 207.65], len = .95;
+    const out = c.createGain(); out.gain.value = v * (far ? .05 : .09);
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = far ? 450 : 750;
+    const f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 320; f1.Q.value = 3;      // a closed-mouth "mmm"
+    out.connect(lp); lp.connect(f1);
+    const g2 = c.createGain(); g2.gain.value = 1.6; f1.connect(g2); this.out(g2, pan, far ? .9 : .45);
+    const o = c.createOscillator(); o.type = 'sawtooth';
+    const vib = c.createOscillator(), vg = c.createGain(); vib.frequency.value = 5.2; vg.gain.value = 2.2; vib.connect(vg); vg.connect(o.frequency);
+    const env = c.createGain(); env.gain.value = 0; o.connect(env); env.connect(out);
+    notes.forEach((f, i) => {
+      const t = t0 + i * len;
+      o.frequency.setTargetAtTime(f, t, .06);                   // she slides into each note, a little flat
+      env.gain.setTargetAtTime(1, t, .12); env.gain.setTargetAtTime(.35, t + len * .75, .1);
+    });
+    env.gain.setTargetAtTime(0, t0 + notes.length * len, .4);
+    o.start(t0); vib.start(t0); o.stop(t0 + notes.length * len + 2); vib.stop(t0 + notes.length * len + 2);
+  }
 }
 
 export const audio = new AudioEngine();

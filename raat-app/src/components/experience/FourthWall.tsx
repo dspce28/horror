@@ -11,7 +11,8 @@ export default function FourthWall() {
     const vars = () => { const s = store.get(); return { name: s.name.trim() || translate(s.lang, 'default_name', { name: '', gender: s.gender }), gender: s.gender }; };
     const onVis = () => {
       const s = store.get(); if (!s.entered) return;
-      if (document.hidden) document.title = translate(s.lang, 'fw_tab', vars());
+      // after the story is over she is still here: the tab says so when they look away
+      if (document.hidden) document.title = translate(s.lang, s.finished ? 'fw_still' : 'fw_tab', vars());
       else { document.title = base; if (['highway', 'bus', 'board', 'inside', 'driver', 'reveal', 'leave'].includes(SCENES[s.sceneIndex]?.id)) store.set({ notice: { id: Date.now(), k: 'fw_back', from: 'unknown' } }); }
     };
     document.addEventListener('visibilitychange', onVis);

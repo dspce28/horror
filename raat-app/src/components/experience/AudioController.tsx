@@ -36,6 +36,9 @@ export default function AudioController() {
         case 'engine-start': audio.thump(.35, 60); break;
         case 'fabric': audio.fabric(-.4); break;
         case 'seat-spring': audio.seatSpring(.2); break;
+        case 'bangles': audio.bangles(.55, Math.random() * 1.2 - .6); break;   // her: heard before (or instead of) seen
+        case 'hum-far': audio.hum(.6, true, -.5); break;                    // she was on the highway before the bus came
+        case 'hum-close': audio.hum(.8, false, .6); break;
         case 'mirror': audio.breath(); audio.creak(.15, -.2); break; // he inhales; the seat shifts under him
         case 'stutter': audio.stutter(); live.flash = 0; break;
         case 'hush': audio.hushAll(2.2); break;                                 // silence before her voice

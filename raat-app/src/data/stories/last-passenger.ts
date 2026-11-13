@@ -51,7 +51,7 @@ export const SCENES: SceneDef[] = [
     ],
     events: [
       { at: .02, id: 'bike-ride' }, { at: .17, id: 'ping' }, { at: .27, id: 'bark' }, { at: .38, id: 'bike-sputter' }, { at: .5, id: 'bike-stop' },
-      { at: .73, id: 'ping' }, { at: .86, id: 'engine-far' },
+      { at: .73, id: 'ping' }, { at: .86, id: 'engine-far' }, { at: .3, id: 'hum-far' }, { at: .56, id: 'subliminal' },
     ],
   },
   {
@@ -82,6 +82,7 @@ export const SCENES: SceneDef[] = [
     events: [
       { at: .12, id: 'seat-spring' }, { at: .31, id: 'engine-start' }, { at: .4, id: 'fabric' }, { at: .48, id: 'hush' }, { at: .62, id: 'breath-close' },
       { at: .72, id: 'creak-back' }, { at: .835, id: 'stutter' }, { at: .9, id: 'fabric' }, { at: .97, id: 'blackout' },
+      { at: .37, id: 'bangles' }, { at: .78, id: 'bangles' }, { at: .885, id: 'bangles' },
     ],
     gameAfter: ['hunt'],
   },
@@ -94,7 +95,7 @@ export const SCENES: SceneDef[] = [
       { at: .6, who: 'driver', k: 'd7', voice: 'normal', from: .2 }, { at: .7, who: 'driver', k: 'fw_watch', direct: true, voice: 'normal' },
       { at: .8, who: 'nar', k: 'd8' }, { at: .9, who: 'nar', k: 'd9' },
     ],
-    events: [{ at: .22, id: 'creak-metal' }, { at: .27, id: 'mirror' }, { at: .49, id: 'breath-close' }, { at: .7, id: 'stare' }, { at: .9, id: 'breath-close' }],
+    events: [{ at: .22, id: 'creak-metal' }, { at: .27, id: 'mirror' }, { at: .26, id: 'bangles' }, { at: .49, id: 'breath-close' }, { at: .7, id: 'stare' }, { at: .9, id: 'breath-close' }],
     gameAfter: ['photo', 'cabin'],
   },
   {
@@ -108,7 +109,7 @@ export const SCENES: SceneDef[] = [
     ],
     events: [
       { at: .04, id: 'lights-die' }, { at: .14, id: 'engine-cut' }, { at: .44, id: 'seat-spring' }, { at: .24, id: 'driver-turn' }, { at: .43, id: 'heartbeat' },
-      { at: .62, id: 'fabric' }, { at: .81, id: 'jumpscare' }, { at: .9, id: 'lights-back' },
+      { at: .62, id: 'fabric' }, { at: .81, id: 'jumpscare' }, { at: .9, id: 'lights-back' }, { at: .58, id: 'bangles' }, { at: .68, id: 'hum-close' },
     ],
   },
   {
@@ -121,14 +122,14 @@ export const SCENES: SceneDef[] = [
     ],
     events: [
       { at: .03, id: 'bus-slow' }, { at: .31, id: 'door-open' }, { at: .41, id: 'steps-metal' }, { at: .5, id: 'door-close' },
-      { at: .58, id: 'bus-away' }, { at: .9, id: 'silence' },
+      { at: .58, id: 'bus-away' }, { at: .9, id: 'silence' }, { at: .18, id: 'bangles' },
     ],
   },
   {
     // in {N}'s pocket: a ticket that wasn't there before
     id: 'ticket', vh: 240, label: 'sc_ticket',
     cues: [{ at: .02, who: 'nar', k: 'k1' }],
-    events: [{ at: .5, id: 'reveal-next' }, { at: .72, id: 'burn' }],
+    events: [{ at: .5, id: 'reveal-next' }, { at: .72, id: 'burn' }, { at: .3, id: 'subliminal' }],
   },
   {
     // the road, the phone. The rest (the call, her, the whisper, the end) is a timed sequence: see FinalCall

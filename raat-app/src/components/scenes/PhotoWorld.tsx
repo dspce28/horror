@@ -21,6 +21,7 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
       uFade: { value: 1 }, uDof: { value: 1 }, uFocus: { value: new THREE.Vector2(.5, .5) }, uFogColor: { value: new THREE.Color('#14161a') },
       uLife: { value: 0 }, uHeadA: { value: new THREE.Vector4() }, uHeadB: { value: new THREE.Vector4() }, uBodyA: { value: new THREE.Vector4() }, uBodyB: { value: new THREE.Vector4() }, uHairA: { value: new THREE.Vector4() }, uRowsOut: { value: 0 }, uVanish: { value: 0 },
       uHeadNudge: { value: new THREE.Vector2() }, uGrip: { value: 0 }, uGripAt: { value: new THREE.Vector4() }, uPress: { value: 0 }, uPressAt: { value: new THREE.Vector4() },
+      uLifeTime: { value: 0 }, uEyes: { value: new THREE.Vector4() }, uEyeR: { value: new THREE.Vector2() }, uEyeGlow: { value: 0 },
     },
   }), [role]);
   useEffect(() => () => mat.dispose(), [mat]);
@@ -44,6 +45,12 @@ function PhotoSurface({ role, segments }: { role: 'cur' | 'prev'; segments: [num
     u.uRowsOut.value = role === 'cur' ? o.frame.rowsOut : 0;
     u.uVanish.value = role === 'cur' ? o.frame.vanish : 0;
     const cur = role === 'cur';
+    // she moves on a stepped clock (a few positions a second), with a sudden small twitch now and then
+    const tt = state.clock.elapsedTime;
+    u.uLifeTime.value = l.her ? Math.floor(tt * 4) / 4 + (Math.sin(tt * .7) > .985 ? .6 : 0) : tt;
+    u.uEyes.value.set(...l.eyes); u.uEyeR.value.set(l.eyeR[0], l.eyeR[1]);
+    // her eyes keep catching light as the light dies around her
+    u.uEyeGlow.value = l.her && cur ? Math.min(1, Math.max(.15, (1 - o.light) * 1.4)) : 0;
     u.uHeadNudge.value.set(cur ? o.frame.nudge[0] : 0, cur ? o.frame.nudge[1] : 0);
     u.uGrip.value = cur ? o.frame.grip : 0; u.uGripAt.value.set(...l.grip);
     u.uPress.value = cur ? o.frame.press : 0; u.uPressAt.value.set(...l.press);

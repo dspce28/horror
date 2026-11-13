@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ExternalLink, Film, Music2, RotateCcw, SkipForward } from 'lucide-react';
 import { useT } from '@/hooks/useT';
-import { store, useStore } from '@/lib/store';
+import { events, store, useStore } from '@/lib/store';
 import { audio } from '@/lib/audio/engine';
 import { replayStory } from '@/lib/replay';
 import { FILMS, SONGS } from '@/data/recommendations';
@@ -16,6 +16,12 @@ export default function EndScreen() {
   const lang = useStore((s) => s.lang);
   const [panel, setPanel] = useState<Panel>('menu');
   useEffect(() => { if (finished) setPanel('menu'); }, [finished]);
+  // she is not quite gone: half a minute later, her bangles, a breath of her tune, and for a moment, her face
+  useEffect(() => {
+    if (!finished) return;
+    const id = window.setTimeout(() => { audio.bangles(.35, .6); audio.hum(.3, true, .4); window.setTimeout(() => events.emit('subliminal'), 2600); }, 30000);
+    return () => window.clearTimeout(id);
+  }, [finished]);
   if (!finished) return null;
 
   return (

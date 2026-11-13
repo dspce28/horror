@@ -282,6 +282,7 @@ export const en = {
   a_audio: 'Sound settings',
   i9b: 'She lifts her head. Slowly.',
   bd5: '{N} walks down the aisle. The bus smells of rain and old diesel.',
+  fw_still: 'I\'m still here, {N}.',
 } as const;
 
 export type Key = keyof typeof en;
