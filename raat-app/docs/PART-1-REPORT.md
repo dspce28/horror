@@ -71,7 +71,28 @@ One of:
 Then redeploy. `GET /api/voice` reports `{ available, provider }`.
 
 ## 8. Testing results
-(see the end of this file)
+All in Chromium (Playwright) against the production build; mobile = iPhone 13 emulation with real touch events.
+
+| Check | Result |
+|---|---|
+| Full ending, English, masculine, decline ×3: ticket (name, 12-05-1999, PASSENGERS: 2) → call "KOKILA BEN" → 3 declines → "Pick up." → 4th call with **one** button → both lines with pauses → apparition → "We'll meet again." → end card | **Tested, desktop and mobile** |
+| Hindi, **neutral**, no-jump-scare mode: same path, soft scare, Hindi grammar (उठाओगे / उतर क्यों गए) | **Tested** |
+| Gujarati, **feminine**, answer the first call: no scare, feminine forms (ઊતરી ગઈ) | **Tested** |
+| End screen: four options; teaser ends on "Part two · Coming soon"; 10 film links (each verified to resolve to the right Wikipedia article; one fixed); 9 soundtrack links open in a new tab with `noopener` | **Tested** |
+| Replay: back to the start without reload, story/call/declines reset, language kept, new story clock | **Tested** |
+| Games in the new order (Find Kokila → photograph → drawer): all complete | **Tested, desktop and mobile (touch)** |
+| Story clock: lock screen, "Time:" line and ticket show the same captured minute; the call shows start + elapsed (Asia/Kolkata, America/Los_Angeles) | **Tested** |
+| No horizontal overflow; subtitles ≥ 16.8 px; call buttons 70 px — iPhone 13 portrait and landscape | **Tested** |
+| Console errors / failed network requests over every run | **None** |
+| Voice route: no provider → `{available:false}`, no clip requests made; unknown line → 400 | **Tested** (live and local) |
+| New boarding photo: door closed → opens → camera up the steps → interior; same bus when getting off | **Tested** (frame captures) |
+| Voices with a real provider | **Not tested** (no key) |
+| Sound by ear, real iPhone / Android | **Not tested** |
+
+## 11. Screen recording
+`raat-part1.mp4` (10:20, 960×540, 24.2 MB): the whole journey recorded live in the browser in three parts and joined.
+Headless software rendering is slow, so repeated frames were dropped to retime it: motion looks faster and jumpier
+than on a real device, and there is no sound. The final eyes flash and the whisper's audio are not visible/audible in it.
 
 ## 9. Known limitations
 - No voice acting until a provider key is configured (§7).
