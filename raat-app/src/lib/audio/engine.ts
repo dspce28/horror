@@ -30,6 +30,7 @@ class AudioEngine {
   private mood!: GainNode;
   private duckG!: GainNode;
   dlg!: GainNode;
+  fx!: GainNode;
   moodVolume = 1;
   voiceVolume = 1;
   /** the line being spoken right now (one at a time, never two voices over each other) */
@@ -53,6 +54,7 @@ class AudioEngine {
     this.music = c.createGain(); this.music.gain.value = 1; this.music.connect(this.mood);
     this.amb = c.createGain(); this.amb.connect(this.mood);
     this.dlg = c.createGain(); this.dlg.gain.value = this.voiceVolume; this.dlg.connect(this.master);
+    this.fx = c.createGain(); this.fx.gain.value = 1.6; this.fx.connect(this.master);          // horror effects: loud
     const len = c.sampleRate * 2; this.noise = c.createBuffer(1, len, c.sampleRate);
     const d = this.noise.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     const irLen = Math.floor(c.sampleRate * 3), ir = c.createBuffer(2, irLen, c.sampleRate);
@@ -65,7 +67,7 @@ class AudioEngine {
   get ok() { return !!this.ctx; }
   private get now() { return this.ctx!.currentTime; }
   private src() { const s = this.ctx!.createBufferSource(); s.buffer = this.noise; s.loop = true; return s; }
-  private out(node: AudioNode, pan = 0, wet = .3, dest: AudioNode = this.master) {
+  private out(node: AudioNode, pan = 0, wet = .3, dest: AudioNode = this.fx) {
     const c = this.ctx!; let n: AudioNode = node;
     if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); node.connect(p); n = p; }
     n.connect(dest);
@@ -135,7 +137,7 @@ class AudioEngine {
       const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = rate; lg.gain.value = amt * .9; l.connect(lg); lg.connect(g.gain);
       w.connect(bp); bp.connect(g); g.connect(out); w.start(0, Math.random()); l.start();
     };
-    wind(320, .8, .1, .07); wind(900, 4, .04, .11); wind(1700, 9, .02, .05);
+    wind(320, .8, .17, .07); wind(900, 4, .07, .11); wind(1700, 9, .035, .05); wind(180, .6, .12, .03); // wind, with slow gusts
     const dl = c.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 120; dl.Q.value = 5;
     const o1 = c.createOscillator(), o2 = c.createOscillator(); o1.type = o2.type = 'sawtooth'; o1.frequency.value = 43; o2.frequency.value = 43.4;
     const drone = c.createGain(); drone.gain.value = .03; o1.connect(dl); o2.connect(dl); dl.connect(drone); drone.connect(out); o1.start(); o2.start();
@@ -278,10 +280,16 @@ class AudioEngine {
     o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(50, t + .1); this.env(g, t, [[.005, v], [.16, 0]]); o.connect(g); this.out(g, pan, .3); o.start(t); o.stop(t + .2);
   }
   steps(n = 3) { for (let i = 0; i < n; i++) window.setTimeout(() => this.step(.35, i % 2 ? .2 : -.2), i * 380); }
-  thunder() {
+  /** a roll of thunder; v 1 = close and heavy, lower = further away (and muffled, e.g. heard from inside the bus) */
+  thunder(v = 1) {
     if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), lp = c.createBiquadFilter(), g = c.createGain();
-    lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(90, t + 3.5);
-    this.env(g, t, [[.05, .5], [.4, .35], [1.2, .45], [3.8, 0]]); n.connect(lp); lp.connect(g); this.out(g, -.3, .6); n.start(t); n.stop(t + 4);
+    const len = 3.5 + Math.random() * 2, pan = Math.random() * 1.4 - .7;
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(400 + v * 900, t); lp.frequency.exponentialRampToValueAtTime(70, t + len);
+    const a = .65 * v;
+    this.env(g, t, [[.04, a], [.35, a * .55], [.9, a * .85], [1.6, a * .5], [len, 0]]); n.connect(lp); lp.connect(g); this.out(g, pan, .7); n.start(t, Math.random()); n.stop(t + len + .1);
+    // the low rumble underneath
+    const o = c.createOscillator(), og = c.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(42, t); o.frequency.exponentialRampToValueAtTime(28, t + len);
+    this.env(og, t, [[.1, .35 * v], [len * .7, .2 * v], [len, 0]]); o.connect(og); this.out(og, 0, 0); o.start(t); o.stop(t + len + .1);
   }
   crack() {
     if (!this.ok) return; const c = this.ctx!, t0 = this.now;
@@ -300,7 +308,7 @@ class AudioEngine {
   hit() { if (!this.ok) return; this.thump(this.safe ? .3 : .9, 70); this.glitch(); }
   glitch() {
     if (!this.ok) return; const c = this.ctx!, t = this.now, n = this.src(), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .5;
-    for (let i = 0; i < 8; i++) g.gain.setValueAtTime(Math.random() * .25, t + i * .07); g.gain.setValueAtTime(0, t + .6); n.connect(bp); bp.connect(g); g.connect(this.master); n.start(t); n.stop(t + .65);
+    for (let i = 0; i < 8; i++) g.gain.setValueAtTime(Math.random() * .25, t + i * .07); g.gain.setValueAtTime(0, t + .6); n.connect(bp); bp.connect(g); g.connect(this.fx); n.start(t); n.stop(t + .65);
   }
   /** a woman's low laugh: pulses of a voiced vowel falling in pitch */
 
@@ -361,7 +369,7 @@ class AudioEngine {
       if (level <= 0) return;
       const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
       const n = this.src(), hp = c.createBiquadFilter(), lp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900; lp.type = 'lowpass'; lp.frequency.value = 6000;
-      const g = c.createGain(); g.gain.value = .07; n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out); n.start();
+      const g = c.createGain(); g.gain.value = .16; n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out); n.start();
       this.rainNode = { out };
     }
     this.rainNode.out.gain.setTargetAtTime(level, this.now, .6);
@@ -390,13 +398,16 @@ class AudioEngine {
       if (level <= 0) return;
       const out = c.createGain(); out.gain.value = 0; out.connect(this.amb);
       [4300, 5200, 3700].forEach((f, i) => {
+        // a chirp is a short burst: square wave → 0..1 on/off envelope (offset, never negative), very quiet
         const o = c.createOscillator(); o.frequency.value = f;
-        const am = c.createOscillator(); am.type = 'square'; am.frequency.value = 22 + i * 7;      // the chirp rate
+        const am = c.createOscillator(); am.type = 'square'; am.frequency.value = 9 + i * 4;
         const amg = c.createGain(); amg.gain.value = .5; am.connect(amg);
-        const g = c.createGain(); g.gain.value = 0; amg.connect(g.gain);
-        const sw = c.createOscillator(); sw.frequency.value = .13 + i * .07;                       // swells in and out
-        const swg = c.createGain(); swg.gain.value = .004; sw.connect(swg); swg.connect(g.gain);
-        o.connect(g); this.out(g, (i - 1) * .7, .2, out); o.start(); am.start(); sw.start();
+        const g = c.createGain(); g.gain.value = .5; amg.connect(g.gain);            // .5 ± .5 → 0 … 1
+        const sw = c.createOscillator(); sw.frequency.value = .11 + i * .05;          // whole choruses swell and fade
+        const swg = c.createGain(); swg.gain.value = .5; sw.connect(swg);
+        const env = c.createGain(); env.gain.value = .5; swg.connect(env.gain);       // .5 ± .5 → 0 … 1
+        const lvl = c.createGain(); lvl.gain.value = .006;                            // insects are faint
+        o.connect(g); g.connect(env); env.connect(lvl); this.out(lvl, (i - 1) * .7, .2, out); o.start(); am.start(); sw.start();
       });
       this.insects = { out };
     }

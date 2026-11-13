@@ -59,7 +59,7 @@ export default function AudioController() {
     });
 
     // a voiced line is spoken when the visitor reaches it (scrolling forward); upcoming lines are fetched early
-    let lastCue = '', lastScene = -1;
+    let lastCue = '', lastScene = -1, nextThunder = 0;
     const offCue = store.subscribe(() => {
       const st = store.get(); const key = st.cueKey;
       if (key === lastCue) return;
@@ -88,11 +88,19 @@ export default function AudioController() {
       audio.setInsects(id === 'open' || (id === 'highway' && (t < .38 || t > .5)) ? .45 : id === 'leave' && t > .41 && t < .9 ? .2 : id === 'end' ? 0 : 0);
       const heart = (id === 'driver' && t > .7) || (id === 'reveal' && t > .4 && t < .9) ? 90 : id === 'inside' && t > .6 ? 70 : 0;
       audio.setHeart(s.game ? 0 : heart);
-      const theme = id === 'open' ? .06 : id === 'highway' ? .1 : id === 'bus' || id === 'board' ? .08 : id === 'inside' || id === 'driver' ? .06 : id === 'reveal' && t < .14 ? .08 : 0;
-      audio.themeLevel(s.game ? .03 : theme);
-      const silent = (id === 'reveal' && t > .14 && t < .9) || (id === 'leave' && t > .9) || id === 'ticket' || id === 'end';
-      audio.bedLevel(silent ? .15 : 1, silent ? .4 : 1);
-      audio.setRain(id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'end' ? .7 : inBus ? .4 : 0);
+      // the horror theme stays under the whole story, low; everything else (rain, wind, thunder, effects) sits above it
+      const call = s.call !== 'IDLE' && s.call !== 'DONE';
+      audio.themeLevel(s.game ? .07 : call ? .06 : .12);
+      // thunder now and then: often outside, rarely inside the bus, never during a game or the call
+      const outside = id === 'open' || id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end';
+      const now = performance.now();
+      if (!s.game && !call && now > nextThunder) {
+        if (nextThunder > 0) { audio.thunder(outside ? 1 : .55); if (outside) live.flash = .7; }
+        nextThunder = now + (outside ? 14000 + Math.random() * 16000 : 30000 + Math.random() * 30000);
+      }
+      const silent = (id === 'reveal' && t > .14 && t < .9) || (id === 'leave' && t > .9);
+      audio.bedLevel(silent ? .2 : 1, silent ? .4 : 1);
+      audio.setRain(id === 'open' ? .5 : id === 'highway' || id === 'bus' || (id === 'board' && t < .55) || (id === 'leave' && t > .41) || id === 'ticket' || id === 'end' ? 1 : inBus ? .6 : 0);
       if (i < sceneIndex('reveal')) audio.restoreMusic();
       const c = store.get().call; if (c !== 'IDLE' && c !== 'DONE') audio.themeLevel(0);
     }, 100);
