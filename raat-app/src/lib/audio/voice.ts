@@ -32,12 +32,21 @@ function probe(): Promise<boolean> {
 }
 export const voicesAvailable = () => available;
 
-async function load(k: Key): Promise<AudioBuffer | null> {
-  if (!audio.ok || !(await probe())) return null;
-  return loadClip(k);
+// real recordings (public/audio/voices/manifest.json) take precedence over generated voices
+let recorded: Promise<Set<string>> | null = null;
+function recordedLines(): Promise<Set<string>> {
+  if (!recorded) recorded = fetch('/audio/voices/manifest.json').then((r) => (r.ok ? r.json() : { lines: [] })).then((j: { lines?: string[] }) => new Set(j.lines ?? [])).catch(() => new Set<string>());
+  return recorded;
 }
-function loadClip(k: Key): Promise<AudioBuffer | null> {
-  const u = url(k);
+
+async function load(k: Key): Promise<AudioBuffer | null> {
+  if (!audio.ok) return null;
+  const lang = store.get().lang, who = VOICED[k]?.who;
+  if (who && (await recordedLines()).has(`${k}-${lang}`)) return loadUrl(`/audio/voices/${who}/${k}-${lang}.mp3`);
+  if (!(await probe())) return null;
+  return loadUrl(url(k));
+}
+function loadUrl(u: string): Promise<AudioBuffer | null> {
   let p = cache.get(u);
   if (!p) {
     p = (async () => {

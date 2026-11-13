@@ -265,7 +265,7 @@ function DoorShot({ small }: { small: boolean }) {
       uMap: { value: null }, uDepth: { value: null }, uHasMap: { value: 0 }, uHasDepth: { value: 0 }, uDepthScale: { value: 1.5 },
       uMix: { value: 1 }, uLight: { value: 1 }, uWarm: { value: 0 }, uFog: { value: .6 }, uTime: { value: 0 }, uDissolve: { value: 0 }, uFade: { value: 1 },
       uDof: { value: 1.2 }, uFocus: { value: new THREE.Vector2(.84, .45) }, uFogColor: { value: new THREE.Color('#14161a') },
-      uDoor: { value: new THREE.Vector4(.797, .35, .888, .70) }, uDoorOpen: { value: 0 }, uFill: { value: 0 },
+      uDoor: { value: new THREE.Vector4(.117, .385, .188, .739) }, uDoorOpen: { value: 0 }, uFill: { value: 0 },
     },
   }), []);
   useDispose(mat);
@@ -318,7 +318,7 @@ function FilmCamera({ reduced }: { reduced: boolean }) {
       const aspect = size.width / size.height, cover = aspect > 16 / 9 ? 16 / aspect : 9;
       const hv = cover / (1.1 + k) * .86, wv = hv * aspect;
       const step = Math.max(0, Math.sin((t - 42.2) * Math.PI * 1.6)) * .05 * range(t, 42.2, 44.5);
-      const fx = (.842 - .5) * 16, fy = (.5 - .53) * 9 + step;
+      const fx = (.152 - .5) * 16, fy = (.5 - .56) * 9 + step; // the open door (left: Indian buses open on the roadside)
       const cx = THREE.MathUtils.clamp(fx, -(16 - wv) / 2, (16 - wv) / 2), cy = THREE.MathUtils.clamp(fy, -(9 - hv) / 2, (9 - hv) / 2);
       const fov = 40, dist = hv / (2 * Math.tan(THREE.MathUtils.degToRad(fov / 2)));
       cam.position.set(DOOR_ORIGIN.x + cx + px * 2, DOOR_ORIGIN.y + cy + py * 2, dist);

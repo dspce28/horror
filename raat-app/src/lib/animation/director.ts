@@ -59,7 +59,7 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
     { at: 15 / 30, img: 'road', focus: [.46, .54], zoom: [1.55, 2.1], rain: .6, fog: 1, glow: [.46, .53] },
     { at: 20 / 30, img: 'bus-far', focus: [.48, .52], zoom: [1, 1.75], rain: .7, glow: [.47, .57] },
     { at: 23 / 30, img: 'bus-front', focus: [.5, .58], zoom: [1, 1.38], rain: .7 },
-    { at: 26.5 / 30, img: 'bus-side', focus: [.84, .55], zoom: [1.15, 2.7], rain: .55, dof: 1.4 },
+    { at: 26.5 / 30, img: 'bus-side', focus: [.16, .56], zoom: [1.15, 2.7], rain: .55, dof: 1.4 },
   ],
   open: [{ at: 0, img: 'black', focus: [.5, .5], zoom: [1, 1] }],
   highway: [
@@ -109,7 +109,7 @@ const SHOTS: Partial<Record<SceneId, Shot[]>> = {
   leave: [
     { at: 0, img: 'cabin', focus: [.5, .45], zoom: [1.05, 1.1], flicker: 1, rain: .4 },
     { at: .19, img: 'her-behind', focus: [.53, .38], zoom: [1.2, 1.3], flicker: 1, dof: 1.1 },                        // she is looking straight at {N}
-    { at: .3, img: 'bus-side', focus: [.84, .55], zoom: [1.6, 1.5], rain: .5, light: .9 },                            // the door, from the road
+    { at: .3, img: 'bus-side', focus: [.2, .56], zoom: [1.6, 1.5], rain: .5, light: .9 },                            // the door, from the road
     { at: .56, img: 'bus-front', focus: [.5, .56], zoom: [1.18, 1.14], rain: .6, glow: [.5, .62] },
     { at: .64, img: 'bus-front', focus: [.5, .55], zoom: [1.14, 1.08], rain: .6, glow: [.5, .62], glowFade: true, vanish: true, lightTo: .55, glide: true },
     { at: .9, img: 'road', focus: [.46, .55], zoom: [1.04, 1.06], rain: .5, fog: 1, light: .7 },

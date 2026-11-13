@@ -91,16 +91,20 @@ void main() {
   float far = pow(1. - vD, 1.4);
   float f = fbm(vUv * vec2(3., 5.) + vec2(uTime * .025, uTime * .006));
   c = mix(c, uFogColor, clamp(far * uFog * (.15 + f * .55), 0., .5));
-  // the bus door folds open: warm cabin light inside its frame, spilling down onto the wet road
-  if (uDoorOpen > 0.) {
+  // the bus door folds open: warm cabin light inside its frame, spilling down onto the wet road.
+  // The photograph shows the door already open and lit, so the closed door is drawn as dark glass that
+  // parts from the middle as it opens (uDoorOpen 0 → 1).
+  if (uDoor.z > 0.) {
     vec2 iu = vec2(vUv.x, 1. - vUv.y);
     vec2 dc = vec2((uDoor.x + uDoor.z) * .5, (uDoor.y + uDoor.w) * .5), dh = vec2((uDoor.z - uDoor.x) * .5, (uDoor.w - uDoor.y) * .5);
     float inside = step(abs(iu.x - dc.x), dh.x * uDoorOpen) * step(abs(iu.y - dc.y), dh.y);
     float hum = .93 + .07 * sin(uTime * 37.) * step(.97, fract(uTime * .31));
     vec3 warm = vec3(1., .74, .42) * (.62 + .38 * smoothstep(uDoor.w, uDoor.y, iu.y)) * hum;
     // light through the doorway: the photo's own detail stays, lit warm from inside, brightest at the top step
-    vec3 lit = c * vec3(2.3, 1.7, 1.05) + warm * (.12 + .22 * smoothstep(uDoor.w, uDoor.y, iu.y));
-    c = mix(c, lit, inside);
+    float inDoor = step(abs(iu.x - dc.x), dh.x) * step(abs(iu.y - dc.y), dh.y);
+    vec3 glass = c * .14 + vec3(.035, .04, .05) + vec3(.06, .07, .08) * smoothstep(.3, .9, fract((iu.x - iu.y * .4) * 7.)) * .25;
+    c = mix(c, glass, inDoor * (1. - inside));
+    c = mix(c, c * vec3(1.08, 1.02, .95) + warm * .04, inside);
     float spill = exp(-pow((iu.x - dc.x) / (dh.x * 2.4), 2.)) * step(uDoor.w, iu.y) * (1. - smoothstep(uDoor.w, uDoor.w + .3, iu.y));
     c += vec3(1., .7, .38) * spill * uDoorOpen * .45;
   }
