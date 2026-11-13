@@ -56,25 +56,24 @@ export function interiorAt(t: number, lookBacks: number): InteriorFrame {
  * Ends exactly where the 'inside' scene starts (facing the back, a little way down the aisle).
  */
 export function boardingAt(k: number): InteriorFrame {
-  let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);              // up the steps, turning to the cabin
-  if (k > .36) yaw = turn(k, .36, .55, Math.PI, Math.PI * 2);       // turn to the aisle
-  if (k > .78) yaw = turn(k, .78, .84, Math.PI * 2, Math.PI * 3);   // glance back: the driver, far away now
-  if (k > .88) yaw = turn(k, .88, .95, Math.PI * 3, Math.PI * 4);   // and back to the aisle
-  const dolly = k < .55 ? 0 : lerp(0, .6, smooth(range(k, .55, .78)));
+  // shots, in order: the door shuts behind you (facing the cab) · a quick turn to the aisle · a few steps down it ·
+  // a glance back: the driver, far away now · back to the aisle · the last seat, and someone in it
+  const yaw = boardYaw(k);
+  const dolly = k < .45 ? 0 : k < .62 ? lerp(0, .42, smooth(range(k, .45, .62))) : k < .77 ? .42 : lerp(.42, .6, smooth(range(k, .77, .92)));
   const step = k < .2 ? Math.max(0, Math.sin(k * Math.PI * 14)) * .03 : 0;
-  const ghostAlpha = smooth(range(k, .64, .76)) * (k > .78 && k < .95 ? 0 : 1);
+  const ghostAlpha = smooth(range(k, .8, .92));
   const y1 = boardYaw(k + .003), y0 = boardYaw(k - .003);
   return {
-    yaw, pitch: k < .2 ? -.06 : 0, dolly, height: -.12 + k * .12 + step, fov: k > .62 && k < .78 ? lerp(46, 38, smooth(range(k, .62, .76))) : 46,
+    yaw, pitch: k < .2 ? -.06 : 0, dolly, height: -.12 + k * .12 + step, fov: k > .8 ? lerp(46, 38, smooth(range(k, .8, .95))) : 46,
     ghost: 'hair', ghostAlpha, flicker: k > .08 ? 1 : 0, moving: 0, turnSpeed: clamp(Math.abs(y1 - y0) / .006 / 140),
     flash: 1 - smooth(range(k, 0, .1)), ghostDim: .6, driver: true,
   };
 }
 function boardYaw(k: number) {
-  let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);
-  if (k > .36) yaw = turn(k, .36, .55, Math.PI, Math.PI * 2);
-  if (k > .78) yaw = turn(k, .78, .84, Math.PI * 2, Math.PI * 3);
-  if (k > .88) yaw = turn(k, .88, .95, Math.PI * 3, Math.PI * 4);
+  let yaw = Math.PI - .22 + turn(k, 0, .22, 0, .22);                    // up the steps, turning to the cab
+  if (k > .3) yaw = turn(k, .3, .45, Math.PI, Math.PI * 2);             // turn to the aisle
+  if (k > .62) yaw = turn(k, .62, .69, Math.PI * 2, Math.PI * 3);       // glance back: the driver, far away now
+  if (k > .7) yaw = turn(k, .7, .77, Math.PI * 3, Math.PI * 4);         // and back to the aisle
   return yaw;
 }
 

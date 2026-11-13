@@ -55,9 +55,9 @@ export const SCENES: SceneDef[] = [
     cues: [
       { at: .05, who: 'driver', k: 'b3' }, { at: .13, who: 'you', k: 'b4' }, { at: .2, who: 'driver', k: 'b5' },
       { at: .28, who: 'you', k: 'b6' }, { at: .35, who: 'driver', k: 'b7' }, { at: .43, who: 'nar', k: 'b8' },
-      { at: .58, who: 'nar', k: 'bd2' }, { at: .74, who: 'nar', k: 'bd3' }, { at: .86, who: 'nar', k: 'bd4' },
+      { at: .58, who: 'nar', k: 'bd2' }, { at: .81, who: 'nar', k: 'bd3' }, { at: .9, who: 'nar', k: 'bd4' },
     ],
-    events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .555, id: 'door-close' }, { at: .9, id: 'creak-back' }],
+    events: [{ at: .02, id: 'door-open' }, { at: .44, id: 'steps-metal' }, { at: .555, id: 'door-close' }, { at: .93, id: 'creak-back' }],
   },
   {
     id: 'inside', vh: 360, label: 'sc_inside',
